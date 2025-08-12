@@ -7,31 +7,31 @@ export class Tribe8CharacterModel extends foundry.abstract.TypeDataModel {
 			role: new fields.StringField({hint: "Role this character plays in their Cell", blank: true, trim: true}),
 			attributes: new fields.SchemaField({
 				primary: new fields.SchemaField({
-					agi: new fields.SchemaField(Tribe8PrimaryAttribute()),
-					app: new fields.SchemaField(Tribe8PrimaryAttribute()),
-					bld: new fields.SchemaField(Tribe8PrimaryAttribute()),
-					cre: new fields.SchemaField(Tribe8PrimaryAttribute()),
-					fit: new fields.SchemaField(Tribe8PrimaryAttribute()),
-					inf: new fields.SchemaField(Tribe8PrimaryAttribute()),
-					kno: new fields.SchemaField(Tribe8PrimaryAttribute()),
-					per: new fields.SchemaField(Tribe8PrimaryAttribute()),
-					psy: new fields.SchemaField(Tribe8PrimaryAttribute()),
-					wil: new fields.SchemaField(Tribe8PrimaryAttribute())
+					agi: new fields.SchemaField(Tribe8PrimaryAttribute('Agility', 'agi')),
+					app: new fields.SchemaField(Tribe8PrimaryAttribute('Appearance', 'app')),
+					bld: new fields.SchemaField(Tribe8PrimaryAttribute('Build', 'bld')),
+					cre: new fields.SchemaField(Tribe8PrimaryAttribute('Creativity', 'cre')),
+					fit: new fields.SchemaField(Tribe8PrimaryAttribute('Fitness', 'fit')),
+					inf: new fields.SchemaField(Tribe8PrimaryAttribute('Influence', 'inf')),
+					kno: new fields.SchemaField(Tribe8PrimaryAttribute('Knowledge', 'kno')),
+					per: new fields.SchemaField(Tribe8PrimaryAttribute('Perception', 'per')),
+					psy: new fields.SchemaField(Tribe8PrimaryAttribute('Psyche', 'psy')),
+					wil: new fields.SchemaField(Tribe8PrimaryAttribute('Willpower', 'wil'))
                 }),
                 secondary: new fields.SchemaField({
 					physical: new fields.SchemaField({
-						str: new fields.SchemaField(Tribe8SecondaryAttribute()),
-						hea: new fields.SchemaField(Tribe8SecondaryAttribute()),
-						sta: new fields.SchemaField(Tribe8SecondaryAttribute()),
-						ud: new fields.SchemaField(Tribe8SecondaryAttribute()),
-						ad: new fields.SchemaField(Tribe8SecondaryAttribute()),
+						str: new fields.SchemaField(Tribe8SecondaryAttribute('Strength', 'str')),
+						hea: new fields.SchemaField(Tribe8SecondaryAttribute('Health', 'hea')),
+						sta: new fields.SchemaField(Tribe8SecondaryAttribute('Stamina', 'sta')),
+						ud: new fields.SchemaField(Tribe8SecondaryAttribute('Unarmed Damage', 'ud')),
+						ad: new fields.SchemaField(Tribe8SecondaryAttribute('Armed Damage', 'ad')),
 						thresholds: new fields.SchemaField({
-							flesh: new fields.SchemaField(Tribe8SecondaryAttribute()),
-							deep: new fields.SchemaField(Tribe8SecondaryAttribute()),
-							death: new fields.SchemaField(Tribe8SecondaryAttribute())
+							flesh: new fields.SchemaField(Tribe8SecondaryAttribute('Flesh Wound', 'FW')),
+							deep: new fields.SchemaField(Tribe8SecondaryAttribute('Deep Wound', 'DW')),
+							death: new fields.SchemaField(Tribe8SecondaryAttribute('Instant Death', 'ID'))
 						}),
 						shock: new fields.SchemaField({
-							...Tribe8SecondaryAttribute(),
+							...Tribe8SecondaryAttribute('System Shock', 'SS'),
 							current: new fields.NumberField({hint: "The current value of this attribute", initial: 0, required: true})
 						})
 					})
@@ -221,20 +221,20 @@ export class Tribe8CharacterModel extends foundry.abstract.TypeDataModel {
 	}
 }
 
-function Tribe8PrimaryAttribute() {
+function Tribe8PrimaryAttribute(name, label) {
 	return {
-		label: new fields.StringField({hint: "The short name used to identify this attribute on a character sheet", blank: false, required: true}),
-		name: new fields.StringField({hint: "The full name of this attribute", blank: false, required: true}),
+		label: new fields.StringField({hint: "The short name used to identify this attribute on a character sheet", blank: false, initial: label, required: true}),
+		name: new fields.StringField({hint: "The full name of this attribute", blank: false, initial: name, required: true}),
 		value: new fields.NumberField({hint: "The current calculated value of this attribute", initial: -1, positive: false, required: true}),
 		cp: new fields.NumberField({hint: "The number of CP invested in this attribute", initial: 0, positive: false, required: true}),
 		xp: new fields.NumberField({hint: "The number of XP invested in this attribute", initial: 0, required: true})
 	};	
 }
 
-function Tribe8SecondaryAttribute() {
+function Tribe8SecondaryAttribute(name, label) {
 	return {
-		label: new fields.StringField({hint: "The short name used to identify this attribute on a character sheet", blank: false, required: true}),
-		name: new fields.StringField({hint: "The full name of this attribute", blank: false, required: true}),
+		label: new fields.StringField({hint: "The short name used to identify this attribute on a character sheet", blank: false, initial: label, required: true}),
+		name: new fields.StringField({hint: "The full name of this attribute", blank: false, initial: name, required: true}),
 		value: new fields.NumberField({hint: "The current calculated value of this attribute", initial: 0, required: true})
 	};
 }
