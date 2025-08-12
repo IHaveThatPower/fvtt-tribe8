@@ -1,0 +1,42 @@
+.tribe8.sheet.item.pf {
+	gap: 0.4rem;
+
+div.points {
+	display: flex;
+	flex-flow: column;
+}
+div.points div.points-block {
+	align-items: center;
+	width: 100%;
+	display: grid;
+	grid-template-columns: 1fr min-content min-content min-content min-content 1fr;
+}
+div.points div.points-block:nth-child(odd) {
+	background: var(--alt-background);
+}
+div.points div.points-block input[type="radio"] {
+	border: 0;
+	height: 100%;
+	align-content: center;
+}
+div.points div.points-block label {
+	width: revert;
+	background: unset;
+	font-size: revert;
+	text-align: revert;
+	color: revert;
+	height: 100%;
+	align-content: center;
+}
+div.points div.points-block button {
+	width: fit-content;
+	justify-self: end;
+}
+
+div.rank {
+	white-space: nowrap;
+	height: 100%;
+	align-content: center;
+}
+
+}

@@ -1,0 +1,8 @@
+	<div class="description">
+		<h3>Description</h3>
+		{{#if editable}}
+		<prose-mirror name="system.description" value="{{ document.system.description }}" document-uuid="{{ document.uuid }}" compact toggled=true>{{{ enrichedDescription }}}</prose-mirror>
+		{{else}}
+		<div class="editor editor-content">{{{ enrichedDescription }}}</div>
+		{{/if}}
+	</div>

@@ -1,0 +1,18 @@
+{
+    "Actor": {
+        "types": ["character"],
+        "character": {}
+    },
+    "Item": {
+        "types": ["item", "skill", "perk", "flaw", "maneuver", "aspect", "weapon", "armor", "cpBasis"],
+        "item": {},
+        "skill": {},
+        "perk": {},
+        "flaw": {},
+        "maneuver": {},
+        "aspect": {},
+        "weapon": {},
+        "armor": {},
+        "cpBasis": {}
+    }
+}

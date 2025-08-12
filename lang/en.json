@@ -1,0 +1,56 @@
+{
+	"tribe8": {
+		"actor": {
+			"character": {
+				"attributes": {
+					"primary": {
+						"agi.short": "AGI",
+						"agi.full": "Agility",
+						"app.short": "APP",
+						"app.full": "Appearance",
+						"bld.short": "BLD",
+						"bld.full": "Build",
+						"cre.short": "CRE",
+						"cre.full": "Creativity",
+						"fit.short": "FIT",
+						"fit.full": "Fitness",
+						"inf.short": "INF",
+						"inf.full": "Influence",
+						"kno.short": "KNO",
+						"kno.full": "Knowledge",
+						"per.short": "PER",
+						"per.full": "Perception",
+						"psy.short": "PSY",
+						"psy.full": "Psyche",
+						"wil.short": "WIL",
+						"wil.full": "Willpower"
+					},
+					"secondary": {
+						"physical": {
+							"str.short": "STR",
+							"str.full": "Strength",
+							"hea.short": "HEA",
+							"hea.full": "Health",
+							"sta.short": "STA",
+							"sta.full": "Stamina",
+							"ud.short": "UD",
+							"ud.full": "Unarmed Damage",
+							"ad.short": "AD",
+							"ad.full": "Armed Damage",
+							"thresholds": {
+								"flesh.short": "FW",
+								"flesh.full": "Flesh Wound Threshold",
+								"deep.short": "DW",
+								"deep.full": "Deep Wound Threshold",
+								"death.short": "ID",
+								"death.full": "Instant Death Threshold"
+							},
+							"shock.short": "SS",
+							"shock.full": "System Shock"
+						}
+					}
+				}
+			}
+		}
+	}
+}

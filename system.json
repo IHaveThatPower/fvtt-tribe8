@@ -1,0 +1,39 @@
+{
+  "id": "tribe8",
+  "title": "Tribe 8, the Spiritual Post-Apocalyptic Fantasy Roleplaying Game",
+  "description": "An unofficial rendition of the Dream Pod 9 tabletop role playing game system.",
+  "version": "0.0.1",
+  "compatibility": {
+    "minimum": "13",
+    "verified": "13"
+  },
+  "authors": [
+    {
+      "name": "IHaveThatPower",
+      "flags": {}
+    }
+  ],
+  "esmodules": [
+    "module/tribe8.js"
+  ],
+  "socket": true,
+  "styles": [
+    "styles/tribe8.css",
+    "styles/tribe8-sheet-character.css",
+    "styles/tribe8-sheet-item.css",
+    "styles/tribe8-sheet-item-skill.css",
+    "styles/tribe8-sheet-item-pf.css",
+    "styles/tribe8-sheet-item-maneuver.css"
+  ],
+  "packs": [],
+  "languages": [
+    {
+      "lang": "en",
+      "name": "English",
+      "path": "lang/en.json"
+    }
+  ],
+  "gridUnits": "m",
+  "url": "https://github.com/IHaveThatPower/fvtt-tribe8",
+  "manifest": "https://raw.githubusercontent.com/IHaveThatPower/fvtt-tribe8/master/system.json"
+}

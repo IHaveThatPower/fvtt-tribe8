@@ -1,0 +1,77 @@
+<div class="item-sheet skill">
+	<div class="identity">
+		<div class="name"><input type="text" name="system.name" value="{{document.system.name}}" size=0></div>
+		{{#if document.system.specify}}
+		<div class="specific"><input type="text" name="system.specific" value="{{document.system.specific}}" placeholder="Specify" size=0></div>
+		{{/if}}
+		<div class="specify">
+			<input type="checkbox" name="system.specify" value="true"{{#if document.system.specify}} checked{{/if}} title="Check to specify specific area of focus" />
+			<label for="system.specify" title="Check to specify specific area of focus">S?</label>
+		</div>
+	</div>
+	<div class="costs">
+		<div class="points-block">
+			<div class="points-type">Level</div>
+			<div class="value">{{document.system.level}}</div>
+			<div class="points">
+				<div class="cp">
+					<input type="text" value="{{#if document.system.points.level.cp}}{{document.system.points.level.cp}}{{else}}0{{/if}}" name="system.points.level.cp" size=2 />
+					<label for="system.points.level.cp">CP</label>
+				</div>
+				<div class="xp">
+					<input type="text" value="{{#if document.system.points.level.xp}}{{document.system.points.level.xp}}{{else}}0{{/if}}" name="system.points.level.xp" size=2 />
+					<label for="system.points.level.xp">XP</label>
+				</div>
+			</div>
+		</div>
+		<div class="points-block">
+			<div class="points-type">Cpx</div>
+			<div class="value">{{document.system.cpx}}</div>
+			<div class="points">
+				<div class="cp">
+					<input type="text" value="{{#if document.system.points.cpx.cp}}{{document.system.points.cpx.cp}}{{else}}0{{/if}}" name="system.points.cpx.cp" size=2 />
+					<label for="system.points.cpx.cp">CP</label>
+				</div>
+				<div class="xp">
+					<input type="text" value="{{#if document.system.points.cpx.xp}}{{document.system.points.cpx.xp}}{{else}}0{{/if}}" name="system.points.cpx.xp" size=2 />
+					<label for="system.points.cpx.xp">XP</label>
+				</div>
+			</div>
+		</div>
+		{{#if (or document.isOwned true)}}<!-- TODO: Fix -->
+		<div class="points-block">
+			<div class="points-type">EDie</div>
+			<div class="value"><input type="text" value="{{#if document.system.eDieSpent}}{{document.system.eDieSpent}}{{else}}0{{/if}}" name="system.eDieSpent" size=2 /></div>
+			<div class="points">
+				<button name="edie.dec" data-action="decrementEdie" title="Remove SPENT E-Die. It will be added back to the character's general E-Die pool">-</button>
+				<button name="edie.inc" data-action="incrementEdie" title="SPEND an E-Die on this skill. It will be removed from the character's general E-Die pool, if available, or spend from available XP if not.">+</button>
+			</div>
+		</div>
+		{{/if}}
+	</div>
+	{{#if (or document.isOwned true)}}<!-- TODO: Fix -->
+	<div class="specializations">
+		<h3>Specializations</h3>
+		{{#each document.system.specializations as |specialization key|}}
+		<div class="specialization" data-uuid="{{key}}">
+			<input type="text" value="{{specialization.name}}" name="system.specializations[{{key}}].name" />
+			<input type="radio" value="cp" id="system.specializations[{{key}}].points.cp" name="system.specializations[{{key}}].points"{{#if (eq this.points "cp")}} checked{{/if}} />
+			<label for="system.specializations[{{key}}].points.cp">CP</label>
+			<input type="radio" value="xp" id="system.specializations[{{key}}].points.xp" name="system.specializations[{{key}}].points"{{#if (eq this.points "xp")}} checked{{/if}} />
+			<label for="system.specializations[{{key}}].points.xp">XP</label>
+			<button name="remove-specialization" data-action="removeSpecialization" title="Remove Specialization"><i class="far fa-circle-xmark"></i></button>
+		</div>
+		{{/each}}
+		<div class="add-specialization">
+			<input type="text" name="newSpecialization.name" placeholder="Add a specialization">
+			<input type="radio" id="newSpecialization.pointSource.cp" value="cp" name="newSpecialization.pointSource"{{#if (eq newSpecialization.pointSource "cp")}} checked{{/if}} />
+			<label for="newSpecialization.pointSource.cp">CP</label>
+			<input type="radio" id="newSpecialization.pointSource.xp" value="xp" name="newSpecialization.pointSource"{{#if (eq newSpecialization.pointSource "xp")}} checked{{/if}} />
+			<label for="newSpecialization.pointSource.xp">XP</label>
+			<button name="add-specialization" data-action="addSpecialization">Add</button>
+		</div>
+	</div>
+	{{/if}}
+	{{> "systems/tribe8/templates/item-sheet_description.html"}}
+	{{> "systems/tribe8/templates/item-sheet_buttons.html"}}
+</div>

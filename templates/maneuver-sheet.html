@@ -1,0 +1,82 @@
+<div class="item-sheet maneuver">
+	<div class="identity">
+		<div class="name"><input type="text" name="name" value="{{document.name}}" size=12></div>
+		<div class="specific">
+			<select name="system.forSkill">
+				{{#each allowedTypes as |name key|}}
+				<option value="{{key}}"{{#if (eq @root.document.system.forSkill key)}} selected{{/if}}>{{name}}</option>
+				{{/each}}
+			</select>
+		</div>
+	</div>
+	<div class="allowed"><!-- TODO: GM Only -->
+		<input type="checkbox" name="system.allowedTypes[C]" value=true{{#if document.system.allowedTypes.C}} checked{{/if}} title="Can be used with Cavalry Skill" />
+		<label for="system.allowedTypes[C]" title="Can be used with Cavalry Skill">C</label>
+		<input type="checkbox" name="system.allowedTypes[D]" value=true{{#if document.system.allowedTypes.D}} checked{{/if}} title="Can be used with Defense Skill" />
+		<label for="system.allowedTypes[D]" title="Can be used with Defense Skill">D</label>
+		<input type="checkbox" name="system.allowedTypes[H]" value=true{{#if document.system.allowedTypes.H}} checked{{/if}} title="Can be used with Hand-to-Hand Skill" />
+		<label for="system.allowedTypes[H]" title="Can be used with Hand-to-Hand Skill">H</label>
+		<input type="checkbox" name="system.allowedTypes[M]" value=true{{#if document.system.allowedTypes.M}} checked{{/if}} title="Can be used with Melee Skill" />
+		<label for="system.allowedTypes[M]" title="Can be used with Melee Skill">M</label>
+		<input type="checkbox" name="system.allowedTypes[R]" value=true{{#if document.system.allowedTypes.R}} checked{{/if}} title="Can be used with Ranged Skill" />
+		<label for="system.allowedTypes[R]" title="Can be used with Ranged Skill">R</label>
+	</div>
+	<div class="costs">
+		<div class="base-cost cost-field">
+			<label for="system.complexity">Complexity</label>
+			<input type="number" name="system.complexity" value="{{ document.system.complexity }}" title="Complexity requirement for this Maneuver. Use 0 for Free Maneuvers." placeholder="0">
+		</div>
+		<div class="fromCpx cost-field cost-field-checkbox">
+			<input type="checkbox" name="system.fromCpx" value=true{{# if document.system.fromCpx}} checked{{/if}} title="Pay for this Maneuver using free Maneuvers granted by Complexity in chosen Skill" />
+			<label for="system.fromCpx" title="Pay for this Maneuver using free Maneuvers granted by Complexity in chosen Skill">Cpx</label>
+		</div>
+		<div class="granted cost-field cost-field-checkbox">
+			<input type="checkbox" name="system.granted" value=true{{#if document.system.granted}} checked{{/if}} title="Check if the Weaver granted this for free" />
+			<label for="system.granted" title="Check if the Weaver granted this for free">F?</label>
+		</div>
+	</div>
+	<div class="effects">
+		<div class="effect">
+			<div class="effect-property">Acc.</div>
+			<div class="effect-input">
+				<span class="input-sizer" data-value="{{document.system.accuracy}}">
+					<input type="text" name="system.accuracy" value="{{document.system.accuracy}}" placeholder="N/A" size=2 />
+				</span>
+			</div>
+		</div>
+		<div class="effect">
+			<div class="effect-property">Init.</div>
+			<div class="effect-input">
+				<span class="input-sizer" data-value="{{document.system.initiative}}">
+					<input type="text" name="system.initiative" value="{{document.system.initiative}}" placeholder="N/A" size=2 />
+				</span>
+			</div>
+		</div>
+		<div class="effect">
+			<div class="effect-property">Def.</div>
+			<div class="effect-input">
+				<span class="input-sizer" data-value="{{document.system.defense}}">
+					<input type="text" name="system.defense" value="{{document.system.defense}}" placeholder="N/A" size=2 />
+				</span>
+			</div>
+		</div>
+		<div class="effect">
+			<div class="effect-property">Parry</div>
+			<div class="effect-input">
+				<span class="input-sizer" data-value="{{document.system.parry}}">
+					<input type="text" name="system.parry" value="{{document.system.parry}}" placeholder="N/A" size=2 />
+				</span>
+			</div>
+		</div>
+		<div class="effect">
+			<div class="effect-property">Dmg.</div>
+			<div class="effect-input">
+				<span class="input-sizer" data-value="{{document.system.damage}}">
+					<input type="text" name="system.damage" value="{{document.system.damage}}" placeholder="N/A" size=4 />
+				</span>
+			</div>
+		</div>
+	</div>
+	{{> "systems/tribe8/templates/item-sheet_description.html"}}
+	{{> "systems/tribe8/templates/item-sheet_buttons.html"}}
+</div>

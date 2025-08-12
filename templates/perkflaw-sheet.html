@@ -1,0 +1,50 @@
+<div class="item-sheet pf">
+	<div class="identity">
+		<div class="name"><input type="text" name="system.name" value="{{document.system.name}}" size=12></div>
+		{{#if document.system.specify}}
+		<div class="specific"><input type="text" name="system.specific" value="{{document.system.specific}}" placeholder="Specify" size=12></div>
+		{{/if}}
+		<div class="specify">
+			<input type="checkbox" name="system.specify" value="true"{{#if document.system.specify}} checked{{/if}} title="Check to specify specific area of focus" />
+			<label for="system.specify" title="Check to specify specific area of focus">S?</label>
+		</div>
+	</div>
+	<div class="costs">
+		<div class="base-cost cost-field">
+			<label for="system.baseCost">Base</label>
+			<input type="number" name="system.baseCost" value="{{ document.system.baseCost }}" title="Points to acquire this {{document.type}}{{#if (eq document.type 'flaw')}} (should be a negative values){{/if}}" min="-100" max="100">
+		</div>
+		{{#if @root.document.system.ranked}}
+		<div class="per-rank cost-field">
+			<label for="system.perRank">Per-Rank</label>
+			<input type="number" name="system.perRank" value="{{ document.system.perRank }}" title="Points for additional ranks." min="-100" max="100">
+		</div>
+		{{/if}}
+		<div class="ranked cost-field">
+			<input type="checkbox" name="system.ranked" value="true"{{# if document.system.ranked}} checked{{/if}} title="Can multiple ranks be purchased?" />
+			<label for="system.ranked" title="Can multiple ranks be purchased?">R?</label>
+		</div>
+		<div class="granted cost-field">
+			<input type="checkbox" name="system.granted" value="true"{{#if document.system.granted}} checked{{/if}} title="Check if the Weaver granted this for free" />
+			<label for="system.granted" title="Check if the Weaver granted this for free">F?</label>
+		</div>
+	</div>
+	<div class="points">
+		{{#each ranks}}
+		<div class="points-block" data-rank="{{@index}}">
+			{{#if @root.document.system.ranked}}
+			<div class="rank">Rank {{roman (add @index 1)}}</div>
+			{{ else }}
+			<div class="rank">Use</div>
+			{{/if}}
+			<input type="radio" value="cp" id="system.points[{{@index}}].cp" name="system.points[{{@index}}]"{{#if (eq this "cp")}} checked{{/if}} />
+			<label for="system.points[{{@index}}].cp">CP</label>
+			<input type="radio" value="xp" id="system.points[{{@index}}].xp" name="system.points[{{@index}}]"{{#if (eq this "xp")}} checked{{/if}} />
+			<label for="system.points[{{@index}}].xp">XP</label>
+			<button name="remove-rank" data-action="removeRank" title="Remove Rank"><i class="far fa-circle-xmark"></i></button>
+		</div>
+		{{/each}}
+	</div>
+	{{> "systems/tribe8/templates/item-sheet_description.html"}}
+	{{> "systems/tribe8/templates/item-sheet_buttons.html"}}
+</div>

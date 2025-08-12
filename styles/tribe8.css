@@ -1,0 +1,153 @@
+.tribe8 {
+	--font-header: "Chainprinter", "Font Awesome 6 Pro", monospace;
+	--label-background-color: black;
+	--label-text-color: white;
+	--alt-background: rgba(255, 255, 255, 0.05);
+	--color-perk-granted: rgba(0, 96, 255, 0.5);
+	--color-flaw-granted: rgba(128, 48, 0, 0.5);
+}
+
+div.item-sheet {
+	height: 100%;
+	display: flex;
+	flex-flow: column;
+}
+div.character-sheet h2,
+div.item-sheet h2,
+div.item-sheet div.name,
+div.item-sheet div.specific,
+div.character-sheet h3,
+div.item-sheet h3 {
+	width: 100%;
+	font-family: var(--font-header);
+	font-variant: small-caps;
+	font-size: 24px;
+	border-bottom: 1px solid;
+	margin-top: 0.75rem;
+	word-spacing: -0.5rem;
+}
+div.character-sheet h2:first-child,
+div.item-sheet h2 {
+/*
+div.character-sheet h3,
+div.item-sheet h3 {
+*/
+	margin: 0;
+}
+div.character-sheet h3,
+div.item-sheet h3 {
+	margin-bottom: 0;
+}
+div.item-sheet div.name,
+div.item-sheet div.specific {
+	margin-top: 0;
+}
+div.character-sheet h3,
+div.item-sheet h3 {
+	font-size: 1.15rem;
+}
+
+.sheet hr {
+	flex-basis: 100%;
+	width: 100%;
+	border: none;
+	height: 0;
+	margin: 0;
+	margin-bottom: 0.25rem;
+}
+
+.tribe8.sheet {
+	padding: 0.25rem;
+
+div.points-block {
+	display: flex;
+	flex-direction: column;
+	flex-wrap: nowrap;
+	flex-grow: 0;
+	flex-shrink: 0;
+}
+
+div.points-type {
+	text-align: center;
+	background: black;
+	font-weight: bold;
+	min-width: 4rem;
+	font-variant: small-caps;
+}
+
+div.identity {
+	width: 100%;
+	display: flex;
+	flex-flow: row;
+	align-items: end;
+	gap: 0.4rem;
+}
+
+div.name, div.specific {
+	margin-top: 0;
+	overflow: hidden;
+	display: flex;
+	flex: 1 1 fit-content;
+}
+div.name input[type=text],
+div.specific input[type=text] {
+	padding: 0;
+}
+
+div.value {
+	text-align: center;
+	font-size: 125%;
+	border: 1px inset #888;
+	min-width: 4rem;
+}
+div.points {
+	display: flex;
+	flex-direction: row;
+	flex-wrap: nowrap;
+}
+div.points>div {
+	display: flex;
+	flex-direction: column;
+	flex-wrap: nowrap;
+}
+div.points input {
+	padding: 0;
+	text-align: center;
+	margin: 0;
+	line-height: 100%;
+	height: 1rem;
+	width: 2rem;
+	border-radius: 0;
+	border: 1px inset #888;
+}
+div.points label,
+div.specializations label {
+	width: 100%;
+	background: var(--label-background-color);
+	font-size: 85%;
+	text-align: center;
+	display: block;
+	color: var(--label-text-color);
+}
+div.points div.cp label {
+	border-radius: 0 0 0 0.5rem;
+}
+div.points div.xp label {
+	border-radius: 0 0 0.5rem 0;
+}
+
+span.input-sizer {
+	display: inline-grid;
+	position: relative;
+}
+span.input-sizer::after {
+	content: attr(data-value) ' ';
+	visibility: hidden;
+	white-space: pre-wrap;
+	grid-area: 1 / 1;
+	z-index: -1;
+	position: relative;
+	box-sizing: border-box;
+}
+
+}
