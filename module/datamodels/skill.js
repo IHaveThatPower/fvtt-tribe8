@@ -185,9 +185,32 @@ export class Tribe8SkillModel extends Tribe8ItemModel {
 	 * Generate a clean specialization key from the provided name.
 	 */
 	static generateSpecializationKey(key) {
+		// Supplied an already-good key?
 		if (key.match(/^[a-f0-9A-F]{8}-[a-f0-9A-F]{4}-[a-f0-9A-F]{4}-[a-f0-9A-F]{4}-[a-f0-9A-F]{12}$/))
 			return key;
-		return crypto.randomUUID();
+		
+		// Have crypto?
+		if (crypto.randomUUID)
+			return crypto.randomUUID();
+
+		// Do it manually
+		const randomDigit = () => {
+			return Math.floor(Math.random() * 16);
+		}
+		const randomHex = () => {
+			return randomDigit().toString(16);
+		}
+		const randomSegment = () => {
+			return randomHex() + randomHex() + randomHex() + randomHex();
+		}
+		const uuid = [
+			randomSegment() + randomSegment(), // 8
+			randomSegment(), // 4
+			'4' + randomSegment().substring(1, 4), // 4 starting with 4
+			randomHex() + randomSegment().substring(1, 4), // 4
+			randomSegment() + randomSegment() + randomSegment() // 12
+		].join('-');
+		return uuid;
 	}
 	
 	/**

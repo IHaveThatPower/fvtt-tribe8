@@ -72,7 +72,6 @@ export class Tribe8ManeuverModel extends Tribe8ItemModel {
 
 			// We need to know some things about the Skills of the character
 			const combatSkillNames = Object.values(Tribe8ManeuverModel.COMBAT_SKILLS).map((s) => s.toLowerCase().replace(/[^a-z0-9]/g, ''));
-			console.log("All combat skills", combatSkillNames);
 			const skills = Array.from(a.parent.getEmbeddedCollection("Item")).filter((i) => {
 				if (i.type != 'skill')
 					return false;
@@ -84,7 +83,6 @@ export class Tribe8ManeuverModel extends Tribe8ItemModel {
 				if (Tribe8ManeuverModel.RANGED_COMBAT_SKILL_REFERENCE.indexOf(lookupName) >= 0)
 					lookupName = 'ranged';
 				if (combatSkillNames.indexOf(lookupName) < 0) {
-					console.log("Couldn't find", lookupName, "in the combat skill name list, so won't include skill", i.name, "/", i.system.name);
 					return false;
 				}
 				return true;
@@ -115,9 +113,11 @@ export class Tribe8ManeuverModel extends Tribe8ItemModel {
 			if (!aSkill && bSkill)
 				return 1;
 			
-			let skillCmp = aSkill.system.constructor.cmp(aSkill, bSkill);
-			if (skillCmp != 0)
-				return skillCmp;
+			if (aSkill && bSkill) {
+				let skillCmp = aSkill.system.constructor.cmp(aSkill, bSkill);
+				if (skillCmp != 0)
+					return skillCmp;
+			}
 		}
 		
 		// If the skills match, *now* we can sort our maneuvers
