@@ -68,6 +68,7 @@ div.attribute-block {
 		color: var(--label-text-color);
 		font-weight: bold;
 		display: block;
+		text-transform: uppercase;
 	}
 	div.value {
 		min-width: unset;
