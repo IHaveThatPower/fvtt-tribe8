@@ -32,6 +32,12 @@ export class Tribe8ItemSheet extends HandlebarsApplicationMixin(ItemSheetV2) {
 	 */
 	async _onRender(context, options) {
 		// this.#dragDrop.forEach((d) => d.bind(this.element));
+		
+		// When rendering, always re-render the title
+		if (this.window.title.textContent != this.title) {
+			this._updateFrame({window: { title: this.title }});
+		}
+		
 		return await super._onRender(context, options);
 	}
 	

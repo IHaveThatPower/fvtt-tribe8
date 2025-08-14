@@ -19,6 +19,13 @@ export class Tribe8ManeuverSheet extends Tribe8ItemSheet {
 	static COMBAT_MODIFIER_FIELDS = ['accuracy', 'initiative', 'defense', 'parry', 'damage'];
 
 	/**
+	 * Title of the sheet
+	 */
+	get title() {
+		return `Maneuver: ${this.document.name}` + (this.document.system.forSkill ? ` (${this.document.system.constructor.COMBAT_SKILLS[this.document.system.forSkill]})` : '');
+	}
+
+	/**
 	 * Prepare the context object supplied to the application
 	 */
 	async _prepareContext(options) {

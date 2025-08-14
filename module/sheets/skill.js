@@ -38,11 +38,6 @@ export class Tribe8SkillSheet extends Tribe8ItemSheet {
 	 */
 	async _onRender(context, options)
 	{
-		// When rendering, always re-render the title
-		if (this.window.title.textContent != this.title) {
-			this._updateFrame({window: { title: this.title }});
-		}
-
 		return super._onRender(context, options);
 	}
 
