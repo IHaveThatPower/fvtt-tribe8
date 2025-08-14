@@ -91,6 +91,14 @@ export class Tribe8CharacterSheet extends HandlebarsApplicationMixin(ActorSheetV
 					if (!context.sortedManeuvers) context.sortedManeuvers = [];
 					context.sortedManeuvers.push(item);
 					break;
+				case 'eminence':
+				case 'aspect':
+				case 'totems':
+					if (!context.magic) context.magic = {};
+					const collectionName = `${item.type}s`;
+					if (!context.magic[collectionName]) context.magic[collectionName] = [];
+					context.magic[collectionName].push(item);
+					break;
 				default:
 					console.log(`Unsupported character item type '${item.type}', will not display`);
 					break;

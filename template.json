@@ -4,13 +4,15 @@
         "character": {}
     },
     "Item": {
-        "types": ["item", "skill", "perk", "flaw", "maneuver", "aspect", "weapon", "armor", "gear"],
+        "types": ["item", "skill", "perk", "flaw", "maneuver", "eminence", "aspect", "totem", "weapon", "armor", "gear"],
         "item": {},
         "skill": {},
         "perk": {},
         "flaw": {},
         "maneuver": {},
+        "eminence": {},
         "aspect": {},
+        "totem": {},
         "weapon": {},
         "armor": {},
         "gear": {}

@@ -18,14 +18,18 @@ import { Tribe8ItemSheet } from './sheets/item.js';
 import { Tribe8SkillSheet } from './sheets/skill.js';
 import { Tribe8PerkSheet, Tribe8FlawSheet } from './sheets/perkflaw.js';
 import { Tribe8ManeuverSheet } from './sheets/maneuver.js';
+import { Tribe8EminenceSheet } from './sheets/eminence.js';
 import { Tribe8AspectSheet } from './sheets/aspect.js';
+import { Tribe8TotemSheet } from './sheets/totem.js';
 /* Models */
 import { Tribe8CharacterModel } from './datamodels/character.js';
 import { Tribe8ItemModel } from './datamodels/item.js';
 import { Tribe8SkillModel } from './datamodels/skill.js';
 import { Tribe8PerkFlawModel } from './datamodels/perkflaw.js';
 import { Tribe8ManeuverModel } from './datamodels/maneuver.js';
+import { Tribe8EminenceModel } from './datamodels/eminence.js';
 import { Tribe8AspectModel } from './datamodels/aspect.js';
+import { Tribe8TotemModel } from './datamodels/totem.js';
 /*
 import { Tribe8GearModel } from './datamodels/gear.js';
 import { Tribe8WeaponModel } from './datamodels/weapon.js';
@@ -51,7 +55,9 @@ Hooks.once('init', function() {
 			Tribe8PerkSheet,
 			Tribe8FlawSheet,
 			Tribe8ManeuverSheet,
-			Tribe8AspectSheet
+			Tribe8EminenceSheet,
+			Tribe8AspectSheet,
+			Tribe8TotemSheet,
 		},
 		entities: {
 			Tribe8Actor,
@@ -83,7 +89,9 @@ Hooks.once('init', function() {
 		perk: Tribe8PerkFlawModel, 
 		flaw: Tribe8PerkFlawModel,
 		maneuver: Tribe8ManeuverModel,
+		eminence: Tribe8EminenceModel,
 		aspect: Tribe8AspectModel,
+		totem: Tribe8TotemModel,
 		/*
 		weapon: Tribe8WeaponModel,
 		armor: Tribe8ArmorModel,
@@ -116,8 +124,14 @@ Hooks.once('init', function() {
 	foundry.documents.collections.Items.registerSheet('tribe8', Tribe8ManeuverSheet, {
 		types: ['maneuver'],
 	});
+	foundry.documents.collections.Items.registerSheet('tribe8', Tribe8EminenceSheet, {
+		types: ['eminence'],
+	});
 	foundry.documents.collections.Items.registerSheet('tribe8', Tribe8AspectSheet, {
 		types: ['aspect'],
+	});
+	foundry.documents.collections.Items.registerSheet('tribe8', Tribe8TotemSheet, {
+		types: ['totem'],
 	});
 	/*
 	foundry.documents.collections.Items.registerSheet('tribe8', Tribe8GearSheet, {
