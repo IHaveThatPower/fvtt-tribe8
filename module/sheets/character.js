@@ -65,20 +65,30 @@ export class Tribe8CharacterSheet extends HandlebarsApplicationMixin(ActorSheetV
 		for (let item of this.document.items) {
 			switch (item.type) {
 				case 'skill':
-					if (!context.skills)
-						context.skills = [];
+					if (!context.skills) context.skills = [];
 					item.specializations = Object.keys(item.system.specializations).map((s) => { return item.system.specializations[s].name; }).join(', ');
 					context.skills.push(item);
+					if (game.tribe8.slugify(item.system.name) == 'synthesis') {
+						if (!context.magic) context.magic = {};
+						context.magic.synthesisSkill = item;
+					}
 					break;
 				case 'perk':
 				case 'flaw':
 					if (!context.perksAndFlaws)
 						context.perksAndFlaws = [];
 					context.perksAndFlaws.push(item);
+					if (game.tribe8.slugify(item.name) == 'dreamer') {
+						if (!context.magic) context.magic = {};
+						context.magic.hasDreamerPerk = true;
+					}
+					if (game.tribe8.slugify(item.name) == 'awakeneddreamer') {
+						if (!context.magic) context.magic = {};
+						context.magic.hasAwakenedDreamerPerk = true;
+					}
 					break;
 				case 'maneuver':
-					if (!context.sortedManeuvers)
-						context.sortedManeuvers = [];
+					if (!context.sortedManeuvers) context.sortedManeuvers = [];
 					context.sortedManeuvers.push(item);
 					break;
 				default:

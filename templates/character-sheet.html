@@ -51,17 +51,38 @@
 			{{/if}}
 			{{/each}}
 		</div>
-		<div class="synthesis">
-			<h2>Synthesis</h2>
+		{{#if magic}}
+		<div class="magic">
+			<h2>Magic</h2>
+			{{#if magic.hasDreamerPerk}}
+			<h3{{#if (and magic.hasAwakenedDreamerPerk magic.synthesisSkill)}} class="has-synthesis" data-action="editItem" data-action-slug="edit-skill-{{magic.synthesisSkill.id}}"{{/if}}><!--
+				--><span>Synthesis</span><!--
+				-->{{#if (and magic.hasAwakenedDreamerPerk magic.synthesisSkill)}}<!--
+				--><span>{{magic.synthesisSkill.system.level}}c{{magic.synthesisSkill.system.cpx}}</span><!--
+				-->{{/if}}<!--
+			--></h3>
 			<dl>
-				<dt>Synthesis Skill</dt>
-				<dd></dd>
 				<dt>Eminences</dt>
-				<dd></dd>
+				<dd>{{#each magic.eminences}}
+				<div class="identity" data-action="editItem" data-action-slug="edit-eminence-{{this.id}}">
+					<div class="name">{{this.name}}</div>
+					<div class="specific">({{this.system.tribe}})</div>
+				</div>
+				{{/each}}
+				<button name="add-eminence" data-action="addNewItem">Add</button>
+				</dd>
+				{{#if magic.synthesisSkill}}
 				<dt>Aspects</dt>
-				<dd></dd>
+				<dd>{{#each magic.aspects}}
+				{{/each}}
+				<button name="add-aspect" data-action="addNewItem">Add</button>
+				</dd>
+				{{/if}}
 			</dl>
+			{{/if}}
+			<!-- TODO: Other magic types! -->
 		</div>
+		{{/if}}
 		<div class="points-summary">
 			<h2>Points</h2>
 			<dl>
@@ -97,21 +118,15 @@
 	</div>
 	<div class="middle-column">
 		<h2>Skills</h2>
-		<!--
-		<div class="skill-points-toggle">
-		</div>
-		-->
 		<div class="skills">
 			{{#each skills as |skill|}}
 			<div class="skill" data-uuid="{{skill.uuid}}" data-id="{{skill.id}}">
 				<div class="identity" data-action="editItem" data-action-slug="edit-skill-{{skill.id}}">
 					<div class="name">
-						<!--<input type="text" value="{{skill.system.name}}" name="skill.{{skill.uuid}}.system.name">-->
 						{{skill.system.name}}
 					</div>
 					{{#if skill.system.specify}}
 					<div class="specific">
-						<!--<input type="text" value="{{skill.system.specific}}" name="skill.{{skill.uuid}}.system.specific">-->
 						({{skill.system.specific}})
 					</div>
 					{{/if}}
@@ -126,34 +141,10 @@
 				<div class="points-block">
 					<div class="points-type">Level</div>
 					<div class="value">{{skill.system.level}}</div>
-					<!--
-					<div class="points">
-						<div class="cp">
-							<input type="number" value="{{#if skill.system.points.level.cp}}{{skill.system.points.level.cp}}{{else}}0{{/if}}" name="skill.{{skill.uuid}}.system.points.level.cp"  />
-							<label for="skill.{{skill.uuid}}.system.points.level.cp">CP</label>
-						</div>
-						<div class="xp">
-							<input type="number" value="{{#if skill.system.points.level.xp}}{{skill.system.points.level.xp}}{{else}}0{{/if}}" name="skill.{{skill.uuid}}.system.points.level.xp"  />
-							<label for="skill.{{skill.uuid}}.system.points.level.xp">XP</label>
-						</div>
-					</div>
-					-->
 				</div>
 				<div class="points-block">
 					<div class="points-type">Cpx</div>
 					<div class="value">{{skill.system.cpx}}</div>
-					<!--
-					<div class="points">
-						<div class="cp">
-							<input type="number" value="{{#if skill.system.points.cpx.cp}}{{skill.system.points.cpx.cp}}{{else}}0{{/if}}" name="skill.{{skill.uuid}}.system.points.cpx.cp"  />
-							<label for="system.{{skill.uuid}}.points.cpx.cp">CP</label>
-						</div>
-						<div class="xp">
-							<input type="number" value="{{#if skill.system.points.cpx.xp}}{{skill.system.points.cpx.xp}}{{else}}0{{/if}}" name="skill.{{skill.uuid}}.system.points.cpx.xp"  />
-							<label for="system.{{skill.uuid}}.points.cpx.xp">XP</label>
-						</div>
-					</div>
-					-->
 				</div>
 				<div class="points-block edie-block">
 					<div class="points-type">EDie</div>

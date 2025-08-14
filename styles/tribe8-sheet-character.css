@@ -8,6 +8,27 @@ div.character-sheet {
 	height: 100%;
 }
 
+dl {
+	margin-left: 0.25rem;
+}
+dl>dt {
+	font-weight: bold;
+	font-size: 1.1rem;
+	font-variant: small-caps;
+}
+
+h3 {
+	border-image:
+		linear-gradient(
+			to right,
+			transparent,
+			var(--color-text-emphatic) 5%,
+			transparent
+		) 1;
+	margin-top: 0.25rem;
+	padding-left: 0.25rem;
+}
+
 div.character-sheet>div>div:first-child>h2 {
 	margin-top: 0;
 }
@@ -52,8 +73,11 @@ div.primary-attributes, div.secondary-attributes {
 	flex-direction: row;
 	flex-wrap: wrap;
 }
+div.primary-attributes {
+	margin-bottom: 1rem;
+}
 div.secondary-attributes {
-	margin-top: 1rem;
+	margin-bottom: 0.4rem;
 }
 
 div.attribute-block {
@@ -82,39 +106,59 @@ div.attribute-block {
 	}
 }
 
-div.synthesis {
+div.magic {
+	h3 {
+		display: grid;
+		grid-template-columns: 1fr min-content;
+		align-items: end;
+		border-image:
+			linear-gradient(
+				to right,
+				transparent,
+				var(--color-text-emphatic) 5%,
+				transparent 66%,
+				var(--color-text-emphatic) 95%,
+				transparent
+			) 1;
+	}
+	h3.has-synthesis {
+		cursor: pointer;
+	}
+	span:nth-child(last) {
+		font-size: 85%;
+	}
+	div.identity {
+		display: grid;
+		grid-template-columns: 1fr min-content;
+	}
+	div.identity div.specific {
+		text-align: right;
+	}
 }
 
 div.points-summary dl {
 	display: flex;
 	flex-direction: row;
 	flex-wrap: wrap;
-	margin: 0;
 }
 div.points-summary dt,
 div.points-summary dd {
 	display: block;
 	margin: 0;
+	font-size: 0.9rem;
+	font-variant: normal;
 }
 div.points-summary>dl>dt {
-	flex-basis: 2.5rem;
-	flex-grow: 0;
-	flex-shrink: 0;
+	flex: 0 0 2.5rem;
 }
 div.points-summary>dl>dd {
-	flex-basis: calc(100% - 2.5rem);
-	flex-shrink: 1;
-	flex-grow: 1;
+	flex: 1 1 calc(100% - 2.5rem);
 }
 div.points-summary>dl>dd>dl>dt {
-	flex-basis: 5rem;
-	flex-grow: 0;
-	flex-shrink: 0;
+	flex: 0 0 5rem;
 }
 div.points-summary>dl>dd>dl>dd {
-	flex-basis: calc(100% - 5rem);
-	flex-shrink: 1;
-	flex-grow: 1;
+	flex: 1 1 calc(100% - 5rem);
 }
 div.points-summary input {
 	padding: 0;
@@ -379,15 +423,7 @@ div.maneuver div.name {
 div.perks-flaws {
 
 h3 {
-	padding-left: 0.25rem;
 	width: 50%;
-	border-image:
-		linear-gradient(
-			to right,
-			var(--color-text-emphatic),
-			rgba(0, 0, 0, 0)
-		) 1;
-	margin-top: 0.25rem;
 }
 
 div.pf {

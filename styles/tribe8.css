@@ -30,10 +30,6 @@ div.item-sheet h3 {
 }
 div.character-sheet h2:first-child,
 div.item-sheet h2 {
-/*
-div.character-sheet h3,
-div.item-sheet h3 {
-*/
 	margin: 0;
 }
 div.character-sheet h3,
