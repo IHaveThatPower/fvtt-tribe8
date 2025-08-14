@@ -24,7 +24,18 @@ export class Tribe8PerkFlawModel extends Tribe8ItemModel {
 			}),
 			ranked: new fields.BooleanField({hint: "Whether or not this Perk or Flaw can be acquired at different intensity levels", initial: false, required: true, nullable: false}),
 			granted: new fields.BooleanField({hint: "Whether the cost of this Perk or Flaw is ignored, as may be the case with those granted by the Weaver.", initial: false, required: true, nullable: false}),
-			points: new fields.ArrayField(new fields.StringField({hint: "The type of points used to pay for this rank of the Perk, or refunded for this rank of the Flaw.", initial: 0, required: true, nullable: false}), {hint: "The type of points used to pay for the Perk, or to refund for the Flaw. Each rank is stored separately.", initial: [], required: true, nullable: false})
+			points: new fields.ArrayField(
+				new fields.StringField({
+					hint: "The type of points used to pay for this rank of the Perk, or refunded for this rank of the Flaw.",
+					choices: ["cp", "xp"],
+					initial: "cp",
+					required: true, nullable: false
+				}), {
+					hint: "The type of points used to pay for the Perk, or to refund for the Flaw. Each rank is stored separately.",
+					initial: [],
+					required: true,
+					nullable: false
+				})
 		};
 	}
 	
@@ -32,7 +43,7 @@ export class Tribe8PerkFlawModel extends Tribe8ItemModel {
 	 * Migrate data
 	 */
 	static migrateData(data) {
-		foundry.abstract.Document._addDataFieldMigration(source, "system.cost", "system.baseCost");
+		foundry.abstract.Document._addDataFieldMigration(data, "system.cost", "system.baseCost");
 		return super.migrateData(data);
 	}
 	

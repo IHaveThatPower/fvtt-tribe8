@@ -8,8 +8,7 @@ export class Tribe8SkillSheet extends Tribe8ItemSheet {
 			contentClasses: ["tribe8", "skill", "sheet", "item"]
 		},
 		position: {
-			width: 300,
-			height: 400
+			width: 300
 		},
 		actions: {
 			incrementEdie: Tribe8SkillSheet.incrementEdie,
@@ -21,7 +20,7 @@ export class Tribe8SkillSheet extends Tribe8ItemSheet {
 
 	static PARTS = {
 		form: {
-			template: 'systems/tribe8/templates/skill-sheet.html' // TODO: Limited sheet support
+			template: 'systems/tribe8/templates/skill-sheet.html'
 		}
 	}
 	
@@ -35,13 +34,15 @@ export class Tribe8SkillSheet extends Tribe8ItemSheet {
 	}
 	
 	/**
-	 * When re-rendering, always re-render the title
+	 * @inheritdoc
 	 */
 	async _onRender(context, options)
 	{
+		// When rendering, always re-render the title
 		if (this.window.title.textContent != this.title) {
 			this._updateFrame({window: { title: this.title }});
 		}
+
 		return super._onRender(context, options);
 	}
 
@@ -69,12 +70,19 @@ export class Tribe8SkillSheet extends Tribe8ItemSheet {
 			this._extractSpecializationsFromForm(key, propertyPath, formData, specializations);
 		}
 		
+		// Restructure the submitted edie value to be differential, drop it off the formData
+		const eDieDelta = Number(formData.object['system.eDieSpent'] || 0) - this.document.system.eDieSpent;
+		if (formData.object['system.eDieSpent'])
+			delete formData.object['system.eDieSpent'];
+		
 		// Get the normal submit stuff, now with the specializations removed
 		const data = super._prepareSubmitData(event, form, formData, updateData);
-		if (data.system.specify == "1")
-			data.system.specify = true;
-		else
-			data.system.specify = false;
+		
+		// Bold eDieDelta back on
+		if (eDieDelta)
+			data.eDieDelta = eDieDelta;
+		// Convert to correct type
+		data.system.specify = (data.system.specify == "1");
 
 		// Update the data object with the now-processed array parameters
 		this._appendSpecializations(specializations, data);
@@ -89,8 +97,13 @@ export class Tribe8SkillSheet extends Tribe8ItemSheet {
 		const submittingElement = event.submitter ?? event.target;
 		if (submittingElement.nodeType == 'INPUT' && submittingElement.name.match(/^newSpecialization/))
 			return;
-		const that = this;
-		return await super._processSubmitData(event, form, submitData, options);
+		const eDieDelta = (Number(submitData.eDieDelta) || 0);
+		const superSubmit = await super._processSubmitData(event, form, submitData, options);
+		if (eDieDelta) {
+			console.log("Invoking alterEdie", eDieDelta);
+			await this.document.system.alterEdie(eDieDelta);
+		}
+		return superSubmit;
 	}
 	
 	/**
@@ -139,7 +152,7 @@ export class Tribe8SkillSheet extends Tribe8ItemSheet {
 		// Don't _also_ submit the form
 		event.preventDefault();
 		event.stopPropagation();
-		this.document.system.spendEdie();
+		this.document.system.alterEdie();
 	}
 	
 	/**
@@ -149,7 +162,7 @@ export class Tribe8SkillSheet extends Tribe8ItemSheet {
 		// Don't _also_ submit the form
 		event.preventDefault();
 		event.stopPropagation();
-		this.document.system.refundEdie();
+		this.document.system.alterEdie(-1);
 	}
 	
 	/**
@@ -161,14 +174,7 @@ export class Tribe8SkillSheet extends Tribe8ItemSheet {
 	static addSpecialization(event, target) {
 		event.stopPropagation();
 		event.preventDefault();
-		// TODO: Do we have permission to do this?
-		/*
-		if (!this.options.document.isOwned)
-		{
-			foundry.ui.notifications.error("Cannot add a Specialization to a Skill that is not owned by a Character");
-			return;
-		}
-		*/
+
 		// Gather up some info.
 		const nSpecName = target.parentNode.querySelector("input[name='newSpecialization.name']");
 		if (!nSpecName || !nSpecName.value || nSpecName.value.length == 0)

@@ -29,7 +29,7 @@ export class Tribe8CharacterSheet extends HandlebarsApplicationMixin(ActorSheetV
 
 	static PARTS = {
 		form: {
-			template: 'systems/tribe8/templates/character-sheet.html' // TODO: Limited sheet support
+			template: 'systems/tribe8/templates/character-sheet.html'
 		}
 	}
 	
@@ -56,15 +56,17 @@ export class Tribe8CharacterSheet extends HandlebarsApplicationMixin(ActorSheetV
 	async _prepareContext(options) {
 		const context = await super._prepareContext(options);
 		
+		// Who's the player for this?
+		const playerOwner = this.document.getPlayerOwner();
+		if (playerOwner)
+			context.playerName = playerOwner.name;
+		
 		// Differentiate items
 		for (let item of this.document.items) {
 			switch (item.type) {
 				case 'skill':
 					if (!context.skills)
 						context.skills = [];
-					/*
-					item.specializations = Object.keys(item.system.specializations).map((s) => { return `${item.system.specializations[s].name} (${item.system.specializations[s].points.toUpperCase()})`; }).join(', ');
-					*/
 					item.specializations = Object.keys(item.system.specializations).map((s) => { return item.system.specializations[s].name; }).join(', ');
 					context.skills.push(item);
 					break;
@@ -104,16 +106,23 @@ export class Tribe8CharacterSheet extends HandlebarsApplicationMixin(ActorSheetV
 	async _onRender(context, options) {
 		this.#dragDrop.forEach((d) => d.bind(this.element));
 		
-		/**
-		 * Setup inline skill edit
-		 */
-		const skillContainer = this.element.querySelector('div.skills');
-		skillContainer.addEventListener('change', (e) => {
-			if (e.target.nodeName == 'INPUT' || e.target.nodeName == 'TEXTAREA') {
-				e.preventDefault();
-				e.stopImmediatePropagation();
-				Tribe8CharacterSheet.inlineEditSkill(e, e.target);
-			}
+		// Rig up manual input on eDie fields
+		this.element.querySelectorAll('div.edie-block div.value input[type=number]').forEach((i) => {
+			i.addEventListener('keyup', (e) => {
+				if (!e.target) {
+					return;
+				}
+				// Find the skill
+				const skillId = (e.target.closest('div.skill') || {}).dataset?.id;
+				if (!skillId) {
+					return;
+				}
+				const skill = this.document.getEmbeddedDocument("Item", skillId);
+				if (!skill) {
+					return;
+				}
+				skill.system.eDieKeyInputEventHandler(e);
+			});
 		});
 		super._onRender(context, options);
 	}
@@ -128,17 +137,15 @@ export class Tribe8CharacterSheet extends HandlebarsApplicationMixin(ActorSheetV
 		if (!skillRow) {
 			// Wasn't the skill row; probably the general parent
 			let currentAmount = this.document.system.edie.other;
-			currentAmount++;
-			this.document.update({'system.edie.other': currentAmount});
+			this.document.update({'system.edie.other': ++currentAmount});
 			return;
 		}
-		foundry.utils.fromUuid(skillRow.dataset?.uuid).then((skillItem) => {
-			if (!skillItem) {
-				foundry.ui.notifications.error("Could not find the Skill's UUID");
-				return;
-			}
-			skillItem.system.spendEdie();
-		});
+		const skillItem = this.document.getEmbeddedDocument("Item", skillRow.dataset?.id);
+		if (!skillItem) {
+			foundry.ui.notifications.error(`Could not find a Skill with the id ${skillRow.dataset?.id}`);
+			return;
+		}
+		skillItem.system.alterEdie();
 	}
 	
 	/**
@@ -151,17 +158,15 @@ export class Tribe8CharacterSheet extends HandlebarsApplicationMixin(ActorSheetV
 		if (!skillRow) {
 			// Wasn't the skill row; probably the general parent
 			let currentAmount = parseInt(this.document?.system?.edie?.other) || 0;
-			currentAmount--;
-			this.document.update({'system.edie.other': currentAmount});
+			this.document.update({'system.edie.other': --currentAmount});
 			return;
 		}
-		foundry.utils.fromUuid(skillRow.dataset?.uuid).then((skillItem) => {
-			if (!skillItem) {
-				foundry.ui.notifications.error("Could not find the Skill's UUID");
-				return;
-			}
-			skillItem.system.refundEdie();
-		});
+		const skillItem = this.document.getEmbeddedDocument("Item", skillRow.dataset?.id);
+		if (!skillItem) {
+			foundry.ui.notifications.error(`Could not find a Skill with the id ${skillRow.dataset?.id}`);
+			return;
+		}
+		skillItem.system.alterEdie(-1);
 	}
 	
 	/**
@@ -264,57 +269,6 @@ export class Tribe8CharacterSheet extends HandlebarsApplicationMixin(ActorSheetV
 		}
 		return item;
 	}
-	
-	/**
-	 * Inline editing of skills directly on the character sheet
-	 */
-	static async inlineEditSkill(event, target) {
-		event.preventDefault();
-		event.stopPropagation();
-		const skillRow = target.closest('div.skill');
-		if (!skillRow) {
-			console.log("No skill row found relative to event target");
-			return;
-		}
-		const uuid = skillRow.dataset?.uuid;
-		const skillItem = await foundry.utils.fromUuid(uuid);
-		if (!skillItem) {
-			console.log("No skill item found with the indicated UUID");
-			return;
-		}
-		// What did we edit?
-		const editField = target.name.split(`${skillItem.id}.`)[1];
-		
-		// Specializations needs special pre-processing
-		if (editField == 'specializations') {
-			// We need to convert the supplied value into tokenized chunks
-			let delim = ',';
-			if (target.value.split(';').length > 1) // Using semicolon delimiters
-				delim = ';';
-			const fieldData = target.value.split(delim);
-			const specializationPayload = [];
-
-			for (let spec of fieldData) {
-				spec = spec.trim();
-				let matches = spec.match(/^(.*?)( ?\(([CX])P\))?$/);
-				const specName = matches[1].trim();
-				const pointsType = (matches[3] ?? "X").toLowerCase() + "p";
-				specializationPayload.push({name: specName, points: pointsType});
-			}
-			await skillItem.system.updateSpecializations(specializationPayload);
-		}
-		else {
-			// We expect every other field to be prefixed with system.
-			// EDie are a special case, because we need to figure out
-			// which "bucket" they'll go in.
-			if (editField == 'system.points.level.edie') {
-				console.log(skillItem);
-			}
-			else {
-				await skillItem.update({[editField]: target.value});
-			}
-		}
-	}
 
 	/*******************************************************************
 	 * Drag & Drop Stuff
@@ -336,7 +290,7 @@ export class Tribe8CharacterSheet extends HandlebarsApplicationMixin(ActorSheetV
 				dragover: this._onDragOver.bind(this),
 				drop: this._onDrop.bind(this)
 			};
-			return new DragDrop(d);
+			return new foundry.applications.ux.DragDrop.implementation(d);
 		});
 	}
 

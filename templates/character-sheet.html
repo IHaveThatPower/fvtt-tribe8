@@ -3,7 +3,7 @@
 		<div class="character-basics">
 			<div class="player field">
 				<label for="player">Player</label>
-				<input type="text" name="player" readonly value="{{user.name}}" />
+				<input type="text" name="player" readonly value="{{#if playerName}}{{playerName}}{{else}}NPC{{/if}}" />
 			</div>
 			<div class="name field">
 				<label for="name">Name</label>
@@ -103,7 +103,7 @@
 		-->
 		<div class="skills">
 			{{#each skills as |skill|}}
-			<div class="skill" data-uuid="{{skill.uuid}}">
+			<div class="skill" data-uuid="{{skill.uuid}}" data-id="{{skill.id}}">
 				<div class="identity" data-action="editItem" data-action-slug="edit-skill-{{skill.id}}">
 					<div class="name">
 						<!--<input type="text" value="{{skill.system.name}}" name="skill.{{skill.uuid}}.system.name">-->
@@ -155,7 +155,6 @@
 					</div>
 					-->
 				</div>
-				<!-- TODO: Ownership-based display -->
 				<div class="points-block edie-block">
 					<div class="points-type">EDie</div>
 					<div class="value">
@@ -168,13 +167,13 @@
 				</div>
 			</div>
 			{{/each}}
+			<button name="add-skill" data-action="addNewItem">Add</button>
 		</div>
-		<button name="add-skill" data-action="addNewItem">Add</button>
 	</div>
 	<div class="right-column">
 		<div class="perks-flaws">
 			<h2>Perks &amp; Flaws</h2>
-			<h3>Perks</h3>
+			{{#if perksAndFlaws}}<h3>Perks</h3>{{/if}}
 			{{#each perksAndFlaws as |pf|}}
 			{{#with (lookup @root.perksAndFlaws (sub @index 1)) as | prevItem |}}
 			{{#if (and (eq pf.type 'flaw') (eq prevItem.type 'perk'))}}
@@ -194,11 +193,35 @@
 		</div>
 		<div class="maneuvers">
 			<h2>Combat Maneuvers</h2>
+			{{#if sortedManeuvers}}
+			<div class="maneuver">
+				<div class="identity points-type">Maneuver (Skill)</div>
+				<div class="complexity points-type">Cpx</div>
+				<div class="cost points-type">Cost</div>
+				<div></div>
+			</div>
+			{{/if}}
 			{{#each sortedManeuvers}}
-			<div class="maneuver" data-id="{{this.id}}">
+			<div class="maneuver{{#if this.system.fromCpx}} from-cpx{{/if}}{{#if this.system.granted}} granted{{/if}}" data-id="{{this.id}}">
 				<div class="identity" data-action-slug="edit-maneuver-{{this.id}}" data-action="editItem">
 					<div class="name">{{this.name}}</div>
 					<div class="specific">({{this.system.forSkill}})</div>
+				</div>
+				<div class="complexity">{{#if (eq this.system.complexity 0)}}1*{{else}}{{this.system.complexity}}{{/if}}</div>
+				<div class="cost">
+					{{#if this.system.fromCpx}}
+					C
+					{{else}}
+						{{#if this.system.granted}}
+						W
+						{{else}}
+							{{#if (eq this.system.complexity 0)}}
+							F
+							{{else}}
+							{{this.system.complexity}} {{this.system.points}}
+							{{/if}}
+						{{/if}}
+					{{/if}}
 				</div>
 			</div>
 			{{/each}}
@@ -208,8 +231,19 @@
 			-->
 			<button name="add-maneuver" data-action="addNewItem">Add</button>
 		</div>
-		<div class="shock">
-			<h2>System Shock</h2>
+		<div class="injuries">
+			<h2>Injuries</h2>
+			<h3>Thresholds</h3>
+			<div class="secondary-attributes">
+			{{#each document.system.attributes.secondary.physical.thresholds as |data key|}}
+				<div class="attribute-block threshold {{key}}">
+					<div class="name">{{data.label}}</div>
+					<div class="value">{{data.value}}</div>
+				</div>
+			{{/each}}
+			</div>
+			
+			<h3>System Shock</h3>
 			{{#repeat document.system.attributes.secondary.physical.shock.value false}}
 			<input type="checkbox" name="systemShock[{{this}}]" value="1"{{#if (gte document.system.attributes.secondary.physical.shock.current this)}} checked{{/if}} />
 			{{/repeat}}

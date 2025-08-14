@@ -7,8 +7,7 @@ class Tribe8PerkFlawSheet extends Tribe8ItemSheet {
 			contentClasses: ["tribe8", "pf", "sheet", "item"]
 		},
 		position: {
-			width: 300,
-			height: 400
+			width: 300
 		},
 		actions: {
 			removeRank: Tribe8PerkFlawSheet.removeRank
@@ -18,7 +17,7 @@ class Tribe8PerkFlawSheet extends Tribe8ItemSheet {
 
 	static PARTS = {
 		form: {
-			template: 'systems/tribe8/templates/perkflaw-sheet.html' // TODO: Limited sheet support
+			template: 'systems/tribe8/templates/perkflaw-sheet.html'
 		}
 	}
 

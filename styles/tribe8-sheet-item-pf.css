@@ -1,6 +1,11 @@
 .tribe8.sheet.item.pf {
 	gap: 0.4rem;
 
+div.base-cost,
+div.per-rank {
+	margin-right: 0.4rem;
+}
+
 div.points {
 	display: flex;
 	flex-flow: column;

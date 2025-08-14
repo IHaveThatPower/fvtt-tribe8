@@ -4,7 +4,7 @@
         "character": {}
     },
     "Item": {
-        "types": ["item", "skill", "perk", "flaw", "maneuver", "aspect", "weapon", "armor", "cpBasis"],
+        "types": ["item", "skill", "perk", "flaw", "maneuver", "aspect", "weapon", "armor", "gear"],
         "item": {},
         "skill": {},
         "perk": {},
@@ -13,6 +13,6 @@
         "aspect": {},
         "weapon": {},
         "armor": {},
-        "cpBasis": {}
+        "gear": {}
     }
 }

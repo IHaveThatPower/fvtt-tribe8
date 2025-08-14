@@ -33,6 +33,10 @@ export class Tribe8SkillModel extends Tribe8ItemModel {
 	 * Migrate data
 	 */
 	static migrateData(data) {
+		if (typeof data.points != 'object')
+			data.points = {};
+		if (typeof data.points.edie != 'object')
+			data.points.edie = {};
 		if (!data.points.edie.fromBonus)
 			data.points.edie.fromBonus = 0;
 		if (!data.points.edie.fromXP)
@@ -129,56 +133,100 @@ export class Tribe8SkillModel extends Tribe8ItemModel {
 	}
 
 	/**
-	 * Spend an e-die into this skill
+	 * Spend (or refund) e-die into (or out of) this skill
 	 */
-	async spendEdie() {
-		let spendFrom = "bonus";
-		if (this.parent.isOwned) {
-			// Does the owner have bonus eDie?
-			const owner = this.parent.parent;
-			if (owner.system.edie.total <= 0) {
-				foundry.ui.notifications.error("You do not have enough EDie!");
-				return;
-			}
-			// Spend from bonus first
-			if (owner.system.edie.other <= 0) {
-				spendFrom = "xp";
-			}
-			
-			// We only debit from the bonus pool; spending XP should sort itself out
-			if (spendFrom == 'bonus') {
-				console.log("Spending from bonus");
-				await owner.update({'system.edie.other': (owner.system.edie.other - 1)})
-			}
-		}
+	async alterEdie(amount = 1) {
+		const data = this.computeAlterEdie(amount);
+		if (!data) return false;
 		
-		// Update the item's records
-		let newValue = 0;
-		let updatePath = '';
-		if (spendFrom == 'bonus') {
-			newValue = this.points.edie.fromBonus + 1;
-			updatePath = 'system.points.edie.fromBonus';
+		// Don't do anything if we'd go negative
+		if (this.points.edie.fromBonus + data.spendBonus < 0 || this.points.edie.fromXP + data.spendXP < 0) {
+			foundry.ui.notifications.warn("Can't decrease spent EDie below 0");
+			return false;
 		}
-		else {
-			newValue = this.points.edie.fromXP + 1;
-			updatePath = 'system.points.edie.fromXP';
+
+		// Update the item
+		await this.parent.update({
+			'system.points.edie.fromBonus': (this.points.edie.fromBonus + data.spendBonus),
+			'system.points.edie.fromXP': (this.points.edie.fromXP + data.spendXP)
+		});
+		
+		// Update the actor
+		if (data.owner) {
+			let owner;
+			if (owner = this.parent.getActorOwner()) {
+				await owner.update({'system.edie.other': data.owner.other});
+			}
 		}
-		await this.parent.update({[`${updatePath}`]: newValue});
+		return true;
 	}
 	
 	/**
-	 * Refund an e-die from this skill
+	 * Compute an e-die refund amount
 	 */
-	async refundEdie() {
-		if (this.parent.isOwned) {
-			// Always refund to bonus, not XP
-			const owner = this.parent.parent;
-			await owner.update({'system.edie.other': (owner.system.edie.other + 1)});
+	computeAlterEdie(amount = 1) {
+		// Bail out if value is just 0
+		amount = Number(amount);
+		if (!amount) return false;
+		
+		// Return data
+		const data = {
+			'spendBonus': amount,
+			'spendXP': 0
+		}
+		let owner;
+		if (owner = this.parent.getActorOwner()) {
+			// Does the owner have enough eDie at all?
+			if (owner.system.edie.total < amount) {
+				foundry.ui.notifications.error("You do not have enough EDie!");
+				return false;
+			}
+			// Add an owner entry
+			data.owner = {'other': owner.system.edie.other};
+
+			// Spend from/refund to bonus first
+			data.owner.other = owner.system.edie.other - amount;
+			
+			// Leftover goes to XP (no need to update the owner; that'll self-account)
+			if (data.owner.other < 0) {
+				data.spendBonus = amount + data.owner.other;
+				amount = Math.abs(data.data.owner.other);
+				data.owner.other = 0;
+				data.spendXP = amount;
+			}
+		}
+		return data;
+	}
+
+	/**
+	 * Handle manual interaction with an EDie field for this skill.
+	 * 
+	 * TODO: Should this be somewhere else? Weird to put a UI handle on a DataModel...
+	 */
+	eDieKeyInputEventHandler(e) {
+		// Get the current and previous value
+		const newValue = e.target.value;
+		const oldValue = this.eDieSpent;
+		let delta = newValue - oldValue;
+		if (!delta || (delta < 0 && oldValue == 0)) { // Might be NaN, or 0, in which case we don't want to muck anything up
+			e.target.value = oldValue;
+			return;
 		}
 		
-		// Now decrement our total
-		let currentValue = this.points.edie.fromBonus;
-		await this.parent.update({'system.points.edie.fromBonus': --currentValue});
+		// Stop default handling
+		e.preventDefault();
+		e.stopPropagation();
+		e.target.readonly = true; // Block further editing until we're done
+		
+		// Act based on the direction of the change
+		(async (skill, delta) => {
+			await skill.system.alterEdie(delta);
+		})(this.parent, delta).then((resolve) => {
+			if (!resolve) {
+				e.target.value = oldValue;
+			}
+			e.target.readonly = false;
+		});
 	}
 
 	/**

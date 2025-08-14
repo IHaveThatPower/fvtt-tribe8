@@ -5,6 +5,8 @@
 	--alt-background: rgba(255, 255, 255, 0.05);
 	--color-perk-granted: rgba(0, 96, 255, 0.5);
 	--color-flaw-granted: rgba(128, 48, 0, 0.5);
+	--color-maneuer-granted: var(--color-perk-graned);
+	--color-maneuver-bonus: rgba(0, 255, 154, 0.25);
 }
 
 div.item-sheet {

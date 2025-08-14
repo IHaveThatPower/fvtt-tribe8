@@ -34,7 +34,8 @@ export class Tribe8ManeuverModel extends Tribe8ItemModel {
 			allowedTypes: new fields.ObjectField({hint: "The Skills that can be used with this Maneuver", gmOnly: true, required: true, nullable: true}),
 			forSkill: new fields.StringField({hint: "The Skill to which this Maneuver applies", required: true, nullable: true, choices: Object.keys(this.COMBAT_SKILLS)}),
 			fromCpx: new fields.BooleanField({hint: "Whether this Maneuver is granted due to a Skill's Complexity.", initial: false, required: true, nullable: false}),
-			granted: new fields.BooleanField({hint: "Whether or not this Maneuver was granted for free by the Weaver", initial: false, required: true, nullable: false})
+			granted: new fields.BooleanField({hint: "Whether or not this Maneuver was granted for free by the Weaver", initial: false, required: true, nullable: false}),
+			points: new fields.StringField({hint: "The type of points used to pay for the Maneuver.", choices: ["cp", "xp"], initial: "cp", required: true, nullable: false})
 		};
 	}
 	

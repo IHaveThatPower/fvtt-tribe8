@@ -22,13 +22,17 @@
 		<label for="system.allowedTypes[R]" title="Can be used with Ranged Skill">R</label>
 	</div>
 	<div class="costs">
-		<div class="base-cost cost-field">
-			<label for="system.complexity">Complexity</label>
-			<input type="number" name="system.complexity" value="{{ document.system.complexity }}" title="Complexity requirement for this Maneuver. Use 0 for Free Maneuvers." placeholder="0">
+		<div class="cost-field cost-field-checkbox">
+			<input type="radio" id="system.points.cp" name="system.points" value="cp"{{#if (eq document.system.points "cp")}} checked{{/if}}>
+			<label for="system.points.cp">CP</label>
+		</div>
+		<div class="cost-field cost-field-checkbox">
+			<input type="radio" id="system.points.xp" name="system.points" value="xp"{{#if (eq document.system.points "xp")}} checked{{/if}} />
+			<label for="system.points.xp">XP</label>
 		</div>
 		<div class="fromCpx cost-field cost-field-checkbox">
 			<input type="checkbox" name="system.fromCpx" value=true{{# if document.system.fromCpx}} checked{{/if}} title="Pay for this Maneuver using free Maneuvers granted by Complexity in chosen Skill" />
-			<label for="system.fromCpx" title="Pay for this Maneuver using free Maneuvers granted by Complexity in chosen Skill">Cpx</label>
+			<label for="system.fromCpx" title="Pay for this Maneuver using bonus Maneuvers granted by Complexity in chosen Skill">Cpx</label>
 		</div>
 		<div class="granted cost-field cost-field-checkbox">
 			<input type="checkbox" name="system.granted" value=true{{#if document.system.granted}} checked{{/if}} title="Check if the Weaver granted this for free" />
@@ -36,6 +40,14 @@
 		</div>
 	</div>
 	<div class="effects">
+		<div class="effect">
+			<div class="effect-property">Cpx</div>
+			<div class="effect-input">
+				<span class="input-size" data-value="{{document.system.complexity}}">
+					<input type="number" name="system.complexity" value="{{ document.system.complexity }}" title="Complexity requirement for this Maneuver. Use 0 for Free Maneuvers." placeholder="0" min="0" max="10" />
+				</span>
+			</div>
+		</div>
 		<div class="effect">
 			<div class="effect-property">Acc.</div>
 			<div class="effect-input">

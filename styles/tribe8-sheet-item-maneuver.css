@@ -17,6 +17,12 @@ div.allowed {
 	align-items: center;
 	justify-content: end;
 }
+div.costs:nth-child(2) {
+	margin-right: 5%;
+}
+div.cost-field input[type="radio"] {
+	margin: 0;
+}
 div.granted input {
 	margin: revert;
 	padding: revert;

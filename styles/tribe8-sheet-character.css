@@ -4,7 +4,7 @@
 div.character-sheet {
 	display: flex;
 	flex-direction: row;
-	gap: 0.25rem;
+	gap: 0.8rem;
 	height: 100%;
 }
 
@@ -357,13 +357,18 @@ div.skills {
 	div.buttons button i {
 		height: 100%;
 	}
+	button {
+		margin-left: 25%;
+	}
 }
-div.skills+button,
+div.skills>button,
 div.perks-flaws>button,
 div.maneuvers>button {
+	column-span: all;
 	width: 50%;
+	position: relative;
+	margin: 0.6rem auto 0.4rem auto;
 	justify-self: center;
-	align-self: center;
 }
 
 div.pf div.name,
@@ -416,6 +421,55 @@ div.pf div.buttons {
 }
 
 div.maneuvers {
+
+div.maneuver {
+	display: grid;
+	grid-template-columns: 1fr 1.4rem 3rem;
+	padding-left: 0.15rem;
+}
+div.maneuver.granted {
+	background-image: linear-gradient(
+		to right,
+		transparent,
+		var(--color-maneuver-granted) 0.5ch,
+		transparent
+	);
+}
+div.maneuver.from-cpx {
+	background-image: linear-gradient(
+		to right,
+		transparent,
+		var(--color-maneuver-bonus) 0.5ch,
+		transparent
+	);
+}
+div.maneuver>div {
+	white-space: nowrap;
+}
+div.maneuver>div:first-child {
+	white-space: revert;
+}
+div.maneuver div.complexity,
+div.maneuver div.cost {
+	text-align: center;
+}
+div.maneuver div.points-type {
+	min-width: unset;
+	/* border-radius: 0.4rem 0.4rem 0 0; */
+	font-size: 90%;
+	line-height: 100%;
+	padding: 0.2rem 0.2rem 0 0.2rem;
+	margin-top: 0.1rem;
+	text-align: center;
+}
+div.maneuver div.points-type:first-child {
+	border-radius: 0.4rem 0 0 0;
+	text-align: left;
+}
+div.maneuver div.points-type:last-child {
+	border-radius: 0 0.4rem 0 0;
+}
+
 }
 
 div.shock {

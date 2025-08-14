@@ -6,14 +6,13 @@ export class Tribe8ManeuverSheet extends Tribe8ItemSheet {
 			contentClasses: ["tribe8", "maneuver", "sheet", "item"]
 		},
 		position: {
-			width: 300,
-			height: 400
+			width: 360
 		}
 	}
 
 	static PARTS = {
 		form: {
-			template: 'systems/tribe8/templates/maneuver-sheet.html' // TODO: Limited sheet support
+			template: 'systems/tribe8/templates/maneuver-sheet.html'
 		}
 	}
 	
@@ -127,9 +126,7 @@ export class Tribe8ManeuverSheet extends Tribe8ItemSheet {
 	 */
 	async _onRender(context, options)
 	{
-		/**
-		 * Setup input resizers
-		 */
+		// Setup input resizers
 		const inputSizers = this.element.querySelectorAll('span.input-sizer input');
 		inputSizers.forEach((s) => {
 			s.addEventListener('input', (e) => {

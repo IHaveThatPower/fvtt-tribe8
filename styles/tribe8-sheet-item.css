@@ -1,6 +1,7 @@
 .tribe8.sheet.item {
 	display: flex;
 	flex-direction: column;
+	overflow-y: auto;
 
 div.name,
 div.specific {
@@ -47,30 +48,22 @@ div.cost-field {
 div.cost-field-checkbox {
 	gap: 0.2rem;
 }
+div.cost-field label {
+	white-space: nowrap;
+}
 div.cost-field input[type=text],
 div.cost-field input[type=number] {
 	min-width: 2ch;
 }
-div.base-cost {
+div.base-cost,
+div.per-rank {
 	justify-content: center;
 	margin-right: 1.2rem;
 }
-div.base-cost input {
+div.base-cost input,
+div.per-rank input {
 	width: 4ch;
 	text-align: center;
-}
-
-div.per-rank {
-	display: flex;
-	flex-direction: row;
-	align-items: center;
-}
-div.per-rank label {
-	flex: 0 0 5rem;
-}
-div.per-rank input {
-	width: 100%;
-	flex: 1 1 0;
 }
 
 div.specify,
@@ -100,15 +93,24 @@ div.description {
 div.description h3 {
 	flex: 0 0 fit-content;
 }
-div.description>prose-mirror,
-div.description>div.editor {
-	flex: 1 1 fit-content;
-	min-height: 1rem;
+div.description>prose-mirror {
+	flex: 1 0 fit-content;
+	min-height: 12ex;
+}
+div.description div.editor-container,
+div.description div.editor-content {
+	min-height: 12ex;
 }
 
 div.itemButtons {
 	width: 100%;
 	justify-items: center;
+}
+
+div.itemButtons button {
+	position: relative;
+	margin-left: auto;
+	margin-right: auto;
 }
 
 }

@@ -1,4 +1,14 @@
 export class Tribe8Item extends Item {
+	/**
+	 * Get the actor owner of this item, if there is one.
+	 */
+	getActorOwner() {
+		if (this.isOwned) {
+			return this.parent;
+		}
+		return false;
+	}
+
 	static getDefaultArtwork(itemData) {
 		switch (itemData.type) {
 			case 'skill':
