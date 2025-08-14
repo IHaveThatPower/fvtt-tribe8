@@ -1,3 +1,5 @@
+import { Tribe8Item } from './item.js'; // For sorting
+
 export class Tribe8Actor extends Actor {
 	/**
 	 * Utility function to determine which player (if any) owns this 
@@ -28,23 +30,52 @@ export class Tribe8Actor extends Actor {
 	}
 
 	/**
-	 * Add an item to the character, with validation
+	 * Get a list of this character's Skills that can be used to make
+	 * attacks in combat.
+	 * 
+	 * @return	Object
 	 */
-	async addItem(uuid) {
-		const item = await foundry.utils.fromUuid(uuid);
-		if (!item) {
-			foundry.ui.notifications.error(`Tried to add an unknown item`);
-			return;
+	getCombatSkills() {
+		// Define the default names of the combat Skills, based on config
+		const combatSkillNames = Object.values(CONFIG.Tribe8.COMBAT_SKILLS).map((s) => CONFIG.Tribe8.slugify(s));
+		
+		// Gather all Skills from this character that might qualify
+		const skills = Array.from(this.getEmbeddedCollection("Item")).filter((i) => {
+			if (i.type != 'skill') return false;
+			let lookupName = CONFIG.Tribe8.slugify(i.system.name);
+			// Special case Hand to Hand checks
+			if (CONFIG.Tribe8.HAND_TO_HAND_VARIATIONS.indexOf(lookupName) >= 0)
+				lookupName = 'handtohand';
+			// Special case Ranged checks
+			if (CONFIG.Tribe8.RANGED_COMBAT_SKILL_REFERENCE.indexOf(lookupName) >= 0)
+				lookupName = 'ranged';
+			if (combatSkillNames.indexOf(lookupName) < 0) return false;
+			return true;
+		});
+		
+		/**
+		 * Reduce that list down to an object that's keyed with the 
+		 * single-letter skill group as the property key, and the 
+		 * list of skills as the property value.
+		 */
+		const combatSkills = skills.reduce((obj, s) => {
+			let referenceName = CONFIG.Tribe8.slugify(s.system.name);
+			if (CONFIG.Tribe8.RANGED_COMBAT_SKILL_REFERENCE.indexOf(referenceName) >= 0)
+				referenceName = 'ranged';
+			const refKey = referenceName[0].toUpperCase();
+			if (obj[refKey])	
+				obj[refKey].push(s);
+			else
+				obj[refKey] = [s];
+			return obj;
+		}, {});
+		
+		// If we had multiple valid skills for the reference key, sort them
+		for (let k of Object.keys(combatSkills)) {
+			if (combatSkills[k].length > 1) {
+				combatSkills[k] = combatSkills[k].sort(Tribe8Item.cmp);
+			}
 		}
-		switch (item.type) {
-			case 'skill':
-			case 'perk':
-			case 'flaw':
-				this.createEmbeddedDocuments('Item', [item]);
-				break;
-			default:
-				foundry.ui.notifications.warn(`Adding ${item.type}s to actors is not (yet) supported`);
-				break;
-		}
+		return combatSkills;
 	}
 }

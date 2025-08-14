@@ -260,28 +260,4 @@ export class Tribe8SkillModel extends Tribe8ItemModel {
 		].join('-');
 		return uuid;
 	}
-	
-	/**
-	 * Skill sorting function.
-	 * Expects to be handed a Tribe8Item, *NOT* a Tribe8SkillModel
-	 */
-	static cmp(a, b) {
-		if (a.system.level > b.system.level)
-			return -1;
-		if (a.system.level < b.system.level)
-			return 1;
-		if (a.system.cpx > b.system.cpx)
-			return -1;
-		if (a.system.cpx < b.system.cpx)
-			return 1;
-		if (a.name < b.name)
-			return -1;
-		if (a.name > b.name)
-			return 1;
-		if (a._stats.createdTime < b._stats.createdTime)
-			return -1;
-		if (a._stats.createdTime > b._stats.createdTime)
-			return 1;
-		return 0;
-	}
 }

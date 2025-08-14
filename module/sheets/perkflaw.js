@@ -44,7 +44,7 @@ class Tribe8PerkFlawSheet extends Tribe8ItemSheet {
 	 */
 	_prepareSubmitData(event, form, formData, updateData) {
 		// Identify array-based form elements
-		const checkKeys = this._checkFormArrayElements(formData);
+		const checkKeys = CONFIG.Tribe8.checkFormArrayElements(formData);
 		
 		// Extract identified array-based elements
 		const rankPoints = {}; // Object so we can use explicit keys

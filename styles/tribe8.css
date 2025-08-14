@@ -2,11 +2,21 @@
 	--font-header: "Chainprinter", "Font Awesome 6 Pro", monospace;
 	--label-background-color: black;
 	--label-text-color: white;
-	--alt-background: rgba(255, 255, 255, 0.05);
 	--color-perk-granted: rgba(0, 96, 255, 0.5);
 	--color-flaw-granted: rgba(128, 48, 0, 0.5);
-	--color-maneuer-granted: var(--color-perk-graned);
+	--color-maneuer-granted: var(--color-perk-granted);
 	--color-maneuver-bonus: rgba(0, 255, 154, 0.25);
+	--color-eminence-used: var(--color-flaw-granted);
+	--color-aspect-granted: var(--color-perk-granted);
+	
+	/* Alt rows */
+	--alt-background: rgba(255, 255, 255, 0.05);
+	--color-perk-granted-alt: rgba(13, 109, 255, 0.45);
+	--color-flaw-granted-alt: rgba(141, 61, 13, 0.45);
+	--color-maneuer-granted-alt: var(--color-perk-granted-alt);
+	--color-maneuver-bonus-alt: rgba(13, 255, 167, 0.20);
+	--color-eminence-used-alt: var(--color-flaw-granted-alt);
+	--color-aspect-granted-alt: var(--color-perk-granted-alt);
 }
 
 div.item-sheet {

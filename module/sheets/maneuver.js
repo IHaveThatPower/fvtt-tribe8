@@ -79,7 +79,7 @@ export class Tribe8ManeuverSheet extends Tribe8ItemSheet {
 	 */
 	_prepareSubmitData(event, form, formData, updateData) {
 		// Identify array-based form elements
-		const checkKeys = this._checkFormArrayElements(formData);
+		const checkKeys = CONFIG.Tribe8.checkFormArrayElements(formData);
 		
 		// Extract identified array-based elements
 		const allowedTypes = {}; // Object so we can use explicit keys
@@ -127,22 +127,4 @@ export class Tribe8ManeuverSheet extends Tribe8ItemSheet {
 		
 		return super._prepareSubmitData(event, form, formData, updateData);
 	}
-
-	/**
-	 * When re-rendering, always re-render the title
-	 */
-	async _onRender(context, options)
-	{
-		// Setup input resizers
-		const inputSizers = this.element.querySelectorAll('span.input-sizer input');
-		inputSizers.forEach((s) => {
-			s.addEventListener('input', (e) => {
-				if (e.target?.parentNode?.dataset)
-					e.target.parentNode.dataset.value = e.target.value;
-			});
-		});
-		return super._onRender(context, options);
-	}
-	
-
 }

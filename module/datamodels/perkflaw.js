@@ -13,14 +13,12 @@ export class Tribe8PerkFlawModel extends Tribe8ItemModel {
 				initial: 0,
 				required: true,
 				nullable: false,
-				validate: this.validateCost // TODO: Make this work
 			}),
 			perRank: new fields.NumberField({
 				hint: "The cost, in CP or XP, of additional ranks of the Perk or Flaw. For Flaws, this is a negative value.",
 				initial: 0,
 				required: false,
 				nullable: false,
-				validate: this.validateCost // TODO: Make this work
 			}),
 			ranked: new fields.BooleanField({hint: "Whether or not this Perk or Flaw can be acquired at different intensity levels", initial: false, required: true, nullable: false}),
 			granted: new fields.BooleanField({hint: "Whether the cost of this Perk or Flaw is ignored, as may be the case with those granted by the Weaver.", initial: false, required: true, nullable: false}),
@@ -63,52 +61,5 @@ export class Tribe8PerkFlawModel extends Tribe8ItemModel {
 			if (this.perRank > 0)
 				this.perRank *= -1;
 		}
-	}
-	
-	/**
-	 * Prepare derived data for a Perk/Flaw
-	 */
-	prepareDerivedData(...args) {
-		super.prepareDerivedData(...args);
-	}
-	
-	/**
-	 * Validate cost is correct for Item type
-	 */
-	validateCost(...args) {
-		console.log(...args);
-	}
-	
-	/**
-	 * Comparison function for sorting perks and flaws.
-	 * Expects to be handed a Tribe8Item, *NOT* a Tribe8PerkFlawModel
-	 */
-	static cmp(a, b) {
-		// Perks before Flaws
-		if (a.type == 'perk' && b.type == 'flaw')
-			return -1;
-		if (a.type == 'flaw' && b.type == 'perk')
-			return 1;
-		// Free before paid
-		if (a.system.granted && !b.system.granted)
-			return -1;
-		if (!a.system.granted && b.system.granted)
-			return 1;
-		// By Name
-		if (a.name < b.name)
-			return -1;
-		if (a.name > b.name)
-			return 1;
-		// By Ranks
-		if (a.system.points.length > b.system.points.length)
-			return -1;
-		if (a.system.points.length < b.system.points.length)
-			return 1;
-		// Tiebreaker is created time
-		if (a._stats.createdTime < b._stats.createdTime)
-			return -1;
-		if (a._stats.createdTime > b._stats.createdTime)
-			return 1;
-		return 0;
 	}
 }

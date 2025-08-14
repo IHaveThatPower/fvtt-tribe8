@@ -1,14 +1,18 @@
 // TODO: Overall System List
 // * Aspects, generally
 // * System shock tracking
-// * Change System Shock block to summarize all wounds
-// * The Synthesis box
-// * Rituals?
+// * Convert Specializations to an Item
+// * Switch editItem invocations over to use item ID instead of actionSlug
+// * Rituals? 
 // * Combat tab
 // * Equipment tab
+// * Make Item sheets size their height intelligently, based on Description length
 // * Make starting CP a system setting for the GM, and then make the initial CP boxes something GM users can edit
 // * Some way to trade attribute points (i.e. PSY for other attributes)
+// * Sundering?
+// * Technosmithig?
 
+import { Tribe8 } from './config.js';
 /* Documents */
 import { Tribe8Actor } from './documents/actor.js';
 import { Tribe8Item } from './documents/item.js';
@@ -62,11 +66,10 @@ Hooks.once('init', function() {
 		entities: {
 			Tribe8Actor,
 			Tribe8Item
-		},
-		slugify: (string) => {
-			return string.trim().toLowerCase().replace(/[^a-zA-Z0-9]/g, '');
-		},
+		}
 	};
+	
+	CONFIG.Tribe8 = Tribe8;
 
 	// Define initiative for the system.
 	// TODO: Setup initiative stuff

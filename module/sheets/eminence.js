@@ -6,7 +6,8 @@ export class Tribe8EminenceSheet extends Tribe8ItemSheet {
 			contentClasses: ["tribe8", "eminence", "sheet", "item"]
 		},
 		position: {
-			width: 360
+			width: 360,
+			height: "auto"
 		}
 	}
 
@@ -20,6 +21,6 @@ export class Tribe8EminenceSheet extends Tribe8ItemSheet {
 	 * Title of the sheet
 	 */
 	get title() {
-		return `Eminence: ${this.document.name}` + (this.document.system.tribe ? `(${this.document.system.tribe})` : '');
+		return `Eminence: ${this.document.name}` + (this.document.system.tribe ? ` (${this.document.system.tribe})` : '');
 	}
 }

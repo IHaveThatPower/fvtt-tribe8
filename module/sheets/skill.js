@@ -54,7 +54,7 @@ export class Tribe8SkillSheet extends Tribe8ItemSheet {
 	 */
 	_prepareSubmitData(event, form, formData, updateData) {
 		// Identify array-based form elements
-		const checkKeys = this._checkFormArrayElements(formData);
+		const checkKeys = CONFIG.Tribe8.checkFormArrayElements(formData);
 
 		// Setup objects for the types of form elements we know we want
 		const specializations = {}

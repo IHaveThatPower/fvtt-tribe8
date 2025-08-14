@@ -37,6 +37,15 @@ export class Tribe8ItemSheet extends HandlebarsApplicationMixin(ItemSheetV2) {
 		if (this.window.title.textContent != this.title) {
 			this._updateFrame({window: { title: this.title }});
 		}
+
+		// Setup input resizers
+		const inputSizers = this.element.querySelectorAll('span.input-sizer input');
+		inputSizers.forEach((s) => {
+			s.addEventListener('input', (e) => {
+				if (e.target?.parentNode?.dataset)
+					e.target.parentNode.dataset.value = e.target.value;
+			});
+		});
 		
 		return await super._onRender(context, options);
 	}
@@ -83,20 +92,6 @@ export class Tribe8ItemSheet extends HandlebarsApplicationMixin(ItemSheetV2) {
 		});
 	}
 
-	/**
-	 * Identify array-style form elements in a submit package and return
-	 * their names.
-	 */
-	_checkFormArrayElements(formData) {
-		const checkKeys = [];
-		Object.keys(formData.object).forEach((f) => {
-			if (f.match(/\[/)) {
-				checkKeys.push(f);
-			}
-		});
-		return checkKeys;
-	}
-	
 	/*******************************************************************
 	 * Drag & Drop Stuff
 	 ******************************************************************/

@@ -68,7 +68,7 @@ export class Tribe8CharacterSheet extends HandlebarsApplicationMixin(ActorSheetV
 					if (!context.skills) context.skills = [];
 					item.specializations = Object.keys(item.system.specializations).map((s) => { return item.system.specializations[s].name; }).join(', ');
 					context.skills.push(item);
-					if (game.tribe8.slugify(item.system.name) == 'synthesis') {
+					if (CONFIG.Tribe8.slugify(item.system.name) == 'synthesis') {
 						if (!context.magic) context.magic = {};
 						context.magic.synthesisSkill = item;
 					}
@@ -78,11 +78,11 @@ export class Tribe8CharacterSheet extends HandlebarsApplicationMixin(ActorSheetV
 					if (!context.perksAndFlaws)
 						context.perksAndFlaws = [];
 					context.perksAndFlaws.push(item);
-					if (game.tribe8.slugify(item.name) == 'dreamer') {
+					if (CONFIG.Tribe8.slugify(item.name) == 'dreamer') {
 						if (!context.magic) context.magic = {};
 						context.magic.hasDreamerPerk = true;
 					}
-					if (game.tribe8.slugify(item.name) == 'awakeneddreamer') {
+					if (CONFIG.Tribe8.slugify(item.name) == 'awakeneddreamer') {
 						if (!context.magic) context.magic = {};
 						context.magic.hasAwakenedDreamerPerk = true;
 					}
@@ -100,14 +100,30 @@ export class Tribe8CharacterSheet extends HandlebarsApplicationMixin(ActorSheetV
 					context.magic[collectionName].push(item);
 					break;
 				default:
-					console.log(`Unsupported character item type '${item.type}', will not display`);
+					console.warn(`Unsupported character item type '${item.type}', will not display`);
 					break;
 			}
 		}
 		
 		// Sort various items for display
-		if (context.skills && context.skills.length) {
-			context.skills.sort(context.skills[0].system.constructor.cmp);
+		for (let itemGroup of ['skills', 'perksAndFlaws', 'sortedManeuvers', 'magic.eminences', 'magic.aspects', 'magic.totems']) {
+			let contextTarget = context[itemGroup];
+			const itemGroupParts = itemGroup.split('.');
+			if (itemGroupParts.length > 1) {
+				contextTarget = context;
+				for (let c = 0; c < itemGroupParts.length; c++) {
+					const contextProp = itemGroupParts[c];
+					if (!contextTarget[contextProp]) {
+						break;
+					}
+					contextTarget = contextTarget[contextProp];
+				}
+			}
+			if (contextTarget && contextTarget.length) {
+				if (contextTarget[0]?.constructor?.cmp) {
+					contextTarget.sort(contextTarget[0].constructor.cmp);
+				}
+			}
 		}
 		if (context.perksAndFlaws && context.perksAndFlaws.length) {
 			context.perksAndFlaws.sort(context.perksAndFlaws[0].system.constructor.cmp);

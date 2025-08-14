@@ -1,4 +1,5 @@
 const fields = foundry.data.fields;
+import { Tribe8 } from '../config.js';
 import { Tribe8ManeuverModel } from './maneuver.js';
 
 export class Tribe8CharacterModel extends foundry.abstract.TypeDataModel {
@@ -7,18 +8,16 @@ export class Tribe8CharacterModel extends foundry.abstract.TypeDataModel {
 			tribe: new fields.StringField({hint: "Tribe into which the character was born or most directly identifies", blank: true, trim: true}),
 			role: new fields.StringField({hint: "Role this character plays in their Cell", blank: true, trim: true}),
 			attributes: new fields.SchemaField({
-				primary: new fields.SchemaField({
-					agi: new fields.SchemaField(Tribe8PrimaryAttribute('Agility', 'agi')),
-					app: new fields.SchemaField(Tribe8PrimaryAttribute('Appearance', 'app')),
-					bld: new fields.SchemaField(Tribe8PrimaryAttribute('Build', 'bld')),
-					cre: new fields.SchemaField(Tribe8PrimaryAttribute('Creativity', 'cre')),
-					fit: new fields.SchemaField(Tribe8PrimaryAttribute('Fitness', 'fit')),
-					inf: new fields.SchemaField(Tribe8PrimaryAttribute('Influence', 'inf')),
-					kno: new fields.SchemaField(Tribe8PrimaryAttribute('Knowledge', 'kno')),
-					per: new fields.SchemaField(Tribe8PrimaryAttribute('Perception', 'per')),
-					psy: new fields.SchemaField(Tribe8PrimaryAttribute('Psyche', 'psy')),
-					wil: new fields.SchemaField(Tribe8PrimaryAttribute('Willpower', 'wil'))
-                }),
+				primary: new fields.SchemaField(
+					Object.fromEntries(
+						Object.keys(Tribe8.attributes.primary).map((a) => {
+							return [
+								a,
+								new fields.SchemaField(Tribe8PrimaryAttribute(Tribe8.attributes.primary[a], a))
+							];
+						})
+					)
+				),
                 secondary: new fields.SchemaField({
 					physical: new fields.SchemaField({
 						str: new fields.SchemaField(Tribe8SecondaryAttribute('Strength', 'str')),
@@ -115,14 +114,14 @@ export class Tribe8CharacterModel extends foundry.abstract.TypeDataModel {
 			const attData = this.attributes.primary[a];
 
 			// All atts start at -1
-			let attValue = -1;
+			let attValue = CONFIG.Tribe8.attributeBasis;
 			
 			// Add CP. Negative CP have the same value at the same rate
 			// as positive, just negative.
 			attValue += (attData.cp < 0 ? -1 : 1)*Math.floor(Math.sqrt(Math.abs(attData.cp)));
 			
 			// Add XP. Negative XP not a thing.
-			attValue += Math.floor(Math.max(attData.xp, 0) / 50);
+			attValue += Math.floor(Math.max(attData.xp, 0) / Tribe8.costs.attribute);
 			
 			// Account for weird edge case bonuses
 			attValue += attData.bonus ?? 0;
@@ -156,8 +155,8 @@ export class Tribe8CharacterModel extends foundry.abstract.TypeDataModel {
 		secAtts.sta.value = Math.max((5 * (priAtts.bld.value + secAtts.hea.value)) + 25, 10);
 		
 		// Next, armed/unarmed
-		const skillH2H = skills.find((s) => s.name.match(/(Hand\b.*?\bto\b.*?Hand|H\b.*?\b(2|t)\b.*?\bH)/i));
-		const skillMelee = skills.find((s) => s.name.match(/Melee/i));
+		const skillH2H = CONFIG.Tribe8.findCombatSkill('H', skills);
+		const skillMelee = CONFIG.Tribe8.findCombatSkill('M', skills);
 		secAtts.ud.value = Math.max(3 + secAtts.str.value + priAtts.bld.value + (skillH2H?.system?.level ?? 0), 1);
 		secAtts.ad.value = Math.max(3 + secAtts.str.value + priAtts.bld.value + (skillMelee?.system?.level ?? 0), 1);
 	
@@ -276,14 +275,14 @@ export class Tribe8CharacterModel extends foundry.abstract.TypeDataModel {
 	 */
 	_computeManeuverComplexityCapacity() {
 		// Initialize the combat skill reference list
-		const combatSkillReference = {...Tribe8ManeuverModel.COMBAT_SKILLS};
+		const combatSkillReference = {...CONFIG.Tribe8.COMBAT_SKILLS};
 		for (let key of Object.keys(combatSkillReference)) {
 			if (typeof combatSkillReference[key] != 'array') {
-				combatSkillReference[key] = [game.tribe8.slugify(combatSkillReference[key])];
+				combatSkillReference[key] = [CONFIG.Tribe8.slugify(combatSkillReference[key])];
 			}
 		}
-		combatSkillReference['R'] = combatSkillReference['R'].concat(Tribe8ManeuverModel.RANGED_COMBAT_SKILL_REFERENCE);
-		combatSkillReference['H'] = combatSkillReference['H'].concat(Tribe8ManeuverModel.HAND_TO_HAND_VARIATIONS);
+		combatSkillReference['R'] = combatSkillReference['R'].concat(CONFIG.Tribe8.RANGED_COMBAT_SKILL_REFERENCE);
+		combatSkillReference['H'] = combatSkillReference['H'].concat(CONFIG.Tribe8.HAND_TO_HAND_VARIATIONS);
 		
 		// Initialize the object that stores our complexity caps
 		this.maneuverCpxCaps = {};
@@ -291,7 +290,7 @@ export class Tribe8CharacterModel extends foundry.abstract.TypeDataModel {
 		// Gather up all the character's skill and initialize maneuver capacity objects for them
 		const allSkills = Array.from(this.parent.getEmbeddedCollection("Item")).filter((i) => i.type == 'skill');
 		for (let skill of allSkills) {
-			const skillNameSlug = game.tribe8.slugify(skill.system.name);
+			const skillNameSlug = CONFIG.Tribe8.slugify(skill.system.name);
 			for (let skillGroup of Object.keys(combatSkillReference)) {
 				if (combatSkillReference[skillGroup].indexOf(skillNameSlug) >= 0) {
 					if (!this.maneuverCpxCaps[skillGroup])

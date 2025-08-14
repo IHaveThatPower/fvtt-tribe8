@@ -8,6 +8,27 @@ div.character-sheet {
 	height: 100%;
 }
 
+h2 {
+	display: grid;
+	grid-template-columns: 1fr min-content;
+	align-items: center;
+}
+h2 span:first-child {
+	overflow: hidden;
+	white-space: nowrap;
+	text-overflow: ellipsis;
+}
+h2 button {
+	min-height: 0;
+	padding: 0.15rem 0.4rem 0.05 0.4rem;
+	height: calc(100% - 0.2rem);
+	display: block;
+}
+h2 button i.fa, h3 button i.fa, dt button i.fa {
+	display: block;
+	margin-bottom: -0.065rem; /* Account for weird vertical offset */
+}
+
 dl {
 	margin-left: 0.25rem;
 }
@@ -124,7 +145,7 @@ div.magic {
 	h3.has-synthesis {
 		cursor: pointer;
 	}
-	span:nth-child(last) {
+	span:last-child {
 		font-size: 85%;
 	}
 	div.identity {
@@ -300,7 +321,7 @@ div.skills {
 	}
 	div.edie-block div.value {
 		display: grid;
-		grid-template-columns: 1fr 1fr;
+		grid-template-columns: 1fr min-content;
 		border: none;
 		width: 3rem;
 	}
@@ -317,11 +338,6 @@ div.skills {
 		overflow: hidden;
 		display: grid;
 		grid-template-rows: 1fr 1fr;
-		/*
-		display: flex;
-		flex-direction: column;
-		flex-wrap: nowrap;
-		*/
 	}
 	div.edie-block div.edie-buttons button {
 		min-height: unset;
@@ -329,6 +345,7 @@ div.skills {
 		width: unset;
 		min-width: unset;
 		overflow: hidden;
+		margin: 0;
 	}
 	div.specializations {
 		display: flex;
@@ -405,15 +422,6 @@ div.skills {
 		margin-left: 25%;
 	}
 }
-div.skills>button,
-div.perks-flaws>button,
-div.maneuvers>button {
-	column-span: all;
-	width: 50%;
-	position: relative;
-	margin: 0.6rem auto 0.4rem auto;
-	justify-self: center;
-}
 
 div.pf div.name,
 div.maneuver div.name {
@@ -429,8 +437,8 @@ h3 {
 div.pf {
 	padding-left: 0.25rem;
 }
-div.pf+div.pf {
-	margin-top: 1px;
+div.pf:nth-child(odd) {
+	background: var(--alt-background);
 }
 div.pf.perk.granted {
 	background-image: linear-gradient(
@@ -445,6 +453,22 @@ div.pf.flaw.granted {
 		to right,
 		transparent,
 		var(--color-flaw-granted) 2ch,
+		transparent
+	);
+}
+div.pf.perk.granted:nth-child(odd) {
+	background-image: linear-gradient(
+		to right,
+		transparent,
+		var(--color-perk-granted-alt) 2ch,
+		transparent
+	);
+}
+div.pf.flaw.granted:nth-child(odd) {
+	background-image: linear-gradient(
+		to right,
+		transparent,
+		var(--color-flaw-granted-alt) 2ch,
 		transparent
 	);
 }
@@ -463,6 +487,9 @@ div.maneuver {
 	grid-template-columns: 1fr 1.4rem 3rem;
 	padding-left: 0.15rem;
 }
+div.maneuver:nth-child(odd) {
+	background: var(--alt-background);
+}
 div.maneuver.granted {
 	background-image: linear-gradient(
 		to right,
@@ -476,6 +503,22 @@ div.maneuver.from-cpx {
 		to right,
 		transparent,
 		var(--color-maneuver-bonus) 0.5ch,
+		transparent
+	);
+}
+div.maneuver.granted:nth-child(odd) {
+	background-image: linear-gradient(
+		to right,
+		transparent,
+		var(--color-maneuver-granted-alt) 0.5ch,
+		transparent
+	);
+}
+div.maneuver.from-cpx:nth-child(odd) {
+	background-image: linear-gradient(
+		to right,
+		transparent,
+		var(--color-maneuver-bonus-alt) 0.5ch,
 		transparent
 	);
 }
