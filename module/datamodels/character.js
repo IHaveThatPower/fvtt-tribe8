@@ -279,7 +279,7 @@ export class Tribe8CharacterModel extends foundry.abstract.TypeDataModel {
 		const combatSkillReference = {...Tribe8ManeuverModel.COMBAT_SKILLS};
 		for (let key of Object.keys(combatSkillReference)) {
 			if (typeof combatSkillReference[key] != 'array') {
-				combatSkillReference[key] = [combatSkillReference[key].toLowerCase().replace(/[^a-zA-Z0-9]/g, '')];
+				combatSkillReference[key] = [game.tribe8.slugify(combatSkillReference[key])];
 			}
 		}
 		combatSkillReference['R'] = combatSkillReference['R'].concat(Tribe8ManeuverModel.RANGED_COMBAT_SKILL_REFERENCE);
@@ -291,7 +291,7 @@ export class Tribe8CharacterModel extends foundry.abstract.TypeDataModel {
 		// Gather up all the character's skill and initialize maneuver capacity objects for them
 		const allSkills = Array.from(this.parent.getEmbeddedCollection("Item")).filter((i) => i.type == 'skill');
 		for (let skill of allSkills) {
-			const skillNameSlug = skill.system.name.toLowerCase().replace(/[^a-zA-Z0-9]/g, '');
+			const skillNameSlug = game.tribe8.slugify(skill.system.name);
 			for (let skillGroup of Object.keys(combatSkillReference)) {
 				if (combatSkillReference[skillGroup].indexOf(skillNameSlug) >= 0) {
 					if (!this.maneuverCpxCaps[skillGroup])

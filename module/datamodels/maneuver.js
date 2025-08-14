@@ -72,11 +72,11 @@ export class Tribe8ManeuverModel extends Tribe8ItemModel {
 			const schema = Tribe8ManeuverModel.defineSchema();
 
 			// We need to know some things about the Skills of the character
-			const combatSkillNames = Object.values(Tribe8ManeuverModel.COMBAT_SKILLS).map((s) => s.toLowerCase().replace(/[^a-z0-9]/g, ''));
+			const combatSkillNames = Object.values(Tribe8ManeuverModel.COMBAT_SKILLS).map((s) => game.tribe8.slugify(s));
 			const skills = Array.from(a.parent.getEmbeddedCollection("Item")).filter((i) => {
 				if (i.type != 'skill')
 					return false;
-				let lookupName = i.system.name.toLowerCase().replace(/[^a-z0-9]/g, '');
+				let lookupName = game.tribe8.slugify(i.system.name);
 				// Special case Hand to Hand checks
 				if (Tribe8ManeuverModel.HAND_TO_HAND_VARIATIONS.indexOf(lookupName) >= 0)
 					lookupName = 'handtohand';
@@ -89,7 +89,7 @@ export class Tribe8ManeuverModel extends Tribe8ItemModel {
 				return true;
 			});
 			const combatSkills = skills.reduce((obj, s) => {
-				let referenceName = s.system.name.toLowerCase().replace(/[^a-z0-9]/g, '');
+				let referenceName = game.tribe8.slugify(s.system.name);
 				if (Tribe8ManeuverModel.RANGED_COMBAT_SKILL_REFERENCE.indexOf(referenceName) >= 0)
 					referenceName = 'ranged';
 				const refKey = referenceName[0].toUpperCase();

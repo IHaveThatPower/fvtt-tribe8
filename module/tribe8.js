@@ -1,12 +1,13 @@
-// TODO:
+// TODO: Overall System List
 // * Aspects, generally
 // * System shock tracking
 // * Change System Shock block to summarize all wounds
 // * The Synthesis box
+// * Rituals?
 // * Combat tab
 // * Equipment tab
 // * Make starting CP a system setting for the GM, and then make the initial CP boxes something GM users can edit
-// * Some way to trade attribute points?
+// * Some way to trade attribute points (i.e. PSY for other attributes)
 
 /* Documents */
 import { Tribe8Actor } from './documents/actor.js';
@@ -55,7 +56,10 @@ Hooks.once('init', function() {
 		entities: {
 			Tribe8Actor,
 			Tribe8Item
-		}
+		},
+		slugify: (string) => {
+			return string.trim().toLowerCase().replace(/[^a-zA-Z0-9]/g, '');
+		},
 	};
 
 	// Define initiative for the system.
