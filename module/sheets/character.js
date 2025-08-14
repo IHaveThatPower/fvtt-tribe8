@@ -23,7 +23,8 @@ export class Tribe8CharacterSheet extends HandlebarsApplicationMixin(ActorSheetV
 			incrementEdie: Tribe8CharacterSheet.incrementEdie,
 			decrementEdie: Tribe8CharacterSheet.decrementEdie,
 			editItem: Tribe8CharacterSheet.editItem,
-			addNewItem: Tribe8CharacterSheet.addNewItem
+			addNewItem: Tribe8CharacterSheet.addNewItem,
+			useEminence: Tribe8CharacterSheet.useEminence,
 		}
 	}
 
@@ -274,20 +275,34 @@ export class Tribe8CharacterSheet extends HandlebarsApplicationMixin(ActorSheetV
 	 * Get an embedded item by way of the button used to edit it.
 	 * 
 	 * @param	HTMLElement
+	 * @param	String [optional] action
 	 * @return	Tribe8Item
 	 */
-	_getItemFromTarget(target, action) {
-		const targetParts = (target.dataset?.actionSlug ?? "").split('-');
-		if (targetParts[0] != action) {
-			console.log("Invalid action");
+	_getItemFromTarget(target, action = '') {
+		let targetParts;
+		const id = ((target) => {
+			if (target.dataset?.id) return target.dataset.id;
+			if (target.dataset?.actionSlug) {
+				targetParts = target.dataset.actionSlug.split('-');
+				if (targetParts[0] != action) {
+					foundry.ui.notifications.warn("Invalid action")
+					return false;
+				}
+				return targetParts.slice(2).join('-');
+			}
+			return false;
+		})(target);
+		if (!id) {
+			foundry.ui.notifications.warn("Item ID could not be determined");
 			return false;
 		}
-		const id = targetParts.slice(2).join('-');
 		const item = this.document.getEmbeddedDocument('Item', id);
 		if (!item) {
-			console.log("Item not found");
+			foundry.ui.notifications.warn("Item not found");
 			return false;
 		}
+		if (!targetParts)
+			return item;
 		// Make sure the edit request is of the proper type
 		const legalTypes = Object.keys(CONFIG.Item.dataModels).reduce((obj, m) => {
 				if (m == 'perk' || m == 'flaw') {
@@ -302,6 +317,24 @@ export class Tribe8CharacterSheet extends HandlebarsApplicationMixin(ActorSheetV
 			return false;
 		}
 		return item;
+	}
+
+	/**
+	 * Mark an Eminence as used or not
+	 */
+	static useEminence(event, target) {
+		event.stopPropagation();
+		const item = this._getItemFromTarget(target);
+		if (!item) return;
+		console.log(target);
+		if (target.checked) {
+			console.log("Marking used");
+			item.update({'system.used': true});
+		}
+		else {
+			console.log("Marking not used");
+			item.update({'system.used': false});
+		}
 	}
 
 	/*******************************************************************
@@ -388,16 +421,32 @@ export class Tribe8CharacterSheet extends HandlebarsApplicationMixin(ActorSheetV
 	 * @protected
 	 */
 	async _onDrop(event) {
-		const data = TextEditor.getDragEventData(event);
+		const data = foundry.applications.ux.TextEditor.implementation.getDragEventData(event);
 
 		// Handle different data types
 		switch (data.type) {
 			case 'Item':
-				this.document.addItem(data.uuid);
+				await this._onDropItem(data);
 				break;
 			default:
 				foundry.ui.notifications.error("Unsupported drag-and-drop type");
 				break;
 		}
+	}
+	
+	/**
+	 * Dedicated callback for Item onDrop events
+	 */
+	async _onDropItem(data) {
+		if (!data.uuid) {
+			foundry.ui.notifications.error(`Invalid or missing UUID for Item`);
+			return;
+		}
+		const item = await foundry.utils.fromUuid(data.uuid);
+		if (!item) {
+			foundry.ui.notifications.error(`Tried to add an unknown Item ${data.uuid}`);
+			return;
+		}
+		this.document.createEmbeddedDocuments('Item', [item]);
 	}
 }

@@ -1,0 +1,27 @@
+.tribe8.sheet.item.eminence {
+	gap: 0.4rem;
+
+div.used {
+	text-align: left;
+	white-space: nowrap;
+	line-height: 100%;
+	flex: 0 0 min-content;
+	align-content: center;
+	align-items: center;
+	display: flex;
+	flex-flow: column;
+	gap: 0.15rem;
+}
+div.used label {
+    order: 1;
+    text-transform: uppercase;
+    font-weight: bold;
+    font-size: .7rem;
+    line-height: 0.5rem;
+}
+div.used input {
+	order: 1;
+	margin: 0;
+}
+
+}

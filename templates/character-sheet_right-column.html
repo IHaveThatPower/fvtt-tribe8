@@ -1,0 +1,71 @@
+<div class="perks-flaws">
+	<h2><span>Perks &amp; Flaws</span><button name="add-pf" data-action="addNewItem"><i class="fa fa-solid fa-plus"></i></button></h2>
+	{{#if perksAndFlaws}}<h3>Perks</h3>{{/if}}
+	{{#each perksAndFlaws as |pf|}}
+	{{#with (lookup @root.perksAndFlaws (sub @index 1)) as | prevItem |}}
+	{{#if (and (eq pf.type 'flaw') (eq prevItem.type 'perk'))}}
+	<h3>Flaws</h3>
+	{{/if}}
+	{{/with}}
+	<div class="pf {{this.type}}{{#if this.system.granted}} granted{{/if}}" data-id="{{this.id}}">
+		<div class="identity" data-action-slug="edit-pf-{{this.id}}" data-action="editItem">
+			<div class="name" data-action-slug="edit-pf-{{this.id}}" data-action="editItem">{{#if (eq this.type 'perk')}}+{{else}}-{{/if}} {{this.system.name}}{{#if this.system.ranked}} {{roman this.system.points.length}}{{/if}}</div>
+			{{#if this.system.specific}}
+			<div class="specific">({{this.system.specific}})</div>
+			{{/if}}
+		</div>
+	</div>
+	{{/each}}
+</div>
+<div class="maneuvers">
+	<h2><span>Combat Maneuvers</span><button name="add-maneuver" data-action="addNewItem"><i class="fa fa-solid fa-plus"></i></button></h2>
+	{{#if sortedManeuvers}}
+	<div class="maneuver">
+		<div class="identity points-type">Maneuver (Skill)</div>
+		<div class="complexity points-type">Cpx</div>
+		<div class="cost points-type">Cost</div>
+		<div></div>
+	</div>
+	{{/if}}
+	{{#each sortedManeuvers}}
+	<div class="maneuver{{#if (and (not this.usesPoints) this.system.fromCpx)}} from-cpx{{/if}}{{#if this.system.granted}} granted{{/if}}" data-id="{{this.id}}">
+		<div class="identity" data-action-slug="edit-maneuver-{{this.id}}" data-action="editItem">
+			<div class="name">{{this.name}}</div>
+			<div class="specific">({{this.system.forSkill}})</div>
+		</div>
+		<div class="complexity">{{#if (eq this.system.complexity 0)}}1*{{else}}{{this.system.complexity}}{{/if}}</div>
+		<div class="cost">
+			{{#if (and (not this.usesPoints) this.system.fromCpx)}}
+			C
+			{{else}}
+				{{#if this.system.granted}}
+				W
+				{{else}}
+					{{#if (eq this.system.complexity 0)}}
+					F
+					{{else}}
+					{{this.system.complexity}} {{this.system.points}}{{#if (and this.system.fromCpx this.usesPoints)}}*{{/if}}
+					{{/if}}
+				{{/if}}
+			{{/if}}
+		</div>
+	</div>
+	{{/each}}
+</div>
+<div class="injuries">
+	<h2>Injuries</h2>
+	<h3>Thresholds</h3>
+	<div class="secondary-attributes">
+	{{#each document.system.attributes.secondary.physical.thresholds as |data key|}}
+		<div class="attribute-block threshold {{key}}">
+			<div class="name">{{data.label}}</div>
+			<div class="value">{{data.value}}</div>
+		</div>
+	{{/each}}
+	</div>
+	
+	<h3>System Shock</h3>
+	{{#repeat document.system.attributes.secondary.physical.shock.value false}}
+	<input type="checkbox" name="systemShock[{{this}}]" value="1"{{#if (gte document.system.attributes.secondary.physical.shock.current this)}} checked{{/if}} />
+	{{/repeat}}
+</div>

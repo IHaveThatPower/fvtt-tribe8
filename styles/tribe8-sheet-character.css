@@ -155,6 +155,101 @@ div.magic {
 	div.identity div.specific {
 		text-align: right;
 	}
+	dt {
+		display: grid;
+		grid-template-columns: 1fr min-content;
+		align-items: center;
+		margin: 0;
+		line-height: 100%;
+	}
+	dt button {
+		min-height: 0;
+		font-size: .8rem;
+		padding: 0.1rem 0.4rem 0 0.4rem;
+		line-height: 100%;
+		height: min-content;
+		display: block;
+	}
+	dd {
+		margin-bottom: 0.2rem;
+	}
+	div.aspect, div.eminence {
+		margin-left: -1rem; /* Negates margin imposed by parent dd */
+		padding-left: 1rem;
+		align-items: center;
+	}
+	div.eminence:nth-child(odd),
+	div.aspect:nth-child(odd) {
+		background: var(--alt-background);
+	}
+	div.aspect div.identity,
+	div.eminence div.identity {
+		display: block;
+	}
+	div.aspect div.identity>div,
+	div.eminence div.identity>div {
+		display: inline-block;
+		vertical-align: bottom;
+	}
+	div.eminence {
+		display: grid;
+		grid-template-columns: 1fr min-content;
+		gap: 0.2rem;
+	}
+
+	div.eminence.used {
+		background: none;
+		background-image: linear-gradient(
+			to right,
+			transparent,
+			var(--color-eminence-used) 2ch,
+			transparent
+		);
+	}
+	div.eminence div.used input[type="checkbox"]::before,
+	div.eminence div.used input[type="checkbox"]::after {
+		font-size: 0.9rem;
+		line-height: 0.9rem;
+	}
+	div.aspect  {
+		display: flex;
+		flex-flow: row;
+		gap: 0.4rem;
+		justify-content: space-between;
+	}
+	div.aspect.granted {
+		background: none;
+		background-image: linear-gradient(
+			to right,
+			transparent,
+			var(--color-aspect-granted) 2ch,
+			transparent
+		);
+	}
+	div.aspect.granted:nth-child(odd) {
+		background-image: linear-gradient(
+			to right,
+			transparent,
+			var(--color-aspect-granted-alt) 2ch,
+			transparent
+		);
+	}
+	div.aspect div.cost,
+	div.aspect div.complexity {
+		white-space: nowrap;
+	}
+	div.aspect div.identity {
+		flex: 0 0 fit-content;
+	}
+	div.aspect div.complexity {
+		flex: 0 0 3rem;
+		text-align: center;
+	}
+	div.aspect div.cost {
+		flex: 0 0 1.5rem;
+		text-transform: uppercase;
+		text-align: center;
+	}
 }
 
 div.points-summary dl {
@@ -215,7 +310,7 @@ div.skills {
 	-moz-column-count: 2;
 	column-count: 2;
 	column-gap: 0.4rem;
-	gap: 0.4rem;
+	gap: 0.6rem;
 	width: 100%;
 	min-width: min-content;
 	flex: 1 1 min-content;

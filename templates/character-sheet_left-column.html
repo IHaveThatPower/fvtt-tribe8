@@ -1,0 +1,134 @@
+<div class="character-basics">
+	<div class="player field">
+		<label for="player">Player</label>
+		<input type="text" name="player" readonly value="{{#if playerName}}{{playerName}}{{else}}NPC{{/if}}" />
+	</div>
+	<div class="name field">
+		<label for="name">Name</label>
+		<input type="text" name="name" value="{{document.name}}" />
+	</div>
+	<div class="tribe field">
+		<label for="tribe">Tribe</label>
+		<input type="text" name="system.tribe" value="{{document.system.tribe}}" />
+	</div>
+	<div class="role field">
+		<label for="document.system.role">Role</label>
+		<input type="text" name="system.role" value="{{document.system.role}}" />
+	</div>
+</div>
+<div class="primary-attributes">
+	<h2>Attributes</h2>
+	{{#each document.system.attributes.primary as |data att|}}
+	<div class="attribute-block">
+		<div class="name">{{localize data.label}}</div>
+		<div class="value">{{data.value}}</div>
+		<div class="points">
+			<div class="cp">
+				<input type="number" value="{{#if data.cp}}{{data.cp}}{{else}}0{{/if}}" name="system.attributes.primary.{{att}}.cp"  />
+				<label for="system.attributes.primary.{{att}}.cp">CP</label>
+			</div>
+			<div class="xp">
+				<input type="number" value="{{#if data.xp}}{{data.xp}}{{else}}0{{/if}}" name="system.attributes.primary.{{att}}.xp"  />
+				<label for="system.attributes.primary.{{att}}.xp">XP</label>
+			</div>
+		</div>
+	</div>
+	{{#if (eq @index 4)}}
+	<hr />
+	{{/if}}
+	{{/each}}
+</div>
+<div class="secondary-attributes">
+	{{#each document.system.attributes.secondary.physical as |attribute key|}}
+	{{#if (or (eq key "shock") (eq key "thresholds"))}}
+	{{else}}
+	<div class="attribute-block">
+		<div class="name">{{localize this.label}}</div>
+		<div class="value">{{this.value}}</div>
+	</div>
+	{{/if}}
+	{{/each}}
+</div>
+{{#if magic}}
+<div class="magic">
+	<h2>Magic</h2>
+	{{#if magic.hasDreamerPerk}}
+	<h3{{#if (and magic.hasAwakenedDreamerPerk magic.synthesisSkill)}} class="has-synthesis" data-action="editItem" data-action-slug="edit-skill-{{magic.synthesisSkill.id}}"{{/if}}><!--
+		--><span>Synthesis</span><!--
+		-->{{#if (and magic.hasAwakenedDreamerPerk magic.synthesisSkill)}}<!--
+		--><span>{{magic.synthesisSkill.system.level}}c{{magic.synthesisSkill.system.cpx}}</span><!--
+		-->{{/if}}<!--
+	--></h3>
+	<dl>
+		<dt><span>Eminences</span><button name="add-eminence" data-action="addNewItem"><i class="fa fa-solid fa-plus"></i></button></dt>
+		<dd>{{#if magic.eminences}}{{#each magic.eminences}}
+		<div class="eminence{{#if this.system.used}} used{{/if}}">
+			<div class="identity" data-action="editItem" data-id="{{this.id}}">
+				<div class="name">{{this.name}}</div>
+				<div class="specific">({{this.system.tribe}})</div>
+			</div>
+			<div class="used">
+				<input type="checkbox" name="useEminence[{{this.id}}]" data-action="useEminence" data-id="{{this.id}}" title="Mark this Eminence as having been used for the day"{{#if this.system.used}} checked{{/if}}>
+			</div>
+		</div>
+		{{/each}}{{else}}
+		<em>None</em>{{/if}}
+		</dd>
+		{{#if magic.synthesisSkill}}
+		<dt><span>Aspects</span><button name="add-aspect" data-action="addNewItem"><i class="fa fa-solid fa-plus"></i></button></dt>
+		<dd>{{#if magic.aspects}}{{#each magic.aspects}}
+		<div class="aspect">
+			<div class="identity{{# if this.system.granted}} granted{{/if}}" data-action="editItem" data-id="{{this.id}}">
+				<div class="name">{{this.name}}</div>
+				<div class="specific">({{this.system.tribe}})</div>
+			</div>
+			<div class="complexity">Cpx {{this.system.complexity}}</div>
+			<div class="cost">
+				{{#if this.system.granted}}
+				W
+				{{else}}
+				{{this.system.points}}
+				{{/if}}
+			</div>
+		</div>
+		{{/each}}{{else}}
+		<em>None</em>{{/if}}
+		</dd>
+		{{/if}}
+	</dl>
+	{{/if}}
+	<!-- TODO: Other magic types! -->
+</div>
+{{/if}}
+<div class="points-summary">
+	<h2>Points</h2>
+	<dl>
+		<dt>CP</dt>
+		<dd>
+			<dl>
+				<dt>Att</dt>
+				<dd>{{document.system.points.cp.attributesSpent}} / {{document.system.points.cp.attributes}}</dd>
+				<dt>General</dt>
+				<dd>{{document.system.points.cp.generalSpent}} / {{document.system.points.cp.general}}</dd>
+			</dl>
+		</dd>
+		<dt>XP</dt>
+		<dd>
+			<dl>
+				<dt></dt>
+				<dd>{{document.system.points.xp.spent}} / <input type="number" name="system.points.xp.total" value="{{document.system.points.xp.total}}" /></dd>
+			</dl>
+		</dd>
+		<dt>EDie</dt>
+		<dd>
+			<dl>
+				<dt></dt>
+				<dd>{{document.system.edie.total}}</dd>
+				<dt>From XP</dt>
+				<dd>{{document.system.edie.fromXP}}</dd>
+				<dt>Other</dt>
+				<dd><button name="edie.dec" data-action="decrementEdie">-</button><input type="number" name="system.edie.other" value="{{document.system.edie.other}}" /><button name="edie.inc" data-action="incrementEdie">+</button></dd>
+			</dl>
+		</dd>
+	</dl>
+</div>

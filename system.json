@@ -23,7 +23,9 @@
     "styles/tribe8-sheet-item.css",
     "styles/tribe8-sheet-item-skill.css",
     "styles/tribe8-sheet-item-pf.css",
-    "styles/tribe8-sheet-item-maneuver.css"
+    "styles/tribe8-sheet-item-maneuver.css",
+    "styles/tribe8-sheet-item-eminence.css",
+    "styles/tribe8-sheet-item-aspect.css"
   ],
   "packs": [],
   "languages": [

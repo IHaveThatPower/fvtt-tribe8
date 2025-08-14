@@ -1,0 +1,42 @@
+<h2><span>Skills</span><button name="add-skill" data-action="addNewItem"><i class="fa fa-solid fa-plus"></i></button></h2>
+<div class="skills">
+	{{#each skills as |skill|}}
+	<div class="skill" data-uuid="{{skill.uuid}}" data-id="{{skill.id}}">
+		<div class="identity" data-action="editItem" data-action-slug="edit-skill-{{skill.id}}">
+			<div class="name">
+				{{skill.system.name}}
+			</div>
+			{{#if skill.system.specify}}
+			<div class="specific">
+				({{skill.system.specific}})
+			</div>
+			{{/if}}
+		</div>
+		{{#if skill.specializations}}
+		<div class="specializations">
+			<label for="system.{{skill.uuid}}.specializations">Specializations</label>
+			<div class="specialization-list" title="{{skill.specializations}}">{{skill.specializations}}</div>
+			<!--<textarea name="skill.{{skill.uuid}}.specializations" title="Specializations">{{skill.specializations}}</textarea>-->
+		</div>
+		{{/if}}
+		<div class="points-block">
+			<div class="points-type">Level</div>
+			<div class="value">{{skill.system.level}}</div>
+		</div>
+		<div class="points-block">
+			<div class="points-type">Cpx</div>
+			<div class="value">{{skill.system.cpx}}</div>
+		</div>
+		<div class="points-block edie-block">
+			<div class="points-type">EDie</div>
+			<div class="value">
+				<input type="number" value="{{skill.system.eDieSpent}}" name="skill.{{skill.uuid}}.system.eDieSpent"  />
+				<div class="edie-buttons">
+					<button name="edie.inc" data-action="incrementEdie" title="SPEND an E-Die on this skill. It will be removed from the character's general E-Die pool, if available, or spend from available XP if not.">+</button>
+					<button name="edie.dec" data-action="decrementEdie" title="Remove SPENT E-Die. It will be added back to the character's general E-Die pool">-</button>
+				</div>
+			</div>
+		</div>
+	</div>
+	{{/each}}
+</div>

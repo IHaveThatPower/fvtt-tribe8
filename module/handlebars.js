@@ -112,6 +112,9 @@ Handlebars.registerHelper('repeat', function ()
 
 // Load supplemental templates
 foundry.applications.handlebars.loadTemplates([
+	"systems/tribe8/templates/character-sheet_left-column.html",
+	"systems/tribe8/templates/character-sheet_middle-column.html",
+	"systems/tribe8/templates/character-sheet_right-column.html",
 	"systems/tribe8/templates/item-sheet_buttons.html",
 	"systems/tribe8/templates/item-sheet_description.html"
 ]);
