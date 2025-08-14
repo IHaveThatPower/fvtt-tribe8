@@ -401,7 +401,16 @@ export class Tribe8CharacterModel extends foundry.abstract.TypeDataModel {
 	 * _preparePoints()
 	 */
 	_applyAspectPoints(item) {
-		// TODO: _applyAspectPoints
+		if (item.system.granted)
+			return; // No cost applied
+		switch (item.system.points) {
+			case 'CP':
+				this.points.cp.generalSpent += Tribe8.costs.aspect;
+				break;
+			case 'XP':
+				this.points.xp.spent += Tribe8.costs.aspect;
+				break;
+		}
 	}
 }
 

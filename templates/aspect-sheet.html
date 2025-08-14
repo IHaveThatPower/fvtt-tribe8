@@ -1,0 +1,57 @@
+<div class="item-sheet eminence">
+	<div class="identity">
+		<div class="name"><input type="text" name="name" value="{{document.name}}" size=12 title="Name of the Eminence"></div>
+		<div class="specific"><input type="text" name="system.tribe" value="{{document.system.tribe}}" size=12 title="Tribe with which the Eminence is associated"></div>
+	</div>
+	<div class="costs">
+		<div class="cost-field cost-field-checkbox">
+			<input type="radio" id="system.points.cp" name="system.points" value="cp"{{#if (eq document.system.points "cp")}} checked{{/if}}>
+			<label for="system.points.cp">CP</label>
+		</div>
+		<div class="cost-field cost-field-checkbox">
+			<input type="radio" id="system.points.xp" name="system.points" value="xp"{{#if (eq document.system.points "xp")}} checked{{/if}} />
+			<label for="system.points.xp">XP</label>
+		</div>
+		<div class="granted cost-field cost-field-checkbox">
+			<input type="checkbox" name="system.granted" value=true{{#if document.system.granted}} checked{{/if}} title="Check if the Weaver granted this for free" />
+			<label for="system.granted" title="Check if the Weaver granted this for free">F?</label>
+		</div>
+	</div>
+	<div class="effects">
+		<div class="effect">
+			<div class="effect-property">Cpx</div>
+			<div class="effect-input">
+				<span class="input-size" data-value="{{document.system.complexity}}">
+					<input type="number" name="system.complexity" value="{{ document.system.complexity }}" title="Complexity requirement for this Aspect." placeholder="2" min="2" max="10" />
+				</span>
+			</div>
+		</div>
+		<div class="effect">
+			<div class="effect-property">Attr.</div>
+			<div class="effect-input">
+				<span class="input-size" data-value="{{document.system.attribute}}">
+					<input type="text" name="system.attribute" value="{{ document.system.attribute }}" title="Attribute added when rolling Synthesis to use this Aspect." placeholder="CRE" size=3 />
+				</span>
+			</div>
+		</div>
+		<div class="effect">
+			<div class="effect-property">Thr.</div>
+			<div class="effect-input">
+				<span class="input-size" data-value="{{document.system.threshold}}">
+					<input type="number" name="system.threshold" value="{{ document.system.threshold }}" title="Synthesis roll Threshold required to use this Aspect successfully. If the Threshold varies, leave blank." placeholder="0" min="0" max="10" />
+				</span>
+			</div>
+		</div>
+		<div class="effect">
+			<div class="effect-property">Opp.</div>
+			<div class="effect-input">
+				<span class="input-size" data-value="{{document.system.opposedBy}}">
+					<input type="text" name="system.opposedBy" value="{{ document.system.opposedBy }}" title="Attribute roll target makes to resist this Aspect's effects." placeholder="WIL" size=2 />
+				</span>
+			</div>
+		</div>
+	</div>
+	{{> "systems/tribe8/templates/item-sheet_description.html"}}
+	{{> "systems/tribe8/templates/item-sheet_buttons.html"}}
+</div>
+
