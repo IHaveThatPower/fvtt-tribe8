@@ -367,9 +367,11 @@ export class Tribe8CharacterModel extends foundry.abstract.TypeDataModel {
 				if (this.maneuverCpxCaps[fs]) {
 					for (let skill of this.maneuverCpxCaps[fs]) {
 						for (let c = skill.cpx; c > 0; c--) {
+							if (c < maneuver.system.complexity) continue;
 							for (let i = 0; i < skill.slots[c].length; i++) {
 								if (!skill.slots[c][i]) { // Found an empty slot!
 									skill.slots[c][i] = maneuver;
+									maneuver.usesPoints = false;
 									this.maneuversToFillSlots[m] = null;
 									break thisManeuver; // TODO: Yikes...
 								}
@@ -386,6 +388,7 @@ export class Tribe8CharacterModel extends foundry.abstract.TypeDataModel {
 		// If we have any left over, pay for them normally.
 		if (this.maneuversToFillSlots.length) {
 			for (let maneuver of this.maneuversToFillSlots) {
+				maneuver.usesPoints = true;
 				if (maneuver.system.points == 'cp')
 					this.points.cp.generalSpent += maneuver.system.complexity;
 				else

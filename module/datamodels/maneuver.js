@@ -126,10 +126,18 @@ export class Tribe8ManeuverModel extends Tribe8ItemModel {
 			return -1;
 		if (!a.system.granted && b.system.granted)
 			return 1;
-		if (a.system.fromCpx && !b.system.fromCpx)
-			return -1;
-		if (!a.system.fromCpx && b.system.fromCpx)
-			return 1;
+		if (a.system.fromCpx || b.system.fromCpx) {
+			let aFromCpx = a.system.fromCpx;
+			let bFromCpx = b.system.fromCpx;
+			if (aFromCpx && a.usesPoints)
+				aFromCpx = false;
+			if (bFromCpx && b.usesPoints)
+				bFromCpx = false;
+			if (aFromCpx && !bFromCpx)
+				return -1;
+			if (!aFromCpx && bFromCpx)
+				return 1;
+		}
 		if (a.system.complexity > b.system.complexity)
 			return -1;
 		if (a.system.complexity < b.system.complexity)

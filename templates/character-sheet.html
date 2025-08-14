@@ -202,14 +202,14 @@
 			</div>
 			{{/if}}
 			{{#each sortedManeuvers}}
-			<div class="maneuver{{#if this.system.fromCpx}} from-cpx{{/if}}{{#if this.system.granted}} granted{{/if}}" data-id="{{this.id}}">
+			<div class="maneuver{{#if (and (not this.usesPoints) this.system.fromCpx)}} from-cpx{{/if}}{{#if this.system.granted}} granted{{/if}}" data-id="{{this.id}}">
 				<div class="identity" data-action-slug="edit-maneuver-{{this.id}}" data-action="editItem">
 					<div class="name">{{this.name}}</div>
 					<div class="specific">({{this.system.forSkill}})</div>
 				</div>
 				<div class="complexity">{{#if (eq this.system.complexity 0)}}1*{{else}}{{this.system.complexity}}{{/if}}</div>
 				<div class="cost">
-					{{#if this.system.fromCpx}}
+					{{#if (and (not this.usesPoints this.system.fromCpx))}}
 					C
 					{{else}}
 						{{#if this.system.granted}}
@@ -218,17 +218,13 @@
 							{{#if (eq this.system.complexity 0)}}
 							F
 							{{else}}
-							{{this.system.complexity}} {{this.system.points}}
+							{{this.system.complexity}} {{this.system.points}}{{#if (and this.system.fromCpx this.usesPoints)}}*{{/if}}
 							{{/if}}
 						{{/if}}
 					{{/if}}
 				</div>
 			</div>
 			{{/each}}
-			<!--
-			Maneuver, skill it applies to, whether or not it's free
-			Sort by skill, then by complexity (descending), then by free (yes -> no)
-			-->
 			<button name="add-maneuver" data-action="addNewItem">Add</button>
 		</div>
 		<div class="injuries">
