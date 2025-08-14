@@ -200,7 +200,7 @@
 				</div>
 				<div class="complexity">{{#if (eq this.system.complexity 0)}}1*{{else}}{{this.system.complexity}}{{/if}}</div>
 				<div class="cost">
-					{{#if (and (not this.usesPoints this.system.fromCpx))}}
+					{{#if (and (not this.usesPoints) this.system.fromCpx)}}
 					C
 					{{else}}
 						{{#if this.system.granted}}
