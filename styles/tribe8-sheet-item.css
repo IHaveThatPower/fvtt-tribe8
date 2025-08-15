@@ -2,6 +2,13 @@
 	display: flex;
 	flex-direction: column;
 	overflow-y: auto;
+	height: fit-content;
+
+div.item-sheet {
+	height: fit-content;
+	display: flex;
+	flex-flow: column;
+}
 
 div.name,
 div.specific {
@@ -100,6 +107,8 @@ div.description>prose-mirror {
 div.description div.editor-container,
 div.description div.editor-content {
 	min-height: 12ex;
+	height: fit-content;
+	position: relative;
 }
 
 div.itemButtons {

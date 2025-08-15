@@ -19,11 +19,6 @@
 	--color-aspect-granted-alt: var(--color-perk-granted-alt);
 }
 
-div.item-sheet {
-	height: 100%;
-	display: flex;
-	flex-flow: column;
-}
 div.character-sheet h2,
 div.item-sheet h2,
 div.item-sheet div.name,

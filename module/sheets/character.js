@@ -1,7 +1,8 @@
-const { ApplicationV2, HandlebarsApplicationMixin, DialogV2 } = foundry.applications.api;
+const { DialogV2 } = foundry.applications.api;
 const { ActorSheetV2 } = foundry.applications.sheets;
+import { Tribe8Sheet } from './sheet.js';
 
-export class Tribe8CharacterSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
+export class Tribe8CharacterSheet extends Tribe8Sheet(ActorSheetV2) {
 	static DEFAULT_OPTIONS = {
 		form: {
 			closeOnSubmit: false,

@@ -6,8 +6,7 @@ export class Tribe8EminenceSheet extends Tribe8ItemSheet {
 			contentClasses: ["tribe8", "eminence", "sheet", "item"]
 		},
 		position: {
-			width: 360,
-			height: "auto"
+			width: 360
 		}
 	}
 

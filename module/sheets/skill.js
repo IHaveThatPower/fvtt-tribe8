@@ -32,7 +32,7 @@ export class Tribe8SkillSheet extends Tribe8ItemSheet {
 	get title() {
 		return `Skill: ${this.document.name}`;
 	}
-	
+
 	/**
 	 * Prepare the context object supplied to the application
 	 */
@@ -91,7 +91,7 @@ export class Tribe8SkillSheet extends Tribe8ItemSheet {
 		const submittingElement = event.submitter ?? event.target;
 		if (submittingElement.nodeName == 'INPUT' && submittingElement.name.match(/^newSpecialization/))
 			return;
-		
+
 		// Process eDie changes
 		const eDieDelta = (Number(submitData.eDieDelta) || 0);
 		if (eDieDelta) {
@@ -120,7 +120,7 @@ export class Tribe8SkillSheet extends Tribe8ItemSheet {
 			delete formData.object[key];
 		}
 	}
-	
+
 	/**
 	 * Update Specialization Items attached to this Skill
 	 */
@@ -188,7 +188,7 @@ export class Tribe8SkillSheet extends Tribe8ItemSheet {
 		};
 		specDef.name = specDef.name.trim();
 		specDef['system.points'] = specDef['system.points'].toUpperCase();
-		
+
 		// Hand off to the model's method
 		this.document.system.addSpecialization(specDef);
 

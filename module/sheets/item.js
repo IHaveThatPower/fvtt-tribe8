@@ -1,8 +1,9 @@
-const { ApplicationV2, HandlebarsApplicationMixin, DialogV2 } = foundry.applications.api;
+const { DialogV2 } = foundry.applications.api;
 const { ItemSheetV2 } = foundry.applications.sheets;
 const { TextEditor } = foundry.applications.ux;
+import { Tribe8Sheet } from './sheet.js';
 
-export class Tribe8ItemSheet extends HandlebarsApplicationMixin(ItemSheetV2) {
+export class Tribe8ItemSheet extends Tribe8Sheet(ItemSheetV2) {
 	static DEFAULT_OPTIONS = {
 		form: {
 			closeOnSubmit: false,
@@ -25,27 +26,6 @@ export class Tribe8ItemSheet extends HandlebarsApplicationMixin(ItemSheetV2) {
 	 */
 	get title() {
 		return this.document.name;
-	}
-
-	/**
-	 * Handle any special _onRender events.
-	 */
-	async _onRender(context, options) {
-		// When rendering, always re-render the title
-		if (this.window.title.textContent != this.title) {
-			this._updateFrame({window: { title: this.title }});
-		}
-
-		// Setup input resizers
-		const inputSizers = this.element.querySelectorAll('span.input-sizer input');
-		inputSizers.forEach((s) => {
-			s.addEventListener('input', (e) => {
-				if (e.target?.parentNode?.dataset)
-					e.target.parentNode.dataset.value = e.target.value;
-			});
-		});
-
-		return await super._onRender(context, options);
 	}
 
 	/**

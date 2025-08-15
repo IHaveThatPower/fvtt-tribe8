@@ -1,8 +1,5 @@
 // TODO: Overall System List
-// * Convert Specializations to an Item
 // * Rituals?
-// * Make Item sheets size their height intelligently, based on Description length
-// * Remember sheet dimensions and position per-user and restore them when opening a sheet
 // * Combat tab
 // * Equipment tab
 // * Make starting CP a system setting for the GM, and then make the initial CP boxes something GM users can edit

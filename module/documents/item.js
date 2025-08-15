@@ -5,7 +5,7 @@ export class Tribe8Item extends Item {
 	 * Create Specialization Items and add them to the Item's parent
 	 * Actor, if applicable, if they were originally created in the
 	 * basic object format.
-	 * 
+	 *
 	 * This should not be called until after the game setup completes
 	 */
 	async createSpecializationsFromLegacy() {
@@ -13,7 +13,7 @@ export class Tribe8Item extends Item {
 		// Probably nothing to do
 		if (!source || !Object.keys(source).length)
 			return;
-		
+
 		try {
 			if (this.parent && this.parent instanceof Tribe8Actor) {
 				// What specializations do we already have for this current item?
@@ -44,7 +44,7 @@ export class Tribe8Item extends Item {
 			console.error(error);
 			return;
 		}
-		
+
 		// Clear the flag
 		await this.setFlag('tribe8', 'legacy-specializations', 1); // Override the object first
 		await this.unsetFlag('tribe8', 'legacy-specializations'); // Now clear it out
@@ -59,7 +59,7 @@ export class Tribe8Item extends Item {
 		}
 		return false;
 	}
-	
+
 	/**
 	 * Handle any document-level migration hacks we need to do
 	 */
@@ -77,10 +77,10 @@ export class Tribe8Item extends Item {
 					// Stash the data on a flag.
 					// deepClone can't handle advanced data fields, hence the try/catch, just incase
 					data.flags['tribe8']['legacy-specializations'] = foundry.utils.deepClone(data.system.specializations, {strict: true});
-					
+
 					// Having safely stashed it, nuke it from the migration data
 					delete data.system.specializations;
-					
+
 					// If it didn't work for some reason, raise a ruckus
 					if (!Object.keys(data.flags['tribe8']['legacy-specializations']).length)
 						throw new Error("Failed to migrate specialization data");
@@ -90,7 +90,7 @@ export class Tribe8Item extends Item {
 		}
 		return super.migrateData(data);
 	}
-	
+
 	/**
 	 * Return the default artwork for the given item type
 	 */

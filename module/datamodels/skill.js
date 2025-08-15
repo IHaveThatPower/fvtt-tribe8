@@ -109,17 +109,17 @@ export class Tribe8SkillModel extends Tribe8ItemModel {
 	get eDieSpent() {
 		return this.points.edie.fromBonus + this.points.edie.fromXP;
 	}
-	
+
 	/**
 	 * Add a Specialization to this Skill
 	 */
 	async addSpecialization(data) {
 		const skill = this.parent;
 		const actor = skill.parent;
-		
+
 		// Ensure data is complete
 		if (!data.type) data.type = 'specialization';
-		
+
 		// Does this Specialization already exist?
 		if (
 			this.specializations

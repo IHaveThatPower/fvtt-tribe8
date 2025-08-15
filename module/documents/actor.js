@@ -12,7 +12,7 @@ export class Tribe8Actor extends Actor {
 			await skill.createSpecializationsFromLegacy();
 		}
 	}
-	
+
 	/**
 	 * Align Specialization and Skill items
 	 */
@@ -53,7 +53,7 @@ export class Tribe8Actor extends Actor {
 						}
 						continue;
 					}
-					
+
 					// Make sure the Specialization's Skill matches the currently-evaluated Skill
 					const expectedSkill = specItems[0].system['skill'];
 					if (expectedSkill != skill.id) {
