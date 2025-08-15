@@ -53,7 +53,7 @@
 <div class="magic">
 	<h2>Magic</h2>
 	{{#if magic.hasDreamerPerk}}
-	<h3{{#if (and magic.hasAwakenedDreamerPerk magic.synthesisSkill)}} class="has-synthesis" data-action="editItem" data-action-slug="edit-skill-{{magic.synthesisSkill.id}}"{{/if}}><!--
+	<h3{{#if (and magic.hasAwakenedDreamerPerk magic.synthesisSkill)}} class="has-synthesis" data-action="editItem" data-id="{{magic.synthesisSkill.id}}"{{/if}}><!--
 		--><span>Synthesis</span><!--
 		-->{{#if (and magic.hasAwakenedDreamerPerk magic.synthesisSkill)}}<!--
 		--><span>{{magic.synthesisSkill.system.level}}c{{magic.synthesisSkill.system.cpx}}</span><!--

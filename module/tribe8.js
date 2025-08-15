@@ -1,6 +1,4 @@
 // TODO: Overall System List
-// * Aspects, generally
-// * System shock tracking
 // * Convert Specializations to an Item
 // * Switch editItem invocations over to use item ID instead of actionSlug
 // * Rituals? 

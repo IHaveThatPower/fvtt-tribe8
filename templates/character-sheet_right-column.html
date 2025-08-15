@@ -8,8 +8,8 @@
 	{{/if}}
 	{{/with}}
 	<div class="pf {{this.type}}{{#if this.system.granted}} granted{{/if}}" data-id="{{this.id}}">
-		<div class="identity" data-action-slug="edit-pf-{{this.id}}" data-action="editItem">
-			<div class="name" data-action-slug="edit-pf-{{this.id}}" data-action="editItem">{{#if (eq this.type 'perk')}}+{{else}}-{{/if}} {{this.system.name}}{{#if this.system.ranked}} {{roman this.system.points.length}}{{/if}}</div>
+		<div class="identity" data-action="editItem">
+			<div class="name">{{#if (eq this.type 'perk')}}+{{else}}-{{/if}} {{this.system.name}}{{#if this.system.ranked}} {{roman this.system.points.length}}{{/if}}</div>
 			{{#if this.system.specific}}
 			<div class="specific">({{this.system.specific}})</div>
 			{{/if}}
@@ -29,7 +29,7 @@
 	{{/if}}
 	{{#each sortedManeuvers}}
 	<div class="maneuver{{#if (and (not this.usesPoints) this.system.fromCpx)}} from-cpx{{/if}}{{#if this.system.granted}} granted{{/if}}" data-id="{{this.id}}">
-		<div class="identity" data-action-slug="edit-maneuver-{{this.id}}" data-action="editItem">
+		<div class="identity" data-action="editItem">
 			<div class="name">{{this.name}}</div>
 			<div class="specific">({{this.system.forSkill}})</div>
 		</div>
@@ -65,7 +65,9 @@
 	</div>
 	
 	<h3>System Shock</h3>
-	{{#repeat document.system.attributes.secondary.physical.shock.value false}}
-	<input type="checkbox" name="systemShock[{{this}}]" value="1"{{#if (gte document.system.attributes.secondary.physical.shock.current this)}} checked{{/if}} />
+	{{#with document.system.attributes.secondary.physical.shock as | shock |}}
+	{{#repeat shock.value false}}
+	<input type="checkbox" name="systemShock[{{this}}]" value="1"{{#if (gte shock.current this)}} checked{{/if}} />
 	{{/repeat}}
+	{{/with}}
 </div>

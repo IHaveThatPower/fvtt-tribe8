@@ -1,5 +1,4 @@
 const fields = foundry.data.fields;
-import { Tribe8 } from '../config.js';
 import { Tribe8ManeuverModel } from './maneuver.js';
 
 export class Tribe8CharacterModel extends foundry.abstract.TypeDataModel {
@@ -10,10 +9,10 @@ export class Tribe8CharacterModel extends foundry.abstract.TypeDataModel {
 			attributes: new fields.SchemaField({
 				primary: new fields.SchemaField(
 					Object.fromEntries(
-						Object.keys(Tribe8.attributes.primary).map((a) => {
+						Object.keys(CONFIG.Tribe8.attributes.primary).map((a) => {
 							return [
 								a,
-								new fields.SchemaField(Tribe8PrimaryAttribute(Tribe8.attributes.primary[a], a))
+								new fields.SchemaField(Tribe8PrimaryAttribute(CONFIG.Tribe8.attributes.primary[a], a))
 							];
 						})
 					)
@@ -121,7 +120,7 @@ export class Tribe8CharacterModel extends foundry.abstract.TypeDataModel {
 			attValue += (attData.cp < 0 ? -1 : 1)*Math.floor(Math.sqrt(Math.abs(attData.cp)));
 			
 			// Add XP. Negative XP not a thing.
-			attValue += Math.floor(Math.max(attData.xp, 0) / Tribe8.costs.attribute);
+			attValue += Math.floor(Math.max(attData.xp, 0) / CONFIG.Tribe8.costs.attribute);
 			
 			// Account for weird edge case bonuses
 			attValue += attData.bonus ?? 0;
@@ -405,10 +404,10 @@ export class Tribe8CharacterModel extends foundry.abstract.TypeDataModel {
 			return; // No cost applied
 		switch (item.system.points) {
 			case 'CP':
-				this.points.cp.generalSpent += Tribe8.costs.aspect;
+				this.points.cp.generalSpent += CONFIG.Tribe8.costs.aspect;
 				break;
 			case 'XP':
-				this.points.xp.spent += Tribe8.costs.aspect;
+				this.points.xp.spent += CONFIG.Tribe8.costs.aspect;
 				break;
 		}
 	}

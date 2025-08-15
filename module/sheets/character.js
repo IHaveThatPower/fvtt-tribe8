@@ -126,13 +126,33 @@ export class Tribe8CharacterSheet extends HandlebarsApplicationMixin(ActorSheetV
 				}
 			}
 		}
-		if (context.perksAndFlaws && context.perksAndFlaws.length) {
-			context.perksAndFlaws.sort(context.perksAndFlaws[0].system.constructor.cmp);
-		}
-		if (context.sortedManeuvers && context.sortedManeuvers.length) {
-			context.sortedManeuvers.sort(context.sortedManeuvers[0].system.constructor.cmp);
-		}
 		return context;
+	}
+	
+	/**
+	 * Handle the submit data
+	 */
+	_prepareSubmitData(event, form, formData, updateData) {
+		// Identify array-based form elements
+		const checkKeys = CONFIG.Tribe8.checkFormArrayElements(formData);
+		
+		// Extract identified array-based elements
+		let systemShockChecked = 0;
+		for (const key of checkKeys) {
+			let propertyPath = key.split(/[\[\.]/);
+			if (propertyPath[0] == 'systemShock') {
+				if (formData.object[key]) {
+					systemShockChecked++;
+				}
+				delete formData.object[key];
+			}
+		}
+		
+		// Having counted up the number of system shock checkboxes that
+		// were checked, re-build the array
+		formData.object['system.attributes.secondary.physical.shock.current'] = systemShockChecked;
+		
+		return super._prepareSubmitData(event, form, formData, updateData);
 	}
 
 	/**
@@ -265,7 +285,7 @@ export class Tribe8CharacterSheet extends HandlebarsApplicationMixin(ActorSheetV
 	static editItem(event, target) {
 		event.preventDefault();
 		event.stopPropagation();
-		const item = this._getItemFromTarget(target, 'edit');
+		const item = this._getItemFromTarget(target);
 		if (!item)
 			return;
 		item.sheet.render(true);
@@ -278,20 +298,13 @@ export class Tribe8CharacterSheet extends HandlebarsApplicationMixin(ActorSheetV
 	 * @param	String [optional] action
 	 * @return	Tribe8Item
 	 */
-	_getItemFromTarget(target, action = '') {
-		let targetParts;
-		const id = ((target) => {
-			if (target.dataset?.id) return target.dataset.id;
-			if (target.dataset?.actionSlug) {
-				targetParts = target.dataset.actionSlug.split('-');
-				if (targetParts[0] != action) {
-					foundry.ui.notifications.warn("Invalid action")
-					return false;
-				}
-				return targetParts.slice(2).join('-');
-			}
-			return false;
-		})(target);
+	_getItemFromTarget(target) {
+		// Check the provided item, its parent, and any .identity div child
+		const id = 
+			target.dataset?.id ?? 
+			target.parentNode?.dataset?.id ?? 
+			target.querySelector('div.identity[data-id]')?.dataset.id ??
+			false;
 		if (!id) {
 			foundry.ui.notifications.warn("Item ID could not be determined");
 			return false;
@@ -299,21 +312,6 @@ export class Tribe8CharacterSheet extends HandlebarsApplicationMixin(ActorSheetV
 		const item = this.document.getEmbeddedDocument('Item', id);
 		if (!item) {
 			foundry.ui.notifications.warn("Item not found");
-			return false;
-		}
-		if (!targetParts)
-			return item;
-		// Make sure the edit request is of the proper type
-		const legalTypes = Object.keys(CONFIG.Item.dataModels).reduce((obj, m) => {
-				if (m == 'perk' || m == 'flaw') {
-					if (!obj['pf']) obj['pf'] = [];
-					obj['pf'].push(m);
-				}
-				else obj[m] = [m];
-				return obj;
-			}, {});
-		if (!legalTypes[targetParts[1]] || legalTypes[targetParts[1]].indexOf(item.type) < 0) {
-			console.log("Item type mismatch");
 			return false;
 		}
 		return item;
