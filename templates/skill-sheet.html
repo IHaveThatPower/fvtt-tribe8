@@ -49,6 +49,7 @@
 	</div>
 	<div class="specializations">
 		<h3>Specializations</h3>
+		{{#if context.isOwned}}
 		{{#each specializations}}
 		<div class="specialization" data-edit-id="{{this.id}}">
 			<input type="text" value="{{this.name}}" name="specializations[{{this.id}}].name" />
@@ -71,6 +72,9 @@
 			<label for="newSpecialization.granted">F?</label>
 			<button name="add-specialization" data-action="addSpecialization"><i class="fa fa-solid fa-plus"></i></button>
 		</div>
+		{{else}}
+		<em>Specializations can only be added to Skills belonging to a character.</em>
+		{{/if}}
 	</div>
 	{{> "systems/tribe8/templates/item-sheet_description.html"}}
 	{{> "systems/tribe8/templates/item-sheet_buttons.html"}}
