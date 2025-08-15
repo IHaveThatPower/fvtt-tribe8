@@ -54,7 +54,9 @@ export class Tribe8CharacterSheet extends HandlebarsApplicationMixin(ActorSheetV
 			switch (item.type) {
 				case 'skill':
 					if (!context.skills) context.skills = [];
-					item.specializations = Object.keys(item.system.specializations).map((s) => { return item.system.specializations[s].name; }).join(', ');
+					item.specializations = ""; // Transient property for display
+					if (item.system.specializations.length)
+						item.specializations = item.system.specializations.map((s) => { return item.parent.getEmbeddedDocument("Item", s).name; }).join(', ');
 					context.skills.push(item);
 					if (CONFIG.Tribe8.slugify(item.system.name) == 'synthesis') {
 						if (!context.magic) context.magic = {};
@@ -86,6 +88,9 @@ export class Tribe8CharacterSheet extends HandlebarsApplicationMixin(ActorSheetV
 					const collectionName = `${item.type}s`;
 					if (!context.magic[collectionName]) context.magic[collectionName] = [];
 					context.magic[collectionName].push(item);
+					break
+				case 'specialization':
+					// Handled by skills
 					break;
 				default:
 					console.warn(`Unsupported character item type '${item.type}', will not display`);
@@ -271,8 +276,7 @@ export class Tribe8CharacterSheet extends HandlebarsApplicationMixin(ActorSheetV
 		event.preventDefault();
 		event.stopPropagation();
 		const item = this._getItemFromTarget(target);
-		if (!item)
-			return;
+		if (!item) return;
 		item.sheet.render(true);
 	}
 
@@ -308,14 +312,6 @@ export class Tribe8CharacterSheet extends HandlebarsApplicationMixin(ActorSheetV
 		event.stopPropagation();
 		const item = this._getItemFromTarget(target);
 		if (!item) return;
-		console.log(target);
-		if (target.checked) {
-			console.log("Marking used");
-			item.update({'system.used': true});
-		}
-		else {
-			console.log("Marking not used");
-			item.update({'system.used': false});
-		}
+		item.update({'system.used': target.checked});
 	}
 }

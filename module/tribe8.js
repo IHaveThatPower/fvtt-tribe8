@@ -27,6 +27,7 @@ import { Tribe8TotemSheet } from './sheets/totem.js';
 import { Tribe8CharacterModel } from './datamodels/character.js';
 import { Tribe8ItemModel } from './datamodels/item.js';
 import { Tribe8SkillModel } from './datamodels/skill.js';
+import { Tribe8SpecializationModel } from './datamodels/specialization.js';
 import { Tribe8PerkFlawModel } from './datamodels/perkflaw.js';
 import { Tribe8ManeuverModel } from './datamodels/maneuver.js';
 import { Tribe8EminenceModel } from './datamodels/eminence.js';
@@ -87,6 +88,7 @@ Hooks.once('init', function() {
 	CONFIG.Item.dataModels = {
 		item: Tribe8ItemModel,
 		skill: Tribe8SkillModel,
+		specialization: Tribe8SpecializationModel,
 		perk: Tribe8PerkFlawModel,
 		flaw: Tribe8PerkFlawModel,
 		maneuver: Tribe8ManeuverModel,
@@ -171,4 +173,13 @@ Hooks.once('init', function() {
 		config: true
 	});
 	*/
+});
+
+Hooks.on('setup', function() {
+	(async () => {
+		for (let a of game.actors) {
+			await a.createSpecializationsFromLegacy();
+			a.alignSkillsAndSpecializations();
+		}
+	})();
 });

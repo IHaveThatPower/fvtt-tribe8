@@ -32,20 +32,18 @@ export class Tribe8SkillSheet extends Tribe8ItemSheet {
 	get title() {
 		return `Skill: ${this.document.name}`;
 	}
-
-	/**
-	 * @inheritdoc
-	 */
-	async _onRender(context, options)
-	{
-		return super._onRender(context, options);
-	}
-
+	
 	/**
 	 * Prepare the context object supplied to the application
 	 */
 	async _prepareContext(options) {
+		const item = this.document;
 		const context = await super._prepareContext(options);
+
+		// Bolt on the Specializations
+		if (item.system.specializations.length) {
+			context.specializations = item.system.specializations.map((s) => { return item.parent.getEmbeddedDocument("Item", s); });
+		}
 		return context;
 	}
 
@@ -57,12 +55,12 @@ export class Tribe8SkillSheet extends Tribe8ItemSheet {
 		const checkKeys = CONFIG.Tribe8.checkFormArrayElements(formData);
 
 		// Setup objects for the types of form elements we know we want
-		const specializations = {}
+		this.specializations = {}
 
 		// Extract identified array-based elements
-		for (const key of checkKeys) {
-			let propertyPath = key.split(/[\[\.]/);
-			this._extractSpecializationsFromForm(key, propertyPath, formData, specializations);
+		for (let key of checkKeys) {
+			let propertyPath = key.split(/[\[\]\.]/).filter(p => p);
+			this._extractSpecializationsFromForm(key, propertyPath, formData, this.specializations);
 		}
 
 		// Restructure the submitted edie value to be differential, drop it off the formData
@@ -76,11 +74,12 @@ export class Tribe8SkillSheet extends Tribe8ItemSheet {
 		// Bold eDieDelta back on
 		if (eDieDelta)
 			data.eDieDelta = eDieDelta;
-		// Convert to correct type
+		// Ensure correct type
 		data.system.specify = (data.system.specify == "1");
 
-		// Update the data object with the now-processed array parameters
-		this._appendSpecializations(specializations, data);
+		// Update the data object with the submitted specialization IDs
+		data.system['==specializations'] = Object.keys(this.specializations);
+
 		return data;
 	}
 
@@ -90,52 +89,58 @@ export class Tribe8SkillSheet extends Tribe8ItemSheet {
 	async _processSubmitData(event, form, submitData, options={}) {
 		// Stop the process if the event was emitted by one of the newSpecialization inputs
 		const submittingElement = event.submitter ?? event.target;
-		if (submittingElement.nodeType == 'INPUT' && submittingElement.name.match(/^newSpecialization/))
+		if (submittingElement.nodeName == 'INPUT' && submittingElement.name.match(/^newSpecialization/))
 			return;
+		
+		// Process eDie changes
 		const eDieDelta = (Number(submitData.eDieDelta) || 0);
-		const superSubmit = await super._processSubmitData(event, form, submitData, options);
 		if (eDieDelta) {
-			console.log("Invoking alterEdie", eDieDelta);
 			await this.document.system.alterEdie(eDieDelta);
 		}
-		return superSubmit;
+
+		// Now, update any specializations
+		await this._updateSpecializations();
+
+		// Finally, process the submission
+		await super._processSubmitData(event, form, submitData, options);
 	}
 
 	/**
 	 * Extract specializations from formData and return them separately
 	 */
 	_extractSpecializationsFromForm(key, propertyPath, formData = {}, specializations = {}) {
-		if (propertyPath.length < 3)
-			return;
-		if (propertyPath[0] != 'system' || propertyPath[1] != 'specializations')
-			return;
-
-		propertyPath.shift(); // Drop the system part
-		propertyPath.shift(); // Drop the specializations part
-		if (propertyPath.length != 2)
-			return;
-
-		let index = propertyPath.shift().replace(/[\[\]]/, '');
-		let specKey = propertyPath.shift();
-		if (!specializations[index])
-			specializations[index] = {};
-		specializations[index][specKey] = formData.object[key];
-		delete formData.object[key];
+		if (key.match(/^specializations\[/)) {
+			if (propertyPath.length != 3)
+				console.warn("Unexpected propertyPath pattern", propertyPath);
+			propertyPath.shift(); // Drop 'specializations' off the front
+			let specID = propertyPath[0]
+			if (!specializations[specID])
+				specializations[specID] = {};
+			specializations[specID][propertyPath[1]] = foundry.utils.deepClone(formData.object[key], {strict: true});
+			delete formData.object[key];
+		}
 	}
-
+	
 	/**
-	 * Append specializations to the processed form data object
+	 * Update Specialization Items attached to this Skill
 	 */
-	_appendSpecializations(specializations, data) {
-		for (let prop in specializations) {
-			if (specializations.hasOwnProperty(prop)) { // Make sure we're only targeting the properties of the specializations object, and not its inherited ones
-				if (!data.system.specializations)
-					data.system.specializations = {}
-				let targetProp = Tribe8SkillModel.generateSpecializationKey(prop);
-
-				// TODO: Validate that we don't already have this specialization
-				// Shouldn't happen, but it might with weird data situations
-				data.system.specializations[targetProp] = specializations[prop];
+	async _updateSpecializations() {
+		if (this.specializations) {
+			const sheet = this;
+			const actor = this.document.parent;
+			for (let specId of Object.keys(sheet.specializations)) {
+				const specItem = actor.getEmbeddedDocument("Item", specId);
+				if (!specItem) {
+					console.warn(`No Specialization item matching id ${specId} found on actor '${actor.name}'`);
+					continue;
+				}
+				const srcData = sheet.specializations[specId];
+				const updateData = {};
+				for (let f of Object.keys(srcData)) {
+					let targetProp = (f != 'name' ? `system.${f}` : f);
+					updateData[targetProp] = srcData[f];
+				}
+				await specItem.update(updateData);
 			}
 		}
 	}
@@ -171,43 +176,29 @@ export class Tribe8SkillSheet extends Tribe8ItemSheet {
 		event.preventDefault();
 
 		// Gather up some info.
-		const nSpecName = target.parentNode.querySelector("input[name='newSpecialization.name']");
-		if (!nSpecName || !nSpecName.value || nSpecName.value.length == 0)
-		{
-			foundry.ui.notifications.error("Specialization needs a name");
-			return;
-		}
-		const sSpecName = nSpecName.value.trim();
-		const sSpecKey = Tribe8SkillModel.generateSpecializationKey(sSpecName);
-		const nSpecPoints = target.parentNode.querySelector("input[name='newSpecialization.pointSource']:checked");
-		if (!nSpecPoints || !nSpecPoints.value || (nSpecPoints.value != "cp" && nSpecPoints.value != "xp")) {
-			foundry.ui.notifications.error("Please select a points pool to pay for this Specialization");
-			return;
-		}
-		const sSpecPoints = nSpecPoints.value;
-		// Does this Specialization already exist?
-		const currentSpecializations = this.document.system.specializations;
-		if (Object.keys(currentSpecializations).filter((s) => s == sSpecKey).length > 0) {
-			foundry.ui.notifications.error("A Specialization with that ID already exists for this Skill");
-			return;
-		}
-		for (let specKey of Object.keys(currentSpecializations)) {
-			const spec = currentSpecializations[specKey];
-			if (spec.name == sSpecName) {
-				foundry.ui.notifications.error("A Specialization with that name already exists for this Skill");
-				return;
-			}
-		}
-		// Okay, let's add it!
-		const nSpec = {"name": sSpecName, "points": sSpecPoints};
-		currentSpecializations[sSpecKey] = nSpec;
-		this.document.update({'system.specializations': currentSpecializations});
+		const specNode = target.parentNode;
+		const nameNode = specNode.querySelector("input[name='newSpecialization.name']");
+		const pointsNode = specNode.querySelector("input[name='newSpecialization.pointSource']:checked");
+		const grantedNode = specNode.querySelector("input[name='newSpecialization.granted']");
+		const specDef = {
+			'name': nameNode?.value,
+			'system.points': pointsNode?.value,
+			'system.granted': grantedNode?.checked,
+			'system.skill': this.document.id
+		};
+		specDef.name = specDef.name.trim();
+		specDef['system.points'] = specDef['system.points'].toUpperCase();
+		
+		// Hand off to the model's method
+		this.document.system.addSpecialization(specDef);
 
-		// Now clear out the existing form fields
-		nSpecName.value = "";
-		nSpecPoints.checked = false;
-
-		// Now re-render
+		// Now clear out the existing form fields and re-render
+		if (nameNode)
+			nameNode.value = "";
+		if (pointsNode)
+			pointsNode.checked = false;
+		if (grantedNode)
+			grantedNode.checked = false;
 		this.render();
 	}
 

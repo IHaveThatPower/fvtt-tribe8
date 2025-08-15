@@ -49,23 +49,27 @@
 	</div>
 	<div class="specializations">
 		<h3>Specializations</h3>
-		{{#each document.system.specializations as |specialization key|}}
-		<div class="specialization" data-uuid="{{key}}">
-			<input type="text" value="{{specialization.name}}" name="system.specializations[{{key}}].name" />
-			<input type="radio" value="cp" id="system.specializations[{{key}}].points.cp" name="system.specializations[{{key}}].points"{{#if (eq this.points "cp")}} checked{{/if}} />
-			<label for="system.specializations[{{key}}].points.cp">CP</label>
-			<input type="radio" value="xp" id="system.specializations[{{key}}].points.xp" name="system.specializations[{{key}}].points"{{#if (eq this.points "xp")}} checked{{/if}} />
-			<label for="system.specializations[{{key}}].points.xp">XP</label>
+		{{#each specializations}}
+		<div class="specialization" data-edit-id="{{this.id}}">
+			<input type="text" value="{{this.name}}" name="specializations[{{this.id}}].name" />
+			<input type="radio" value="CP" id="specializations[{{this.id}}].points.cp" name="specializations[{{this.id}}].points"{{#if (eq this.system.points "CP")}} checked{{/if}} />
+			<label for="specializations[{{this.id}}].points.cp">CP</label>
+			<input type="radio" value="XP" id="specializations[{{this.id}}].points.xp" name="specializations[{{this.id}}].points"{{#if (eq this.system.points "XP")}} checked{{/if}} />
+			<label for="specializations[{{this.id}}].points.xp">XP</label>
+			<input type="checkbox" value=true id="specializations[{{this.id}}].granted" name="specializations[{{this.id}}].granted"{{#if this.system.granted}} checked{{/if}} />
+			<label for="specializations[{{this.id}}].granted">F?</label>
 			<button name="remove-specialization" data-action="removeSpecialization" title="Remove Specialization"><i class="far fa-circle-xmark"></i></button>
 		</div>
 		{{/each}}
 		<div class="add-specialization">
-			<input type="text" name="newSpecialization.name" placeholder="Add a specialization">
+			<input type="text" name="newSpecialization.name" placeholder="Add specialization">
 			<input type="radio" id="newSpecialization.pointSource.cp" value="cp" name="newSpecialization.pointSource"{{#if (eq newSpecialization.pointSource "cp")}} checked{{/if}} />
 			<label for="newSpecialization.pointSource.cp">CP</label>
 			<input type="radio" id="newSpecialization.pointSource.xp" value="xp" name="newSpecialization.pointSource"{{#if (eq newSpecialization.pointSource "xp")}} checked{{/if}} />
 			<label for="newSpecialization.pointSource.xp">XP</label>
-			<button name="add-specialization" data-action="addSpecialization">Add</button>
+			<input type="checkbox" id="newSpecialization.granted" value="xp" name="newSpecialization.granted"{{#if newSpecialization.granted}} checked{{/if}} />
+			<label for="newSpecialization.granted">F?</label>
+			<button name="add-specialization" data-action="addSpecialization"><i class="fa fa-solid fa-plus"></i></button>
 		</div>
 	</div>
 	{{> "systems/tribe8/templates/item-sheet_description.html"}}

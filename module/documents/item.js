@@ -1,4 +1,55 @@
+import { Tribe8Actor } from './actor.js';
+
 export class Tribe8Item extends Item {
+	/**
+	 * Create Specialization Items and add them to the Item's parent
+	 * Actor, if applicable, if they were originally created in the
+	 * basic object format.
+	 * 
+	 * This should not be called until after the game setup completes
+	 */
+	async createSpecializationsFromLegacy() {
+		const source = this.getFlag('tribe8', 'legacy-specializations');
+		// Probably nothing to do
+		if (!source || !Object.keys(source).length)
+			return;
+		
+		try {
+			if (this.parent && this.parent instanceof Tribe8Actor) {
+				// What specializations do we already have for this current item?
+				const currSpecs = Array.from(this.parent.getEmbeddedCollection("Item")).filter((i) => i.type == 'specialization');
+				const specsToCreate = [];
+				for (let key of Object.keys(source)) {
+					const oldSpec = source[key];
+					const oldSpecNameSlug = CONFIG.Tribe8.slugify(oldSpec.name);
+					// Do we have any specializations that match?
+					if (currSpecs.map((s) => CONFIG.Tribe8.slugify(s.name)).indexOf(oldSpecNameSlug) > -1) {
+						// console.log(`A '${oldSpec.name}' Specialization already exists for the ${this.name} Skill`);
+						continue;
+					}
+					// Are we already creating this?
+					if (specsToCreate.map((s) => CONFIG.Tribe8.slugify(s.name)).indexOf(oldSpecNameSlug) > -1) {
+						// console.log(`A '${oldSpec.name}' Specialization is already going to be created for the ${this.name} Skill`);
+						continue;
+					}
+					specsToCreate.push({type: 'specialization', name: oldSpec.name, system: {points: oldSpec.points.toUpperCase(), skill: this.id}});
+				}
+				if (specsToCreate.length) {
+					const newSpecs = await this.parent.createEmbeddedDocuments("Item", specsToCreate);
+					await this.update({'system.specializations': newSpecs.map((n) => n.id)});
+				}
+			}
+		}
+		catch (error) {
+			console.error(error);
+			return;
+		}
+		
+		// Clear the flag
+		await this.setFlag('tribe8', 'legacy-specializations', 1); // Override the object first
+		await this.unsetFlag('tribe8', 'legacy-specializations'); // Now clear it out
+	}
+
 	/**
 	 * Get the actor owner of this item, if there is one.
 	 */
@@ -8,7 +59,38 @@ export class Tribe8Item extends Item {
 		}
 		return false;
 	}
-
+	
+	/**
+	 * Handle any document-level migration hacks we need to do
+	 */
+	static migrateData(data) {
+		if (data.type == 'skill') {
+			/**
+			 * If the specializations property has an Object constructor
+			 * (as opposed to an Array constructor, as is the case with
+			 * ArrayField), good bet it's the old-style.
+			 */
+			if (data?.system?.specializations && data.system.specializations.constructor?.name === 'Object' && Object.keys(data.system.specializations).length) {
+				if (!data.flags) data.flags = {};
+				if (!data.flags['tribe8']) data.flags['tribe8'] = {};
+				try {
+					// Stash the data on a flag.
+					// deepClone can't handle advanced data fields, hence the try/catch, just incase
+					data.flags['tribe8']['legacy-specializations'] = foundry.utils.deepClone(data.system.specializations, {strict: true});
+					
+					// Having safely stashed it, nuke it from the migration data
+					delete data.system.specializations;
+					
+					// If it didn't work for some reason, raise a ruckus
+					if (!Object.keys(data.flags['tribe8']['legacy-specializations']).length)
+						throw new Error("Failed to migrate specialization data");
+				}
+				catch (error) {} // No need to report anything
+			}
+		}
+		return super.migrateData(data);
+	}
+	
 	/**
 	 * Return the default artwork for the given item type
 	 */

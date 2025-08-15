@@ -8,7 +8,9 @@ export class Tribe8SkillModel extends Tribe8ItemModel {
 			name: new fields.StringField({hint: "The top-level name of the Skill, without specifiers", nullable: false, required: true}),
 			specific: new fields.StringField({hint: "The specific area of expertise to which this Skill pertains, if appropriate"}),
 			specify: new fields.BooleanField({hint: "Whether this Skill require an area of expertise to be specified", initial: false}),
-			specializations: new fields.ObjectField({hint: "Specializations a character has taken in this Skill"}),
+			specializations: new fields.ArrayField(
+				new fields.ForeignDocumentField(CONFIG.Item.documentClass, {hint: "A Specialization that pertains to this Skill", idOnly: true})
+			),
 			level: new fields.NumberField({hint: "The current Level of this Skill", initial: 0, required: true, nullable: false, min: 0}),
 			cpx: new fields.NumberField({hint: "The current Complexity of this Skill", initial: 1, required: true, nullable: false, min: 1}),
 			points: new fields.SchemaField({
@@ -33,14 +35,18 @@ export class Tribe8SkillModel extends Tribe8ItemModel {
 	 * Migrate data
 	 */
 	static migrateData(data) {
+		// Fix points object
 		if (typeof data.points != 'object')
 			data.points = {};
+		// Fix edie object
 		if (typeof data.points.edie != 'object')
 			data.points.edie = {};
+		// Initialize edie values
 		if (!data.points.edie.fromBonus)
 			data.points.edie.fromBonus = 0;
 		if (!data.points.edie.fromXP)
 			data.points.edie.fromXP = 0;
+
 		return super.migrateData(data);
 	}
 
@@ -103,33 +109,36 @@ export class Tribe8SkillModel extends Tribe8ItemModel {
 	get eDieSpent() {
 		return this.points.edie.fromBonus + this.points.edie.fromXP;
 	}
-
+	
 	/**
-	 * Rectify specializations from a list of objects
+	 * Add a Specialization to this Skill
 	 */
-	async updateSpecializations(specList) {
-		const existingSpecializationIDs = Object.keys(this.specializations);
-		const newSpecializations = {};
-
-		for (let spec of specList) {
-			// Do we already have this specialization?
-			let specFound = false;
-			for (let specID of existingSpecializationIDs) {
-				const checkSpec = this.specializations[specID];
-				if (checkSpec.name == spec.name && checkSpec.points == spec.points) {
-					specFound = true;
-					newSpecializations[specID] = {...checkSpec};
-					break;
-				}
-			}
-
-			if (specFound) // Nothing else to do
-				continue;
-
-			// New specialization!
-			newSpecializations[Tribe8SkillModel.generateSpecializationKey(spec.name)] = spec;
+	async addSpecialization(data) {
+		const skill = this.parent;
+		const actor = skill.parent;
+		
+		// Ensure data is complete
+		if (!data.type) data.type = 'specialization';
+		
+		// Does this Specialization already exist?
+		if (
+			this.specializations
+			.map((s) => actor.getEmbeddedDocument("Item", s))
+			.filter((s) => s.type == 'specialization')
+			.some((s) => s.name == data.name)
+		) {
+			foundry.ui.notifications.error("A Specialization with that name already exists for this Skill");
+			return;
 		}
-		await this.parent.update({'system.==specializations': newSpecializations}, {diff: false});
+
+		try {
+			const [spec] = await actor.createEmbeddedDocuments("Item", [data]);
+			await skill.update({'system.specializations': [...skill.system.specializations, spec]});
+		}
+		catch (error) {
+			foundry.ui.notifications.error(error);
+		}
+		await actor.alignSkillsAndSpecializations();
 	}
 
 	/**
@@ -227,37 +236,5 @@ export class Tribe8SkillModel extends Tribe8ItemModel {
 			}
 			e.target.readonly = false;
 		});
-	}
-
-	/**
-	 * Generate a clean specialization key from the provided name.
-	 */
-	static generateSpecializationKey(key) {
-		// Supplied an already-good key?
-		if (key.match(/^[a-f0-9A-F]{8}-[a-f0-9A-F]{4}-[a-f0-9A-F]{4}-[a-f0-9A-F]{4}-[a-f0-9A-F]{12}$/))
-			return key;
-
-		// Have crypto?
-		if (crypto.randomUUID)
-			return crypto.randomUUID();
-
-		// Do it manually
-		const randomDigit = () => {
-			return Math.floor(Math.random() * 16);
-		}
-		const randomHex = () => {
-			return randomDigit().toString(16);
-		}
-		const randomSegment = () => {
-			return randomHex() + randomHex() + randomHex() + randomHex();
-		}
-		const uuid = [
-			randomSegment() + randomSegment(), // 8
-			randomSegment(), // 4
-			'4' + randomSegment().substring(1, 4), // 4 starting with 4
-			randomHex() + randomSegment().substring(1, 4), // 4
-			randomSegment() + randomSegment() + randomSegment() // 12
-		].join('-');
-		return uuid;
 	}
 }
