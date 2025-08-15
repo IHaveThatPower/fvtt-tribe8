@@ -31,10 +31,10 @@ export class Tribe8Item extends Item {
 				break;
 		}
 	}
-	
+
 	/**
-	 * Item sort cmparison meta-function 
-	 * 
+	 * Item sort comparison meta-function
+	 *
 	 * @param	Tribe8Item a
 	 * @param	Tribe8Item b
 	 */
@@ -64,16 +64,16 @@ export class Tribe8Item extends Item {
 		}
 		return Tribe8Item.cmpFallback(a, b);
 	}
-	
+
 	/**
 	 * Fallback sort, if other sorting attempts have resulted equal
-	 * 
+	 *
 	 * @param	Tribe8Item a
 	 * @param	Tribe8Item b
 	 * @return	int
 	 */
 	static cmpFallback(a, b) {
-		if (a.type != b.type) 
+		if (a.type != b.type)
 			throw new Error("Cannot compare items of different types");
 		if (a.name < b.name) return -1;
 		if (a.name > b.name) return 1;
@@ -81,9 +81,9 @@ export class Tribe8Item extends Item {
 		if (a._stats.createdTime > b._stats.createdTime) return 1;
 		return 0;
 	}
-	
+
 	/**
-	 * Sort for skills
+	 * Sort for Skills
 	 *
 	 * @param	Tribe8Item a
 	 * @param	Tribe8Item	b
@@ -95,16 +95,16 @@ export class Tribe8Item extends Item {
 
 		if (a.system.level > b.system.level) return -1;
 		if (a.system.level < b.system.level) return 1;
-		
+
 		if (a.system.cpx > b.system.cpx) return -1;
 		if (a.system.cpx < b.system.cpx) return 1;
-		
+
 		return Tribe8Item.cmpFallback(a, b);
 	}
-	
+
 	/**
 	 * Sort for Perks and Flaws
-	 * 
+	 *
 	 * @param	Tribe8Item a
 	 * @param	Tribe8Item b
 	 * @return	int
@@ -128,10 +128,10 @@ export class Tribe8Item extends Item {
 
 		return Tribe8Item.cmpFallback(a, b);
 	}
-	
+
 	/**
 	 * Sort for Maneuvers
-	 * 
+	 *
 	 * @param	Tribe8Item a
 	 * @param	Tribe8Item b
 	 * @return	int
@@ -139,12 +139,12 @@ export class Tribe8Item extends Item {
 	static cmpManeuver(a, b) {
 		if (a.type != 'maneuver' || b.type != 'maneuver')
 			throw new Error("Cannot use Maneuver comparison function to sort non-Maneuver items");
-		
+
 		// If the skills don't match, we need to first consult their sorting algorithm
 		if (a.system.forSkill != b.system.forSkill)
 		{
 			const combatSkills = a.parent?.getCombatSkills() || {};
-			
+
 			// Identify the relevant skills to our a and b
 			const aSkill = (combatSkills[a.system.forSkill] || [])[0];
 			const bSkill = (combatSkills[b.system.forSkill] || [])[0];
@@ -156,7 +156,7 @@ export class Tribe8Item extends Item {
 					return skillCmp;
 			}
 		}
-		
+
 		// If the skills match, *now* we can sort our maneuvers
 		if (a.system.granted && !b.system.granted) return -1;
 		if (!a.system.granted && b.system.granted) return 1;
@@ -174,10 +174,10 @@ export class Tribe8Item extends Item {
 		if (a.system.complexity < b.system.complexity) return 1;
 		return Tribe8Item.cmpFallback(a, b);
 	}
-	
+
 	/**
 	 * Sort for Eminences
-	 * 
+	 *
 	 * @param	Tribe8Item a
 	 * @param	Tribe8Item b
 	 * @return	int
@@ -189,10 +189,10 @@ export class Tribe8Item extends Item {
 		if (a.system.used && !b.system.used) return 1;
 		return Tribe8Item.cmpFallback(a, b);
 	}
-	
+
 	/**
 	 * Sort for Aspects
-	 * 
+	 *
 	 * @param	Tribe8Item a
 	 * @param	Tribe8Item b
 	 * @return	int

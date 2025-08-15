@@ -1,7 +1,7 @@
 <h2><span>Skills</span><button name="add-skill" data-action="addNewItem"><i class="fa fa-solid fa-plus"></i></button></h2>
 <div class="skills">
 	{{#each skills as |skill|}}
-	<div class="skill" data-uuid="{{skill.uuid}}" data-id="{{skill.id}}">
+	<div class="skill" data-item-id="{{skill.id}}" class="draggable">
 		<div class="identity" data-action="editItem">
 			<div class="name">
 				{{skill.system.name}}

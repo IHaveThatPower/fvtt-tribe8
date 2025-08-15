@@ -15,7 +15,7 @@ export class Tribe8ManeuverSheet extends Tribe8ItemSheet {
 			template: 'systems/tribe8/templates/maneuver-sheet.html'
 		}
 	}
-	
+
 	static COMBAT_MODIFIER_FIELDS = ['accuracy', 'initiative', 'defense', 'parry', 'damage'];
 
 	/**
@@ -30,7 +30,7 @@ export class Tribe8ManeuverSheet extends Tribe8ItemSheet {
 	 */
 	async _prepareContext(options) {
 		const context = await super._prepareContext(options);
-		
+
 		// Given the allowed types, create a human-readable list of skill choices
 		context.allowedTypes = {};
 		if (context.document.system.allowedTypes && Object.keys(context.document.system.allowedTypes).length != 0) {
@@ -57,8 +57,8 @@ export class Tribe8ManeuverSheet extends Tribe8ItemSheet {
 		if (Object.keys(context.allowedTypes).length == 0) {
 			context.allowedTypes["N/A"] = "No Skills Allowed";
 		}
-		
-		// Add a + prefix to any positive (or 0) values in the various 
+
+		// Add a + prefix to any positive (or 0) values in the various
 		// combat modifier fields.
 		for (let field of this.constructor.COMBAT_MODIFIER_FIELDS) {
 			let asNumber;
@@ -80,7 +80,7 @@ export class Tribe8ManeuverSheet extends Tribe8ItemSheet {
 	_prepareSubmitData(event, form, formData, updateData) {
 		// Identify array-based form elements
 		const checkKeys = CONFIG.Tribe8.checkFormArrayElements(formData);
-		
+
 		// Extract identified array-based elements
 		const allowedTypes = {}; // Object so we can use explicit keys
 		for (const key of checkKeys) {
@@ -124,7 +124,7 @@ export class Tribe8ManeuverSheet extends Tribe8ItemSheet {
 				}
 			}
 		}
-		
+
 		return super._prepareSubmitData(event, form, formData, updateData);
 	}
 }

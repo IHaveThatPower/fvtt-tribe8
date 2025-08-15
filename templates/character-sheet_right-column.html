@@ -7,7 +7,7 @@
 	<h3>Flaws</h3>
 	{{/if}}
 	{{/with}}
-	<div class="pf {{this.type}}{{#if this.system.granted}} granted{{/if}}" data-id="{{this.id}}">
+	<div class="pf {{this.type}}{{#if this.system.granted}} granted{{/if}} draggable" data-item-id="{{this.id}}">
 		<div class="identity" data-action="editItem">
 			<div class="name">{{#if (eq this.type 'perk')}}+{{else}}-{{/if}} {{this.system.name}}{{#if this.system.ranked}} {{roman this.system.points.length}}{{/if}}</div>
 			{{#if this.system.specific}}
@@ -28,7 +28,7 @@
 	</div>
 	{{/if}}
 	{{#each sortedManeuvers}}
-	<div class="maneuver{{#if (and (not this.usesPoints) this.system.fromCpx)}} from-cpx{{/if}}{{#if this.system.granted}} granted{{/if}}" data-id="{{this.id}}">
+	<div class="maneuver{{#if (and (not this.usesPoints) this.system.fromCpx)}} from-cpx{{/if}}{{#if this.system.granted}} granted{{/if}} draggable" data-item-id="{{this.id}}">
 		<div class="identity" data-action="editItem">
 			<div class="name">{{this.name}}</div>
 			<div class="specific">({{this.system.forSkill}})</div>
@@ -63,7 +63,7 @@
 		</div>
 	{{/each}}
 	</div>
-	
+
 	<h3>System Shock</h3>
 	{{#with document.system.attributes.secondary.physical.shock as | shock |}}
 	{{#repeat shock.value false}}

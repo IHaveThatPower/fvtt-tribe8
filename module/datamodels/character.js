@@ -55,20 +55,20 @@ export class Tribe8CharacterModel extends foundry.abstract.TypeDataModel {
 			})
 		};
 	}
-	
+
 	/**
 	 * Migrate data
 	 */
 	static migrateData(data) {
 		// Use the "general" property instead of the "character" property
 		foundry.abstract.Document._addDataFieldMigration(data, "system.points.cp.character", "system.points.cp.general");
-		
+
 		const schemaData = ((typeof this.constructor.defineSchema == 'function') ? this.constructor : this).defineSchema();
 		data = ((typeof this.constructor.recursivelyFixLabelsAndNames == 'function') ? this.constructor : this).recursivelyFixLabelsAndNames(data, schemaData);
-		
+
 		return super.migrateData(data);
 	}
-	
+
 	/**
 	 * Recursive function that fixes invalid labels and names
 	 */
@@ -104,7 +104,7 @@ export class Tribe8CharacterModel extends foundry.abstract.TypeDataModel {
 		this.prepareSecondaryAttributes();
 		this.preparePoints();
 	}
-	
+
 	/**
 	 * Compute the value of each attribute, based on its CP and XP
 	 */
@@ -114,26 +114,26 @@ export class Tribe8CharacterModel extends foundry.abstract.TypeDataModel {
 
 			// All atts start at -1
 			let attValue = CONFIG.Tribe8.attributeBasis;
-			
+
 			// Add CP. Negative CP have the same value at the same rate
 			// as positive, just negative.
 			attValue += (attData.cp < 0 ? -1 : 1)*Math.floor(Math.sqrt(Math.abs(attData.cp)));
-			
+
 			// Add XP. Negative XP not a thing.
 			attValue += Math.floor(Math.max(attData.xp, 0) / CONFIG.Tribe8.costs.attribute);
-			
+
 			// Account for weird edge case bonuses
 			attValue += attData.bonus ?? 0;
-			
+
 			// Set the value
 			attData.value = attValue;
 		}
 	}
-	
+
 	/**
 	 * Compute the value of each derived/secondary attribute, based on
 	 * the primary attributes.
-	 * 
+	 *
 	 * TODO: This currently only deals with physical secondaries. TBD
 	 * if we end up using the others.
 	 */
@@ -141,29 +141,29 @@ export class Tribe8CharacterModel extends foundry.abstract.TypeDataModel {
 		const priAtts = this.attributes.primary;
 		const secAtts = this.attributes.secondary.physical;
 		const skills = Array.from(this.parent.getEmbeddedCollection("Item")).filter((i) => i.type == "skill");
-		
+
 		// We need to do STR, HEA, and STA first
 		secAtts.str.value = (
 			function(bld, fit) {
-				if ((bld + fit) > 0) { 
+				if ((bld + fit) > 0) {
 					return Math.floor((bld + fit) / 2);
 				}
 				return Math.ceil((bld + fit) / 2);
 			})(priAtts.bld.value, priAtts.fit.value);
 		secAtts.hea.value = Math.round((priAtts.fit.value + priAtts.psy.value + priAtts.wil.value) / 3);
 		secAtts.sta.value = Math.max((5 * (priAtts.bld.value + secAtts.hea.value)) + 25, 10);
-		
+
 		// Next, armed/unarmed
 		const skillH2H = CONFIG.Tribe8.findCombatSkill('H', skills);
 		const skillMelee = CONFIG.Tribe8.findCombatSkill('M', skills);
 		secAtts.ud.value = Math.max(3 + secAtts.str.value + priAtts.bld.value + (skillH2H?.system?.level ?? 0), 1);
 		secAtts.ad.value = Math.max(3 + secAtts.str.value + priAtts.bld.value + (skillMelee?.system?.level ?? 0), 1);
-	
+
 		// Next, wound thresholds
 		secAtts.thresholds.flesh.value = Math.ceil(secAtts.sta.value / 2);
 		secAtts.thresholds.deep.value = secAtts.sta.value;
 		secAtts.thresholds.death.value = secAtts.sta.value * 2;
-		
+
 		// Finally, system shock
 		secAtts.shock.value = Math.max(secAtts.hea.value + 5, 1);
 	}
@@ -205,7 +205,7 @@ export class Tribe8CharacterModel extends foundry.abstract.TypeDataModel {
 			}
 		}
 		this._fillManeuverSlots();
-		
+
 		// Compute e-dice
 		if (this.points.xp.spent < this.points.xp.total)
 			this.edie.fromXP = this.points.xp.total - this.points.xp.spent;
@@ -213,9 +213,9 @@ export class Tribe8CharacterModel extends foundry.abstract.TypeDataModel {
 	}
 
 	/**
-	 * Add a given skill's points to the current tally. Called by 
+	 * Add a given skill's points to the current tally. Called by
 	 * _preparePoints()
-	 * 
+	 *
 	 */
 	_applySkillPoints(item) {
 		this.points.cp.generalSpent += item.system.points.level.cp;
@@ -223,7 +223,7 @@ export class Tribe8CharacterModel extends foundry.abstract.TypeDataModel {
 		this.points.xp.spent += item.system.points.level.xp;
 		this.points.xp.spent += item.system.points.cpx.xp;
 		this.points.xp.spent += item.system.points.edie.fromXP;
-		
+
 		// Compute amount spent on specializations
 		if (Object.keys(item.system.specializations).length > 0) {
 			for (let specID of Object.keys(item.system.specializations)) {
@@ -267,7 +267,7 @@ export class Tribe8CharacterModel extends foundry.abstract.TypeDataModel {
 			}
 		}
 	}
-	
+
 	/**
 	 * Iterate through all of the character's skills and figure out
 	 * what the "capacity" for bonus maneuvers is.
@@ -282,10 +282,10 @@ export class Tribe8CharacterModel extends foundry.abstract.TypeDataModel {
 		}
 		combatSkillReference['R'] = combatSkillReference['R'].concat(CONFIG.Tribe8.RANGED_COMBAT_SKILL_REFERENCE);
 		combatSkillReference['H'] = combatSkillReference['H'].concat(CONFIG.Tribe8.HAND_TO_HAND_VARIATIONS);
-		
+
 		// Initialize the object that stores our complexity caps
 		this.maneuverCpxCaps = {};
-		
+
 		// Gather up all the character's skill and initialize maneuver capacity objects for them
 		const allSkills = Array.from(this.parent.getEmbeddedCollection("Item")).filter((i) => i.type == 'skill');
 		for (let skill of allSkills) {
@@ -327,16 +327,16 @@ export class Tribe8CharacterModel extends foundry.abstract.TypeDataModel {
 		else
 			this.points.xp.spent += item.system.complexity;
 	}
-	
+
 	/**
 	 * Fill maneuvers marked as complexity bonus maneuvers into
-	 * available slots. Any leftover at the end will be applied to 
+	 * available slots. Any leftover at the end will be applied to
 	 * regular CP or XP, as appropriate.
 	 */
 	_fillManeuverSlots() {
 		if (!this.maneuversToFillSlots || !this.maneuversToFillSlots.length)
 			return;
-		
+
 		// Sort the maneuvers by skill, then complexity
 		this.maneuversToFillSlots.sort((a, b) => {
 			if (a.system.forSkill < b.system.forSkill)
@@ -353,7 +353,7 @@ export class Tribe8CharacterModel extends foundry.abstract.TypeDataModel {
 				return 1;
 			return 0;
 		});
-		
+
 		// Fill the slots!
 		if (Object.keys(this.maneuverCpxCaps).length) {
 			// See if we can find a slot for it
@@ -379,10 +379,10 @@ export class Tribe8CharacterModel extends foundry.abstract.TypeDataModel {
 				}
 			}
 		}
-		
+
 		// Filter out any null where we dealt with the maneuver with complexity slots
 		this.maneuversToFillSlots = this.maneuversToFillSlots.filter((m) => !!m);
-		
+
 		// If we have any left over, pay for them normally.
 		if (this.maneuversToFillSlots.length) {
 			for (let maneuver of this.maneuversToFillSlots) {
@@ -394,7 +394,7 @@ export class Tribe8CharacterModel extends foundry.abstract.TypeDataModel {
 			}
 		}
 	}
-	
+
 	/**
 	 * Add a given aspect's points to the current tally. Called by
 	 * _preparePoints()
@@ -420,7 +420,7 @@ function Tribe8PrimaryAttribute(name, label) {
 		value: new fields.NumberField({hint: "The current calculated value of this attribute", initial: -1, positive: false, required: true}),
 		cp: new fields.NumberField({hint: "The number of CP invested in this attribute", initial: 0, positive: false, required: true}),
 		xp: new fields.NumberField({hint: "The number of XP invested in this attribute", initial: 0, required: true})
-	};	
+	};
 }
 
 function Tribe8SecondaryAttribute(name, label) {

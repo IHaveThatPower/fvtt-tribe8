@@ -53,7 +53,7 @@
 <div class="magic">
 	<h2>Magic</h2>
 	{{#if magic.hasDreamerPerk}}
-	<h3{{#if (and magic.hasAwakenedDreamerPerk magic.synthesisSkill)}} class="has-synthesis" data-action="editItem" data-id="{{magic.synthesisSkill.id}}"{{/if}}><!--
+	<h3{{#if (and magic.hasAwakenedDreamerPerk magic.synthesisSkill)}} class="has-synthesis" data-action="editItem" data-item-id="{{magic.synthesisSkill.id}}"{{/if}}><!--
 		--><span>Synthesis</span><!--
 		-->{{#if (and magic.hasAwakenedDreamerPerk magic.synthesisSkill)}}<!--
 		--><span>{{magic.synthesisSkill.system.level}}c{{magic.synthesisSkill.system.cpx}}</span><!--
@@ -62,13 +62,13 @@
 	<dl>
 		<dt><span>Eminences</span><button name="add-eminence" data-action="addNewItem"><i class="fa fa-solid fa-plus"></i></button></dt>
 		<dd>{{#if magic.eminences}}{{#each magic.eminences}}
-		<div class="eminence{{#if this.system.used}} used{{/if}}">
-			<div class="identity" data-action="editItem" data-id="{{this.id}}">
+		<div class="eminence{{#if this.system.used}} used{{/if}} draggable" data-item-id="{{this.id}}">
+			<div class="identity" data-action="editItem">
 				<div class="name">{{this.name}}</div>
 				<div class="specific">({{this.system.tribe}})</div>
 			</div>
 			<div class="used">
-				<input type="checkbox" name="useEminence[{{this.id}}]" data-action="useEminence" data-id="{{this.id}}" title="Mark this Eminence as having been used for the day"{{#if this.system.used}} checked{{/if}}>
+				<input type="checkbox" name="useEminence[{{this.id}}]" data-action="useEminence" data-item-id="{{this.id}}" title="Mark this Eminence as having been used for the day"{{#if this.system.used}} checked{{/if}}>
 			</div>
 		</div>
 		{{/each}}{{else}}
@@ -77,8 +77,8 @@
 		{{#if magic.synthesisSkill}}
 		<dt><span>Aspects</span><button name="add-aspect" data-action="addNewItem"><i class="fa fa-solid fa-plus"></i></button></dt>
 		<dd>{{#if magic.aspects}}{{#each magic.aspects}}
-		<div class="aspect">
-			<div class="identity{{# if this.system.granted}} granted{{/if}}" data-action="editItem" data-id="{{this.id}}">
+		<div class="aspect draggable" data-item-id="{{this.id}}" class="draggable">
+			<div class="identity{{# if this.system.granted}} granted{{/if}}" data-action="editItem">
 				<div class="name">{{this.name}}</div>
 				<div class="specific">({{this.system.tribe}})</div>
 			</div>

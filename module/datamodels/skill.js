@@ -28,7 +28,7 @@ export class Tribe8SkillModel extends Tribe8ItemModel {
 			})
 		};
 	}
-	
+
 	/**
 	 * Migrate data
 	 */
@@ -43,7 +43,7 @@ export class Tribe8SkillModel extends Tribe8ItemModel {
 			data.points.edie.fromXP = 0;
 		return super.migrateData(data);
 	}
-	
+
 	/**
 	 * Prepare base data for a skill
 	 */
@@ -54,7 +54,7 @@ export class Tribe8SkillModel extends Tribe8ItemModel {
 		this.name = canonSystemName;
 		this.specific = canonSpecificName;
 	}
-	
+
 	/**
 	 * Prepare derived data for a skill
 	 */
@@ -64,7 +64,7 @@ export class Tribe8SkillModel extends Tribe8ItemModel {
 		// First, CP
 		let level = 0; let cpx = 1;
 		level += Math.floor(Math.sqrt(this.points.level.cp));
-		
+
 		// Next, XP, using the CP level as a baseline
 		const cpLevel = level;
 		let xpAvailable = this.points.level.xp;
@@ -91,26 +91,26 @@ export class Tribe8SkillModel extends Tribe8ItemModel {
 			cpx++;
 		}
 		this.cpx = cpx;
-		
+
 		// Total up XP spent, for comparison with edie
 		const totalXP = this.points.level.xp + this.points.cpx.xp + this.points.edie.fromXP;
 		this.points.totalXP = totalXP;
 	}
-	
+
 	/**
 	 * Get the total e-die spent on this skill
 	 */
 	get eDieSpent() {
 		return this.points.edie.fromBonus + this.points.edie.fromXP;
 	}
-	
+
 	/**
 	 * Rectify specializations from a list of objects
 	 */
 	async updateSpecializations(specList) {
 		const existingSpecializationIDs = Object.keys(this.specializations);
 		const newSpecializations = {};
-		
+
 		for (let spec of specList) {
 			// Do we already have this specialization?
 			let specFound = false;
@@ -125,7 +125,7 @@ export class Tribe8SkillModel extends Tribe8ItemModel {
 
 			if (specFound) // Nothing else to do
 				continue;
-			
+
 			// New specialization!
 			newSpecializations[Tribe8SkillModel.generateSpecializationKey(spec.name)] = spec;
 		}
@@ -138,7 +138,7 @@ export class Tribe8SkillModel extends Tribe8ItemModel {
 	async alterEdie(amount = 1) {
 		const data = this.computeAlterEdie(amount);
 		if (!data) return false;
-		
+
 		// Don't do anything if we'd go negative
 		if (this.points.edie.fromBonus + data.spendBonus < 0 || this.points.edie.fromXP + data.spendXP < 0) {
 			foundry.ui.notifications.warn("Can't decrease spent EDie below 0");
@@ -150,7 +150,7 @@ export class Tribe8SkillModel extends Tribe8ItemModel {
 			'system.points.edie.fromBonus': (this.points.edie.fromBonus + data.spendBonus),
 			'system.points.edie.fromXP': (this.points.edie.fromXP + data.spendXP)
 		});
-		
+
 		// Update the actor
 		if (data.owner) {
 			let owner;
@@ -160,7 +160,7 @@ export class Tribe8SkillModel extends Tribe8ItemModel {
 		}
 		return true;
 	}
-	
+
 	/**
 	 * Compute an e-die refund amount
 	 */
@@ -168,7 +168,7 @@ export class Tribe8SkillModel extends Tribe8ItemModel {
 		// Bail out if value is just 0
 		amount = Number(amount);
 		if (!amount) return false;
-		
+
 		// Return data
 		const data = {
 			'spendBonus': amount,
@@ -186,7 +186,7 @@ export class Tribe8SkillModel extends Tribe8ItemModel {
 
 			// Spend from/refund to bonus first
 			data.owner.other = owner.system.edie.other - amount;
-			
+
 			// Leftover goes to XP (no need to update the owner; that'll self-account)
 			if (data.owner.other < 0) {
 				data.spendBonus = amount + data.owner.other;
@@ -200,7 +200,7 @@ export class Tribe8SkillModel extends Tribe8ItemModel {
 
 	/**
 	 * Handle manual interaction with an EDie field for this skill.
-	 * 
+	 *
 	 * TODO: Should this be somewhere else? Weird to put a UI handle on a DataModel...
 	 */
 	eDieKeyInputEventHandler(e) {
@@ -212,12 +212,12 @@ export class Tribe8SkillModel extends Tribe8ItemModel {
 			e.target.value = oldValue;
 			return;
 		}
-		
+
 		// Stop default handling
 		e.preventDefault();
 		e.stopPropagation();
 		e.target.readonly = true; // Block further editing until we're done
-		
+
 		// Act based on the direction of the change
 		(async (skill, delta) => {
 			await skill.system.alterEdie(delta);
@@ -236,7 +236,7 @@ export class Tribe8SkillModel extends Tribe8ItemModel {
 		// Supplied an already-good key?
 		if (key.match(/^[a-f0-9A-F]{8}-[a-f0-9A-F]{4}-[a-f0-9A-F]{4}-[a-f0-9A-F]{4}-[a-f0-9A-F]{12}$/))
 			return key;
-		
+
 		// Have crypto?
 		if (crypto.randomUUID)
 			return crypto.randomUUID();

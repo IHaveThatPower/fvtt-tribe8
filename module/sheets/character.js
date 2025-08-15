@@ -11,10 +11,6 @@ export class Tribe8CharacterSheet extends HandlebarsApplicationMixin(ActorSheetV
 			width: 1024,
 			height: 768
 		},
-		dragDrop: [{
-			dragSelector: '.item-list .item',
-			dropSelector: null
-		}],
 		window: {
 			resizable: true,
 			contentClasses: ["tribe8", "character", "sheet", "actor"]
@@ -33,16 +29,7 @@ export class Tribe8CharacterSheet extends HandlebarsApplicationMixin(ActorSheetV
 			template: 'systems/tribe8/templates/character-sheet.html'
 		}
 	}
-	
-	/**
-	 * Need to override the default constructor so that we setup 
-	 * drag-drop
-	 */
-	constructor(options = {}) {
-		super(options);
-		this.#dragDrop = this.#createDragDropHandlers();
-	}
-	
+
 	/**
 	 * Title of the sheet
 	 */
@@ -51,17 +38,17 @@ export class Tribe8CharacterSheet extends HandlebarsApplicationMixin(ActorSheetV
 	}
 
 	/**
-	 * Prepare the context with which the Application renders. 
+	 * Prepare the context with which the Application renders.
 	 * This used to be getData() in Application V1
 	 */
 	async _prepareContext(options) {
 		const context = await super._prepareContext(options);
-		
+
 		// Who's the player for this?
 		const playerOwner = this.document.getPlayerOwner();
 		if (playerOwner)
 			context.playerName = playerOwner.name;
-		
+
 		// Differentiate items
 		for (let item of this.document.items) {
 			switch (item.type) {
@@ -105,7 +92,7 @@ export class Tribe8CharacterSheet extends HandlebarsApplicationMixin(ActorSheetV
 					break;
 			}
 		}
-		
+
 		// Sort various items for display
 		for (let itemGroup of ['skills', 'perksAndFlaws', 'sortedManeuvers', 'magic.eminences', 'magic.aspects', 'magic.totems']) {
 			let contextTarget = context[itemGroup];
@@ -128,14 +115,14 @@ export class Tribe8CharacterSheet extends HandlebarsApplicationMixin(ActorSheetV
 		}
 		return context;
 	}
-	
+
 	/**
 	 * Handle the submit data
 	 */
 	_prepareSubmitData(event, form, formData, updateData) {
 		// Identify array-based form elements
 		const checkKeys = CONFIG.Tribe8.checkFormArrayElements(formData);
-		
+
 		// Extract identified array-based elements
 		let systemShockChecked = 0;
 		for (const key of checkKeys) {
@@ -147,11 +134,11 @@ export class Tribe8CharacterSheet extends HandlebarsApplicationMixin(ActorSheetV
 				delete formData.object[key];
 			}
 		}
-		
+
 		// Having counted up the number of system shock checkboxes that
 		// were checked, re-build the array
 		formData.object['system.attributes.secondary.physical.shock.current'] = systemShockChecked;
-		
+
 		return super._prepareSubmitData(event, form, formData, updateData);
 	}
 
@@ -159,8 +146,6 @@ export class Tribe8CharacterSheet extends HandlebarsApplicationMixin(ActorSheetV
 	 * Handle any special _onRender events.
 	 */
 	async _onRender(context, options) {
-		this.#dragDrop.forEach((d) => d.bind(this.element));
-		
 		// Rig up manual input on eDie fields
 		this.element.querySelectorAll('div.edie-block div.value input[type=number]').forEach((i) => {
 			i.addEventListener('keyup', (e) => {
@@ -202,7 +187,7 @@ export class Tribe8CharacterSheet extends HandlebarsApplicationMixin(ActorSheetV
 		}
 		skillItem.system.alterEdie();
 	}
-	
+
 	/**
 	 * Decrement edie "other" amount
 	 */
@@ -223,7 +208,7 @@ export class Tribe8CharacterSheet extends HandlebarsApplicationMixin(ActorSheetV
 		}
 		skillItem.system.alterEdie(-1);
 	}
-	
+
 	/**
 	 * Add a new Item
 	 */
@@ -264,10 +249,10 @@ export class Tribe8CharacterSheet extends HandlebarsApplicationMixin(ActorSheetV
 			this._addNewItem(addItemType);
 		}
 	}
-	
+
 	/**
 	 * Actually create a new item
-	 * 
+	 *
 	 * @param	String itemType
 	 */
 	_addNewItem(itemType) {
@@ -278,7 +263,7 @@ export class Tribe8CharacterSheet extends HandlebarsApplicationMixin(ActorSheetV
 			newItem.sheet.render(true);
 		});
 	}
-	
+
 	/**
 	 * Open the editing dialog for an existing item
 	 */
@@ -293,17 +278,16 @@ export class Tribe8CharacterSheet extends HandlebarsApplicationMixin(ActorSheetV
 
 	/**
 	 * Get an embedded item by way of the button used to edit it.
-	 * 
+	 *
 	 * @param	HTMLElement
 	 * @param	String [optional] action
 	 * @return	Tribe8Item
 	 */
 	_getItemFromTarget(target) {
 		// Check the provided item, its parent, and any .identity div child
-		const id = 
-			target.dataset?.id ?? 
-			target.parentNode?.dataset?.id ?? 
-			target.querySelector('div.identity[data-id]')?.dataset.id ??
+		const id =
+			target.dataset?.itemId ??
+			target.parentNode?.dataset?.itemId ??
 			false;
 		if (!id) {
 			foundry.ui.notifications.warn("Item ID could not be determined");
@@ -333,118 +317,5 @@ export class Tribe8CharacterSheet extends HandlebarsApplicationMixin(ActorSheetV
 			console.log("Marking not used");
 			item.update({'system.used': false});
 		}
-	}
-
-	/*******************************************************************
-	 * Drag & Drop Stuff
-	 ******************************************************************/
-
-	#dragDrop;
-
-	/**
-	 * Re-implement drag-drop handlers in ApplicationV2
-	 */
-	#createDragDropHandlers() {
-		return this.options.dragDrop.map((d) => {
-			d.permissions = {
-				dragstart: this._canDragStart.bind(this),
-				drop: this._canDragDrop.bind(this)
-			};
-			d.callbacks = {
-				dragstart: this._onDragStart.bind(this),
-				dragover: this._onDragOver.bind(this),
-				drop: this._onDrop.bind(this)
-			};
-			return new foundry.applications.ux.DragDrop.implementation(d);
-		});
-	}
-
-	/**
-	 * Getter for the dragdrop object, if we need it
-	 */
-	get dragDrop() {
-		return this.#dragDrop;
-	}
-
-	/**
-	 * Define whether a user is able to begin a dragstart workflow for a given drag selector
-	 * @param {string} selector       The candidate HTML selector for dragging
-	 * @returns {boolean}             Can the current user drag this selector?
-	 * @protected
-	 */
-	_canDragStart(selector) {
-		// game.user fetches the current user
-		return this.isEditable;
-	}
-
-	/**
-	 * Define whether a user is able to conclude a drag-and-drop workflow for a given drop selector
-	 * @param {string} selector       The candidate HTML selector for the drop target
-	 * @returns {boolean}             Can the current user drop on this selector?
-	 * @protected
-	 */
-	_canDragDrop(selector) {
-		// game.user fetches the current user
-		return this.isEditable;
-	}
-
-	/**
-	 * Callback actions which occur at the beginning of a drag start workflow.
-	 * @param {DragEvent} event       The originating DragEvent
-	 * @protected
-	 */
-	_onDragStart(event) {
-		const el = event.currentTarget;
-		if ('link' in event.target.dataset) return;
-
-		// Extract the data you need
-		let dragData = null;
-
-		if (!dragData) return;
-
-		// Set data transfer
-		event.dataTransfer.setData('text/plain', JSON.stringify(dragData));
-	}
-
-	/**
-	 * Callback actions which occur when a dragged element is over a drop target.
-	 * @param {DragEvent} event       The originating DragEvent
-	 * @protected
-	 */
-	_onDragOver(event) {}
-
-	/**
-	 * Callback actions which occur when a dragged element is dropped on a target.
-	 * @param {DragEvent} event       The originating DragEvent
-	 * @protected
-	 */
-	async _onDrop(event) {
-		const data = foundry.applications.ux.TextEditor.implementation.getDragEventData(event);
-
-		// Handle different data types
-		switch (data.type) {
-			case 'Item':
-				await this._onDropItem(data);
-				break;
-			default:
-				foundry.ui.notifications.error("Unsupported drag-and-drop type");
-				break;
-		}
-	}
-	
-	/**
-	 * Dedicated callback for Item onDrop events
-	 */
-	async _onDropItem(data) {
-		if (!data.uuid) {
-			foundry.ui.notifications.error(`Invalid or missing UUID for Item`);
-			return;
-		}
-		const item = await foundry.utils.fromUuid(data.uuid);
-		if (!item) {
-			foundry.ui.notifications.error(`Tried to add an unknown Item ${data.uuid}`);
-			return;
-		}
-		this.document.createEmbeddedDocuments('Item', [item]);
 	}
 }

@@ -36,7 +36,7 @@ export class Tribe8PerkFlawModel extends Tribe8ItemModel {
 				})
 		};
 	}
-	
+
 	/**
 	 * Migrate data
 	 */
@@ -44,7 +44,7 @@ export class Tribe8PerkFlawModel extends Tribe8ItemModel {
 		foundry.abstract.Document._addDataFieldMigration(data, "system.cost", "system.baseCost");
 		return super.migrateData(data);
 	}
-	
+
 	/**
 	 * Prepare base data for a Perk/Flaw
 	 */
@@ -54,7 +54,7 @@ export class Tribe8PerkFlawModel extends Tribe8ItemModel {
 		this.parent.name = canonName;
 		this.name = canonSystemName;
 		this.specific = canonSpecificName;
-		
+
 		if (this.parent.type == 'flaw') {
 			if (this.baseCost > 0)
 				this.baseCost *= -1;

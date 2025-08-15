@@ -10,7 +10,7 @@ export class Tribe8ItemModel extends foundry.abstract.TypeDataModel {
 	/**
 	 * Handle proper Skill and Perk/Flaw naming, accounting for special
 	 * sub-identifiers
-	 * 
+	 *
 	 * @returns	Object{name, system{name, specific}}
 	 */
 	static canonizeName(name = '', sysName = '', specific = '', specify = false) {
@@ -38,7 +38,7 @@ export class Tribe8ItemModel extends foundry.abstract.TypeDataModel {
 			else {
 				canonName.system.specific = specific;
 			}
-			
+
 			// Compose the name from the now-defined parts
 			canonName.name = `${canonName.system.name} (${canonName.system.specific})`;
 		}

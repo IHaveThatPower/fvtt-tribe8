@@ -8,7 +8,7 @@
 	--color-maneuver-bonus: rgba(0, 255, 154, 0.25);
 	--color-eminence-used: var(--color-flaw-granted);
 	--color-aspect-granted: var(--color-perk-granted);
-	
+
 	/* Alt rows */
 	--alt-background: rgba(255, 255, 255, 0.05);
 	--color-perk-granted-alt: rgba(13, 109, 255, 0.45);

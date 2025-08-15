@@ -84,7 +84,7 @@ Tribe8.checkFormArrayElements = function(formData) {
 };
 
 /**
- * Given a single-character identifier and an array of skill items, 
+ * Given a single-character identifier and an array of skill items,
  * find the one that matches the combat skill idnciated by the indentifier
  */
 Tribe8.findCombatSkill = function(key, skills) {

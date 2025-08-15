@@ -23,7 +23,7 @@ export class Tribe8SkillSheet extends Tribe8ItemSheet {
 			template: 'systems/tribe8/templates/skill-sheet.html'
 		}
 	}
-	
+
 	static DEFAULT_ICON = "systems/tribe8/icons/skill.svg";
 
 	/**
@@ -32,7 +32,7 @@ export class Tribe8SkillSheet extends Tribe8ItemSheet {
 	get title() {
 		return `Skill: ${this.document.name}`;
 	}
-	
+
 	/**
 	 * @inheritdoc
 	 */
@@ -48,7 +48,7 @@ export class Tribe8SkillSheet extends Tribe8ItemSheet {
 		const context = await super._prepareContext(options);
 		return context;
 	}
-	
+
 	/**
 	 * Handle the submit data
 	 */
@@ -64,15 +64,15 @@ export class Tribe8SkillSheet extends Tribe8ItemSheet {
 			let propertyPath = key.split(/[\[\.]/);
 			this._extractSpecializationsFromForm(key, propertyPath, formData, specializations);
 		}
-		
+
 		// Restructure the submitted edie value to be differential, drop it off the formData
 		const eDieDelta = Number(formData.object['system.eDieSpent'] || 0) - this.document.system.eDieSpent;
 		if (formData.object['system.eDieSpent'])
 			delete formData.object['system.eDieSpent'];
-		
+
 		// Get the normal submit stuff, now with the specializations removed
 		const data = super._prepareSubmitData(event, form, formData, updateData);
-		
+
 		// Bold eDieDelta back on
 		if (eDieDelta)
 			data.eDieDelta = eDieDelta;
@@ -100,7 +100,7 @@ export class Tribe8SkillSheet extends Tribe8ItemSheet {
 		}
 		return superSubmit;
 	}
-	
+
 	/**
 	 * Extract specializations from formData and return them separately
 	 */
@@ -109,7 +109,7 @@ export class Tribe8SkillSheet extends Tribe8ItemSheet {
 			return;
 		if (propertyPath[0] != 'system' || propertyPath[1] != 'specializations')
 			return;
-			
+
 		propertyPath.shift(); // Drop the system part
 		propertyPath.shift(); // Drop the specializations part
 		if (propertyPath.length != 2)
@@ -122,7 +122,7 @@ export class Tribe8SkillSheet extends Tribe8ItemSheet {
 		specializations[index][specKey] = formData.object[key];
 		delete formData.object[key];
 	}
-	
+
 	/**
 	 * Append specializations to the processed form data object
 	 */
@@ -132,7 +132,7 @@ export class Tribe8SkillSheet extends Tribe8ItemSheet {
 				if (!data.system.specializations)
 					data.system.specializations = {}
 				let targetProp = Tribe8SkillModel.generateSpecializationKey(prop);
-				
+
 				// TODO: Validate that we don't already have this specialization
 				// Shouldn't happen, but it might with weird data situations
 				data.system.specializations[targetProp] = specializations[prop];
@@ -149,7 +149,7 @@ export class Tribe8SkillSheet extends Tribe8ItemSheet {
 		event.stopPropagation();
 		this.document.system.alterEdie();
 	}
-	
+
 	/**
 	 * Decrement edie "other" amount
 	 */
@@ -159,10 +159,10 @@ export class Tribe8SkillSheet extends Tribe8ItemSheet {
 		event.stopPropagation();
 		this.document.system.alterEdie(-1);
 	}
-	
+
 	/**
 	 * Add a specialization to a skill
-	 * 
+	 *
 	 * TODO: Move a lot of this code to the Skill Model, which already
 	 * does a version of it for the inline editing.
 	 */
@@ -206,14 +206,14 @@ export class Tribe8SkillSheet extends Tribe8ItemSheet {
 		// Now clear out the existing form fields
 		nSpecName.value = "";
 		nSpecPoints.checked = false;
-		
+
 		// Now re-render
 		this.render();
 	}
-	
+
 	/**
 	 * Remove an existing specialization
-	 * 
+	 *
 	 * TODO: Move a lot of this code to the Skill Model, which already
 	 * does a version of it for the inline editing.
 	 */

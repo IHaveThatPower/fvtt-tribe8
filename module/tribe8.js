@@ -1,10 +1,10 @@
 // TODO: Overall System List
 // * Convert Specializations to an Item
-// * Switch editItem invocations over to use item ID instead of actionSlug
-// * Rituals? 
+// * Rituals?
+// * Make Item sheets size their height intelligently, based on Description length
+// * Remember sheet dimensions and position per-user and restore them when opening a sheet
 // * Combat tab
 // * Equipment tab
-// * Make Item sheets size their height intelligently, based on Description length
 // * Make starting CP a system setting for the GM, and then make the initial CP boxes something GM users can edit
 // * Some way to trade attribute points (i.e. PSY for other attributes)
 // * Sundering?
@@ -66,7 +66,7 @@ Hooks.once('init', function() {
 			Tribe8Item
 		}
 	};
-	
+
 	CONFIG.Tribe8 = Tribe8;
 
 	// Define initiative for the system.
@@ -87,7 +87,7 @@ Hooks.once('init', function() {
 	CONFIG.Item.dataModels = {
 		item: Tribe8ItemModel,
 		skill: Tribe8SkillModel,
-		perk: Tribe8PerkFlawModel, 
+		perk: Tribe8PerkFlawModel,
 		flaw: Tribe8PerkFlawModel,
 		maneuver: Tribe8ManeuverModel,
 		eminence: Tribe8EminenceModel,
@@ -99,7 +99,7 @@ Hooks.once('init', function() {
 		gear: Tribe8GearModel
 		*/
 	};
-	
+
 	// Register sheet application classes
 	foundry.documents.collections.Actors.unregisterSheet('core', foundry.applications.sheets.ActorSheet);
 	foundry.documents.collections.Actors.unregisterSheet('core', foundry.applications.sheets.ActorSheetV2);
@@ -158,7 +158,7 @@ Hooks.once('init', function() {
 			}
 		]
 	};
-	
+
 	initHandlebars.default();
 
 	/*

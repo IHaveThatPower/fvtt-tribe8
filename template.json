@@ -1,20 +1,20 @@
 {
-    "Actor": {
-        "types": ["character"],
-        "character": {}
-    },
-    "Item": {
-        "types": ["item", "skill", "perk", "flaw", "maneuver", "eminence", "aspect", "totem", "weapon", "armor", "gear"],
-        "item": {},
-        "skill": {},
-        "perk": {},
-        "flaw": {},
-        "maneuver": {},
-        "eminence": {},
-        "aspect": {},
-        "totem": {},
-        "weapon": {},
-        "armor": {},
-        "gear": {}
-    }
+  "Actor": {
+    "types": ["character"],
+    "character": {}
+  },
+  "Item": {
+    "types": ["item", "skill", "perk", "flaw", "maneuver", "eminence", "aspect", "totem", "weapon", "armor", "gear"],
+    "item": {},
+    "skill": {},
+    "perk": {},
+    "flaw": {},
+    "maneuver": {},
+    "eminence": {},
+    "aspect": {},
+    "totem": {},
+    "weapon": {},
+    "armor": {},
+    "gear": {}
+  }
 }

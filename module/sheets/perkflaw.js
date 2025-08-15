@@ -12,7 +12,7 @@ class Tribe8PerkFlawSheet extends Tribe8ItemSheet {
 		actions: {
 			removeRank: Tribe8PerkFlawSheet.removeRank
 		}
-		
+
 	}
 
 	static PARTS = {
@@ -26,7 +26,7 @@ class Tribe8PerkFlawSheet extends Tribe8ItemSheet {
 	 */
 	async _prepareContext(options) {
 		const context = await super._prepareContext(options);
-		
+
 		// Ensure there's at least one rank value, for looping
 		context.ranks = Array.from(context.document.system.points);
 		if (context.document.system.points.length == 0) {
@@ -45,7 +45,7 @@ class Tribe8PerkFlawSheet extends Tribe8ItemSheet {
 	_prepareSubmitData(event, form, formData, updateData) {
 		// Identify array-based form elements
 		const checkKeys = CONFIG.Tribe8.checkFormArrayElements(formData);
-		
+
 		// Extract identified array-based elements
 		const rankPoints = {}; // Object so we can use explicit keys
 		for (const key of checkKeys) {
@@ -68,7 +68,7 @@ class Tribe8PerkFlawSheet extends Tribe8ItemSheet {
 
 		return super._prepareSubmitData(event, form, formData, updateData);
 	}
-	
+
 	/**
 	 * Remove a rank from a Perk/Flaw
 	 */
