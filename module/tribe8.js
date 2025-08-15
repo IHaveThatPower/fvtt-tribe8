@@ -2,6 +2,7 @@
 // * Rituals?
 // * Equipment tab
 // * Combat tab
+// * Localize!
 // * Make starting CP a system setting for the GM, and then make the initial CP boxes something GM users can edit
 // * Some way to trade attribute points (i.e. PSY for other attributes)
 // * Sundering?

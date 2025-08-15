@@ -1,0 +1,35 @@
+<div class="maneuvers">
+	<h2><span>Combat Maneuvers</span><button name="add-maneuver" data-action="addNewItem"><i class="fa fa-solid fa-plus"></i></button></h2>
+	{{#if sortedManeuvers}}
+	<div class="maneuver">
+		<div class="identity points-type">Maneuver (Skill)</div>
+		<div class="complexity points-type">Cpx</div>
+		<div class="cost points-type">Cost</div>
+		<div></div>
+	</div>
+	{{/if}}
+	{{#each sortedManeuvers}}
+	<div class="maneuver{{#if (and (not this.usesPoints) this.system.fromCpx)}} from-cpx{{/if}}{{#if this.system.granted}} granted{{/if}} draggable" data-item-id="{{this.id}}">
+		<div class="identity" data-action="editItem">
+			<div class="name">{{this.name}}</div>
+			<div class="specific">({{this.system.forSkill}})</div>
+		</div>
+		<div class="complexity">{{#if (eq this.system.complexity 0)}}1*{{else}}{{this.system.complexity}}{{/if}}</div>
+		<div class="cost">
+			{{#if (and (not this.usesPoints) this.system.fromCpx)}}
+			C
+			{{else}}
+				{{#if this.system.granted}}
+				W
+				{{else}}
+					{{#if (eq this.system.complexity 0)}}
+					F
+					{{else}}
+					{{this.system.complexity}} {{this.system.points}}{{#if (and this.system.fromCpx this.usesPoints)}}*{{/if}}
+					{{/if}}
+				{{/if}}
+			{{/if}}
+		</div>
+	</div>
+	{{/each}}
+</div>

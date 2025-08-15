@@ -106,12 +106,23 @@ Handlebars.registerHelper('repeat', function() {
 });
 
 // Load supplemental templates
-foundry.applications.handlebars.loadTemplates([
-	"systems/tribe8/templates/character-sheet_left-column.html",
-	"systems/tribe8/templates/character-sheet_middle-column.html",
-	"systems/tribe8/templates/character-sheet_right-column.html",
-	"systems/tribe8/templates/item-sheet_buttons.html",
-	"systems/tribe8/templates/item-sheet_description.html"
-]);
+foundry.applications.handlebars.loadTemplates(
+	[
+		// Character sheet parts
+		"character-sheet_attributes.html",
+		"character-sheet_basic.html",
+		"character-sheet_injuries.html",
+		"character-sheet_magic.html",
+		"character-sheet_maneuvers.html",
+		"character-sheet_pf.html",
+		"character-sheet_points.html",
+		"character-sheet_skills.html",
+		
+		// Shared Item sheet parts
+		"item-sheet_buttons.html",
+		"item-sheet_description.html"
+	]
+	.map((t) => `systems/tribe8/templates/${t}`)
+);
 
 }

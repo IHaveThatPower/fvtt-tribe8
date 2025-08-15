@@ -1,0 +1,19 @@
+<div class="injuries">
+	<h2>Injuries</h2>
+	<h3>Thresholds</h3>
+	<div class="secondary-attributes">
+	{{#each document.system.attributes.secondary.physical.thresholds as |data key|}}
+		<div class="attribute-block threshold {{key}}">
+			<div class="name">{{data.label}}</div>
+			<div class="value">{{data.value}}</div>
+		</div>
+	{{/each}}
+	</div>
+
+	<h3>System Shock</h3>
+	{{#with document.system.attributes.secondary.physical.shock as | shock |}}
+	{{#repeat shock.value false}}
+	<input type="checkbox" name="systemShock[{{this}}]" value="1"{{#if (gte shock.current this)}} checked{{/if}} />
+	{{/repeat}}
+	{{/with}}
+</div>

@@ -1,0 +1,32 @@
+<div class="points-summary">
+	<h2>Points</h2>
+	<dl>
+		<dt>CP</dt>
+		<dd>
+			<dl>
+				<dt>Att</dt>
+				<dd>{{document.system.points.cp.attributesSpent}} / {{document.system.points.cp.attributes}}</dd>
+				<dt>General</dt>
+				<dd>{{document.system.points.cp.generalSpent}} / {{document.system.points.cp.general}}</dd>
+			</dl>
+		</dd>
+		<dt>XP</dt>
+		<dd>
+			<dl>
+				<dt></dt>
+				<dd>{{document.system.points.xp.spent}} / <input type="number" name="system.points.xp.total" value="{{document.system.points.xp.total}}" /></dd>
+			</dl>
+		</dd>
+		<dt>EDie</dt>
+		<dd>
+			<dl>
+				<dt></dt>
+				<dd>{{document.system.edie.total}}</dd>
+				<dt>From XP</dt>
+				<dd>{{document.system.edie.fromXP}}</dd>
+				<dt>Other</dt>
+				<dd><button name="edie.dec" data-action="decrementEdie">-</button><input type="number" name="system.edie.other" value="{{document.system.edie.other}}" /><button name="edie.inc" data-action="incrementEdie">+</button></dd>
+			</dl>
+		</dd>
+	</dl>
+</div>
