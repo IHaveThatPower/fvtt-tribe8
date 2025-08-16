@@ -142,7 +142,7 @@ div.magic {
 				transparent
 			) 1;
 	}
-	h3.has-synthesis {
+	h3.has-skill {
 		cursor: pointer;
 	}
 	span:last-child {
@@ -165,7 +165,7 @@ div.magic {
 	dt button {
 		min-height: 0;
 		font-size: .8rem;
-		padding: 0.1rem 0.4rem 0 0.4rem;
+		padding: 0.15rem 0.15rem 0 0.15rem;
 		line-height: 100%;
 		height: min-content;
 		display: block;
@@ -173,21 +173,18 @@ div.magic {
 	dd {
 		margin-bottom: 0.2rem;
 	}
-	div.aspect, div.eminence {
+	dd>div {
 		margin-left: -1rem; /* Negates margin imposed by parent dd */
 		padding-left: 1rem;
 		align-items: center;
 	}
-	div.eminence:nth-child(odd),
-	div.aspect:nth-child(odd) {
+	dd>div:nth-child(odd) {
 		background: var(--alt-background);
 	}
-	div.aspect div.identity,
-	div.eminence div.identity {
+	dd>div div.identity {
 		display: block;
 	}
-	div.aspect div.identity>div,
-	div.eminence div.identity>div {
+	dd>div div.identity>div {
 		display: inline-block;
 		vertical-align: bottom;
 	}
@@ -196,7 +193,6 @@ div.magic {
 		grid-template-columns: 1fr min-content;
 		gap: 0.2rem;
 	}
-
 	div.eminence.used {
 		background: none;
 		background-image: linear-gradient(
@@ -217,7 +213,12 @@ div.magic {
 		gap: 0.4rem;
 		justify-content: space-between;
 	}
-	div.aspect.granted {
+	div.totem {
+		display: grid;
+		grid-template-columns: 1fr 2rem;
+		gap: 0.2rem;
+	}
+	dd>div.granted {
 		background: none;
 		background-image: linear-gradient(
 			to right,
@@ -226,7 +227,7 @@ div.magic {
 			transparent
 		);
 	}
-	div.aspect.granted:nth-child(odd) {
+	dd>div.granted:nth-child(odd) {
 		background-image: linear-gradient(
 			to right,
 			transparent,
@@ -234,8 +235,8 @@ div.magic {
 			transparent
 		);
 	}
-	div.aspect div.cost,
-	div.aspect div.complexity {
+	dd>div div.cost,
+	dd>div div.complexity {
 		white-space: nowrap;
 	}
 	div.aspect div.identity {
@@ -245,7 +246,7 @@ div.magic {
 		flex: 0 0 3rem;
 		text-align: center;
 	}
-	div.aspect div.cost {
+	dd>div div.cost {
 		flex: 0 0 1.5rem;
 		text-transform: uppercase;
 		text-align: center;

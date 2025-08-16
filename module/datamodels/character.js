@@ -186,7 +186,8 @@ export class Tribe8CharacterModel extends foundry.abstract.TypeDataModel {
 		this.pointsLedger = {};
 
 		// Compute amount spent on various items
-		this._computeManeuverComplexityCapacity();
+		this._prepareBonusManeuverSlots();
+		this._prepareFreeTotemSlots();
 		for (let item of this.parent.getEmbeddedCollection("Item")) {
 			switch (item.type) {
 				case 'skill':
@@ -279,7 +280,7 @@ export class Tribe8CharacterModel extends foundry.abstract.TypeDataModel {
 	 * Iterate through all of the character's skills and figure out
 	 * what the "capacity" for bonus maneuvers is.
 	 */
-	_computeManeuverComplexityCapacity() {
+	_prepareBonusManeuverSlots() {
 		// Initialize the combat skill reference list
 		const combatSkillReference = {...CONFIG.Tribe8.COMBAT_SKILLS};
 		for (let key of Object.keys(combatSkillReference)) {
@@ -311,6 +312,45 @@ export class Tribe8CharacterModel extends foundry.abstract.TypeDataModel {
 				for (let c = skillObj.cpx; c > 0; c--) {
 					skillObj.slots[c] = [...Array(c)];
 				}
+			}
+		}
+	}
+
+	/**
+	 * Similar to _prepareBonusManeuverSlots(), prepare slots for Totems
+	 * that the Ritual Skill's Complexity grants for free.
+	 */
+	_prepareFreeTotemSlots() {
+		// Create a tracking property for free Totems
+		this.totemSlots = [];
+		const ritual = (Array.from(this.parent.getEmbeddedCollection("Item")).filter(i => i.type == 'skill').filter(s => (CONFIG.Tribe8.slugify(s.system?.name || '') == 'ritual')) ?? [])[0];
+		if (ritual)
+			this.totemSlots = [...Array(ritual.cpx)];
+
+		const totems = Array.from(this.parent.getEmbeddedCollection("Item")).filter(i => i.type == 'totem' && !i.system.granted);
+		if (!totems.length) return;
+
+		// Do an initial sort, before we mark any of the totems as requiring points
+		totems.sort(totems[0].cmp);
+		for (let totem of totems) {
+			let foundSlot = false;
+			for (let s = 0; s < this.totemSlots.length; s++) {
+				if (typeof this.totemSlots[s] === 'undefined') {
+					// We found a slot!
+					foundSlot = true;
+					this.totemSlots[s] = totem;
+					totem.inFreeSlot = true;
+					// If this totem wasn't already marked as fromCpx
+					// and the viewing user is an owner, let them know
+					if (!totem.system.fromCpx) {
+						if (game.user.id == totem.parent.getPlayerOwner()) {
+							foundry.ui.notifications.warn(`${totem.parent.name}'s '${totem.name}' Totem is free based on their Ritual Skill's Complexity, but it is not marked as such.`);
+						}
+					}
+				}
+			}
+			if (!foundSlot && totem.system.fromCpx) {
+				totem.fromPoints = true; // This will tell _applyTotemPoints() to count this
 			}
 		}
 	}
@@ -432,23 +472,8 @@ export class Tribe8CharacterModel extends foundry.abstract.TypeDataModel {
 	 * _preparePoints()
 	 */
 	_applyTotemPoints(item) {
-		// Create a tracking property for free Totems
-		if (!this.aspectSlots) {
-			this.aspectSlots = [];
-			const ritual = (Array.from(this.parent.getEmbeddedCollection("item")).filter(i => i.type == 'skill').filter(s => (CONFIG.Tribe8.slugify(s.name) == 'ritual')) ?? [])[0];
-			if (ritual)
-				this.aspectSlots = [...Array(ritual.cpx)];
-		}
-		// Do we have any free slots?
-		if (this.aspectSlots.length) {
-			for (let s = 0; s < this.aspectSlots.length; s++) {
-				// Free slot! Nice!
-				if (typeof this.aspectSlots[s] === 'undefined') {
-					this.aspectSlots[s] = item;
-					return;
-				}
-			}
-		}
+		if (item.inFreeSlot) return;
+
 		// Okay, we didn't exit early, so we have to pay for it.
 		if (!this.pointsLedger['totems']) this.pointsLedger['totems'] = {'CP': 0, 'XP': 0};
 		if (item.system.points === 'CP')

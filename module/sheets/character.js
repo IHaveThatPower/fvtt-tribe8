@@ -105,9 +105,10 @@ export class Tribe8CharacterSheet extends Tribe8Sheet(ActorSheetV2) {
 				case 'aspect':
 					if (item.type == 'aspect') {
 						collectionName = `${collectionName[0].toUpperCase()}${collectionName.slice(1)}`;
-						collectionName = item.ritual ? `ritual${collectionName}` : `synthesis${collectionName}`;
+						collectionName = item.system.ritual ? `ritual${collectionName}` : `synthesis${collectionName}`;
 					}
 					context.magic.ensureHas(collectionName, []);
+					item.cost = CONFIG.Tribe8.costs[item.type];
 					context.magic[collectionName].push(item);
 					break
 				default:
@@ -247,8 +248,9 @@ export class Tribe8CharacterSheet extends Tribe8Sheet(ActorSheetV2) {
 	static addNewItem(event, target) {
 		event.preventDefault();
 		event.stopPropagation();
-		const addItemType = target.name?.split('-')[1];
-		if (!addItemType || (Object.keys(CONFIG.Item.dataModels).indexOf(addItemType) < 0 && addItemType != 'pf')) {
+		const actionParts = (target.name?.split('-') || []).slice(1);
+		const addItemType = actionParts.shift();
+		if (!addItemType || (Object.keys(CONFIG.Item.dataModels).push('pf').indexOf(addItemType) < 0)) {
 			foundry.ui.notifications.warn("Requested creation of unrecognized item type");
 			return;
 		}
@@ -265,20 +267,13 @@ export class Tribe8CharacterSheet extends Tribe8Sheet(ActorSheetV2) {
 				],
 				modal: true
 			}).then((result) => {
-				if (result) {
-					switch (result) {
-						case 'perk':
-						case 'flaw':
-							that._addNewItem(result);
-							break;
-						default:
-							break;
-					}
+				if (result == 'perk' || result == 'flaw') {
+					that._addNewItem(result, actionParts);
 				}
 			});
 		}
 		else {
-			this._addNewItem(addItemType);
+			this._addNewItem(addItemType, actionParts);
 		}
 	}
 
@@ -287,9 +282,12 @@ export class Tribe8CharacterSheet extends Tribe8Sheet(ActorSheetV2) {
 	 *
 	 * @param	String itemType
 	 */
-	_addNewItem(itemType) {
+	_addNewItem(itemType, actionParts = []) {
 		const newItemName = `New ${itemType[0].toUpperCase()}${itemType.slice(1)}`;
-		this.document.createEmbeddedDocuments('Item', [{type: itemType, name: newItemName}]).then((resolve) => {
+		const newItemPayload = {type: itemType, name: newItemName};
+		if (itemType == 'aspect' && actionParts.length)
+			newItemPayload.ritual = (actionParts[0] == 'ritual');
+		this.document.createEmbeddedDocuments('Item', [newItemPayload]).then((resolve) => {
 			const newItem = resolve[0];
 			// Open the editing window for it
 			newItem.sheet.render(true);

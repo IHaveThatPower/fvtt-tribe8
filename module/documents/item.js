@@ -317,6 +317,31 @@ export class Tribe8Item extends Item {
 	}
 
 	/**
+	 * Sort for Totems
+	 *
+	 * @param	Tribe8Item a
+	 * @param	Tribe8Item b
+	 * @return	int
+	 */
+	static cmpTotem(a, b) {
+		if (a.type != 'totem' || b.type != 'totem')
+			throw new Error("Cannot use Totem comparison function to sort non-Totem items");
+		if (a.system.granted && !b.system.granted) return -1;
+		if (!a.system.granted && b.system.granted) return 1;
+		if (a.system.fromCpx || b.system.fromCpx) {
+			let aFromCpx = a.system.fromCpx;
+			let bFromCpx = b.system.fromCpx;
+			if (aFromCpx && a.usesPoints)
+				aFromCpx = false;
+			if (bFromCpx && b.usesPoints)
+				bFromCpx = false;
+			if (aFromCpx && !bFromCpx) return -1;
+			if (!aFromCpx && bFromCpx) return 1;
+		}
+		return Tribe8Item.cmpFallback(a, b);
+	}
+
+	/**
 	 * Handle proper Skill and Perk/Flaw naming, accounting for special
 	 * sub-identifiers
 	 *
