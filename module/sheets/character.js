@@ -50,57 +50,75 @@ export class Tribe8CharacterSheet extends Tribe8Sheet(ActorSheetV2) {
 		if (playerOwner)
 			context.playerName = playerOwner.name;
 
+		// Define a little helper function on our context to handle all
+		// the various things we need to ensure exist along the way
+		context.ensureHas = function(name, empty) {
+			if (typeof this != 'object' || this?.constructor?.name !== 'Object')
+				throw new Error("Invalid state for context object; continuing would be unsafe");
+			if (!this[name])
+				this[name] = empty;
+		}
+		context.ensureHas('magic', {});
+		context.magic.ensureHas = context.ensureHas;
+
 		// Differentiate items
 		for (let item of this.document.items) {
+			let collectionName = `${item.type}s`; // Default context collection name we add items of this type to
 			switch (item.type) {
+				case 'specialization':
+					// Handled by skills
+					break;
 				case 'skill':
-					if (!context.skills) context.skills = [];
+					context.ensureHas(collectionName, []);
 					item.specializations = ""; // Transient property for display
 					if (item.system.specializations.length)
 						item.specializations = item.system.specializations.map((s) => { return item.parent.getEmbeddedDocument("Item", s).name; }).join(', ');
-					context.skills.push(item);
+					context[collectionName].push(item);
+
+					// Track Synthesis and Ritual, specifically
 					if (CONFIG.Tribe8.slugify(item.system.name) == 'synthesis') {
-						if (!context.magic) context.magic = {};
 						context.magic.synthesisSkill = item;
+					}
+					if (CONFIG.Tribe8.slugify(item.system.name) == 'ritual') {
+						context.magic.ritualSkill = item;
 					}
 					break;
 				case 'perk':
 				case 'flaw':
-					if (!context.perksAndFlaws)
-						context.perksAndFlaws = [];
-					context.perksAndFlaws.push(item);
+					context.ensureHas(collectionName = 'perksAndFlaws', []);
+					context[collectionName].push(item);
+
+					// Track Dreamer and Awakened Dreamer Perks
 					if (CONFIG.Tribe8.slugify(item.name) == 'dreamer') {
-						if (!context.magic) context.magic = {};
 						context.magic.hasDreamerPerk = true;
 					}
 					if (CONFIG.Tribe8.slugify(item.name) == 'awakeneddreamer') {
-						if (!context.magic) context.magic = {};
 						context.magic.hasAwakenedDreamerPerk = true;
 					}
 					break;
 				case 'maneuver':
-					if (!context.sortedManeuvers) context.sortedManeuvers = [];
-					context.sortedManeuvers.push(item);
+					context.ensureHas(collectionName = 'sortedManeuvers', []);
+					context[collectionName].push(item);
 					break;
 				case 'eminence':
+				case 'totem':
 				case 'aspect':
-				case 'totems':
-					if (!context.magic) context.magic = {};
-					const collectionName = `${item.type}s`;
-					if (!context.magic[collectionName]) context.magic[collectionName] = [];
+					if (item.type == 'aspect') {
+						collectionName = `${collectionName[0].toUpperCase()}${collectionName.slice(1)}`;
+						collectionName = item.ritual ? `ritual${collectionName}` : `synthesis${collectionName}`;
+					}
+					context.magic.ensureHas(collectionName, []);
 					context.magic[collectionName].push(item);
 					break
-				case 'specialization':
-					// Handled by skills
-					break;
 				default:
-					console.warn(`Unsupported character item type '${item.type}', will not display`);
+					context.ensureHas(collectionName, []);
+					context[collectionName].push(item);
 					break;
 			}
 		}
 
 		// Sort various items for display
-		for (let itemGroup of ['skills', 'perksAndFlaws', 'sortedManeuvers', 'magic.eminences', 'magic.aspects', 'magic.totems']) {
+		for (let itemGroup of ['skills', 'perksAndFlaws', 'sortedManeuvers', 'magic.eminences', 'magic.synthesisAspects', 'magic.totems', 'magic.ritualAspects']) {
 			let contextTarget = context[itemGroup];
 			const itemGroupParts = itemGroup.split('.');
 			if (itemGroupParts.length > 1) {
@@ -130,22 +148,30 @@ export class Tribe8CharacterSheet extends Tribe8Sheet(ActorSheetV2) {
 		const checkKeys = CONFIG.Tribe8.checkFormArrayElements(formData);
 
 		// Extract identified array-based elements
+		this._interpretSystemShock(formData.object, checkKeys);
+
+		return super._prepareSubmitData(event, form, formData, updateData);
+	}
+
+	/**
+	 * Reinterpret the system shock data
+	 *
+	 */
+	_interpretSystemShock(formDataObject, checkKeys) {
 		let systemShockChecked = 0;
 		for (const key of checkKeys) {
 			let propertyPath = key.split(/[\[\.]/);
 			if (propertyPath[0] == 'systemShock') {
-				if (formData.object[key]) {
+				if (formDataObject[key]) {
 					systemShockChecked++;
 				}
-				delete formData.object[key];
+				delete formDataObject[key];
 			}
 		}
 
 		// Having counted up the number of system shock checkboxes that
 		// were checked, re-build the array
-		formData.object['system.attributes.secondary.physical.shock.current'] = systemShockChecked;
-
-		return super._prepareSubmitData(event, form, formData, updateData);
+		formDataObject['system.attributes.secondary.physical.shock.current'] = systemShockChecked;
 	}
 
 	/**

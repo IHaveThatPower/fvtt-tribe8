@@ -57,7 +57,7 @@ Tribe8.HAND_TO_HAND_VARIATIONS = [
 Tribe8.costs = {
 	aspect: 5,
 	specialization: 5,
-	totem: 7, // Additional beyond the first, which is free
+	totem: 7, // Additional beyond a number equal to Ritual Cpx
 	attribute: 50, // Specifically for XP
 }
 
@@ -85,25 +85,26 @@ Tribe8.checkFormArrayElements = function(formData) {
 
 /**
  * Given a single-character identifier and an array of skill items,
- * find the one that matches the combat skill idnciated by the indentifier
+ * find the one that matches the combat skill indicated by the
+ * indentifier
  */
 Tribe8.findCombatSkill = function(key, skills) {
 	if (Object.keys(Tribe8.COMBAT_SKILLS).indexOf(key) < 0)
 		return false;
-	if (typeof skills != 'array' || !skills.length)
+	if (!(skills instanceof Array) || !skills.length)
 		return false;
 	if (typeof key != 'string' || key.length != 1)
 		return false;
 	return skills.find((s) => {
 		const skillNameOptions = ((key) => {
 			if (key == 'H')
-				return [...Tribe8.COMBAT_SKILLS['H'], ...Tribe8.HAND_TO_HAND_VARIATIONS];
+				return [Tribe8.COMBAT_SKILLS['H'], ...Tribe8.HAND_TO_HAND_VARIATIONS];
 			if (key == 'R')
 				return [...Tribe8.RANGED_COMBAT_SKILL_REFERENCE];
 			return [Tribe8.COMBAT_SKILLS[key]];
 		})(key);
 		for (let opt of skillNameOptions) {
-			if (Tribe8.slugify(s.name) == opt)
+			if (Tribe8.slugify(s.name) == Tribe8.slugify(opt))
 				return s;
 		}
 		return false;

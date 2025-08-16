@@ -140,7 +140,7 @@ export class Tribe8CharacterModel extends foundry.abstract.TypeDataModel {
 	prepareSecondaryAttributes() {
 		const priAtts = this.attributes.primary;
 		const secAtts = this.attributes.secondary.physical;
-		const skills = Array.from(this.parent.getEmbeddedCollection("Item")).filter((i) => i.type == "skill");
+		const skills = this.parent.getCombatSkills();
 
 		// We need to do STR, HEA, and STA first
 		secAtts.str.value = (
@@ -154,8 +154,8 @@ export class Tribe8CharacterModel extends foundry.abstract.TypeDataModel {
 		secAtts.sta.value = Math.max((5 * (priAtts.bld.value + secAtts.hea.value)) + 25, 10);
 
 		// Next, armed/unarmed
-		const skillH2H = CONFIG.Tribe8.findCombatSkill('H', skills);
-		const skillMelee = CONFIG.Tribe8.findCombatSkill('M', skills);
+		const skillH2H = CONFIG.Tribe8.findCombatSkill('H', skills['H']);
+		const skillMelee = CONFIG.Tribe8.findCombatSkill('M', skills['M']);
 		secAtts.ud.value = Math.max(3 + secAtts.str.value + priAtts.bld.value + (skillH2H?.system?.level ?? 0), 1);
 		secAtts.ad.value = Math.max(3 + secAtts.str.value + priAtts.bld.value + (skillMelee?.system?.level ?? 0), 1);
 
@@ -182,6 +182,9 @@ export class Tribe8CharacterModel extends foundry.abstract.TypeDataModel {
 			return accumulator + priAtts[attName].xp;
 		}, 0);
 
+		// Record where we're spending points, for diagnostic and display
+		this.pointsLedger = {};
+
 		// Compute amount spent on various items
 		this._computeManeuverComplexityCapacity();
 		for (let item of this.parent.getEmbeddedCollection("Item")) {
@@ -199,6 +202,8 @@ export class Tribe8CharacterModel extends foundry.abstract.TypeDataModel {
 				case 'aspect':
 					this._applyAspectPoints(item);
 					break;
+				case 'totem':
+					this._applyTotemPoints(item);
 				default:
 					// Other items, like actual equipment, don't affect points
 					break;
@@ -218,21 +223,32 @@ export class Tribe8CharacterModel extends foundry.abstract.TypeDataModel {
 	 *
 	 */
 	_applySkillPoints(item) {
+		if (!this.pointsLedger['skills']) this.pointsLedger['skills'] = {'CP': 0, 'XP': 0, 'EDice': {'XP': 0, 'Bonus': 0}};
 		this.points.cp.generalSpent += item.system.points.level.cp;
 		this.points.cp.generalSpent += item.system.points.cpx.cp;
 		this.points.xp.spent += item.system.points.level.xp;
 		this.points.xp.spent += item.system.points.cpx.xp;
 		this.points.xp.spent += item.system.points.edie.fromXP;
+		this.pointsLedger['skills']['CP'] += item.system.points.level.cp + item.system.points.cpx.cp;
+		this.pointsLedger['skills']['XP'] += item.system.points.level.xp + item.system.points.cpx.xp;
+		this.pointsLedger['skills']['EDice']['XP'] += item.system.points.edie.fromXP;
+		this.pointsLedger['skills']['EDice']['Bonus'] += item.system.points.edie.fromBonus;
 
 		// Compute amount spent on specializations
-		if (Object.keys(item.system.specializations).length > 0) {
-			for (let specID of Object.keys(item.system.specializations)) {
-				const spec = item.system.specializations[specID];
-				if (spec.points == 'cp') {
-					this.points.cp.generalSpent += 5; // TODO: Make a setting?
+		if (item.system.specializations.length > 0) {
+			if (!this.pointsLedger['skills']['specializations']) this.pointsLedger['skills']['specializations'] = {'CP': 0, 'XP': 0};
+			for (let specID of item.system.specializations) {
+				const spec = item.parent.getEmbeddedDocument("Item", specID);
+				if (spec?.system?.points == 'CP') {
+					this.points.cp.generalSpent += CONFIG.Tribe8.costs.specialization;
+					this.pointsLedger['skills']['specializations']['CP'] += CONFIG.Tribe8.costs.specialization;
+				}
+				else if (spec?.system?.points == 'XP') {
+					this.points.xp.spent += CONFIG.Tribe8.costs.specialization;;
+					this.pointsLedger['skills']['specializations']['XP'] += CONFIG.Tribe8.costs.specialization;
 				}
 				else {
-					this.points.xp.spent += 5;
+					throw new Error(`Specialization ${specID} from Skill ${item.id} not found on Actor ${item.parent.id}`);
 				}
 			}
 		}
@@ -243,28 +259,19 @@ export class Tribe8CharacterModel extends foundry.abstract.TypeDataModel {
 	 * by _preparePoints()
 	 */
 	_applyPerkFlawPoints(item) {
-		if (item.system.granted)
-			return; // No cost applied
+		if (item.system.granted) return; // No cost applied
+		let bucket = `${item.type}s`;
+		if (!this.pointsLedger[bucket]) this.pointsLedger[bucket] = {'CP': 0, 'XP': 0};
 		const baseCost = item.system.baseCost;
 		const perRankCost = item.system.perRank;
 		for (let r = 0; r < item.system.points.length; r++) {
 			const rank = item.system.points[r];
-			switch (rank) {
-				case 'cp':
-					if (r == 0)
-						this.points.cp.generalSpent += baseCost;
-					else
-						this.points.cp.generalSpent += perRankCost;
-					break;
-				case 'xp':
-					if (r == 0)
-						this.points.xp.spent += baseCost;
-					else
-						this.points.xp.spent += perRankCost;
-					break;
-				default:
-					break;
-			}
+			const cost = (r == 0 ? baseCost : perRankCost);
+			if (rank === 'CP')
+				this.points.cp.generalSpent += cost;
+			else
+				this.points.xp.spent += cost;
+			this.pointsLedger[bucket][rank] += cost;
 		}
 	}
 
@@ -309,23 +316,26 @@ export class Tribe8CharacterModel extends foundry.abstract.TypeDataModel {
 	}
 
 	/**
-	 * Add a given combat maneuver's points to the current tally. Called
+	 * Add a given combat maneuver's cost to the current tally. Called
 	 * by _preparePoints()
 	 */
 	_applyManeuverPoints(item) {
-		if (item.system.granted)
-			return;
+		if (item.system.granted) return;
 		if (item.system.fromCpx) {
 			// See _fillManeuverSlots()
-			if (!this.maneuversToFillSlots)
-				this.maneuversToFillSlots = [];
+			if (!this.maneuversToFillSlots) this.maneuversToFillSlots = [];
 			this.maneuversToFillSlots.push(item);
 			return;
 		}
-		if (item.system.points == 'cp')
+		if (!this.pointsLedger['maneuvers']) this.pointsLedger['maneuvers'] = {'CP': 0, 'XP': 0};
+		if (item.system.points == 'CP') {
 			this.points.cp.generalSpent += item.system.complexity;
-		else
+			this.pointsLedger['maneuvers']['CP'] += item.system.complexity;
+		}
+		else {
 			this.points.xp.spent += item.system.complexity;
+			this.pointsLedger['maneuvers']['XP'] += item.system.complexity;
+		}
 	}
 
 	/**
@@ -385,12 +395,16 @@ export class Tribe8CharacterModel extends foundry.abstract.TypeDataModel {
 
 		// If we have any left over, pay for them normally.
 		if (this.maneuversToFillSlots.length) {
+			if (!this.pointsLedger['maneuvers']) this.pointsLedger['maneuvers'] = {'CP': 0, 'XP': 0};
 			for (let maneuver of this.maneuversToFillSlots) {
 				maneuver.usesPoints = true;
-				if (maneuver.system.points == 'cp')
+				if (maneuver.system.points == 'CP') {
 					this.points.cp.generalSpent += maneuver.system.complexity;
-				else
+				}
+				else {
 					this.points.xp.spent += maneuver.system.complexity;
+				}
+				this.pointsLedger['maneuvers'][maneuver.system.points] += maneuver.system.complexity;
 			}
 		}
 	}
@@ -400,16 +414,48 @@ export class Tribe8CharacterModel extends foundry.abstract.TypeDataModel {
 	 * _preparePoints()
 	 */
 	_applyAspectPoints(item) {
-		if (item.system.granted)
-			return; // No cost applied
-		switch (item.system.points) {
-			case 'CP':
-				this.points.cp.generalSpent += CONFIG.Tribe8.costs.aspect;
-				break;
-			case 'XP':
-				this.points.xp.spent += CONFIG.Tribe8.costs.aspect;
-				break;
+		if (item.system.granted) return; // No cost applied
+		if (!this.pointsLedger['aspects']) this.pointsLedger['aspects'] = {};
+		const magicType = item.system.ritual ? 'ritual' : 'synthesis';
+		if (!this.pointsLedger.aspects[magicType]) this.pointsLedger.aspects[magicType] = {'CP': 0, 'XP': 0};
+		if (item.system.points == 'CP') {
+			this.points.cp.generalSpent += CONFIG.Tribe8.costs.aspect;
+			this.pointsLedger.aspects[magicType]['CP'] += CONFIG.Tribe8.costs.aspect;
+			return;
 		}
+		this.points.xp.spent += CONFIG.Tribe8.costs.aspect;
+		this.pointsLedger.aspects[magicType]['XP'] += CONFIG.Tribe8.costs.aspect;
+	}
+
+	/**
+	 * Add a given totem's cost to the current tally. Called by
+	 * _preparePoints()
+	 */
+	_applyTotemPoints(item) {
+		// Create a tracking property for free Totems
+		if (!this.aspectSlots) {
+			this.aspectSlots = [];
+			const ritual = (Array.from(this.parent.getEmbeddedCollection("item")).filter(i => i.type == 'skill').filter(s => (CONFIG.Tribe8.slugify(s.name) == 'ritual')) ?? [])[0];
+			if (ritual)
+				this.aspectSlots = [...Array(ritual.cpx)];
+		}
+		// Do we have any free slots?
+		if (this.aspectSlots.length) {
+			for (let s = 0; s < this.aspectSlots.length; s++) {
+				// Free slot! Nice!
+				if (typeof this.aspectSlots[s] === 'undefined') {
+					this.aspectSlots[s] = item;
+					return;
+				}
+			}
+		}
+		// Okay, we didn't exit early, so we have to pay for it.
+		if (!this.pointsLedger['totems']) this.pointsLedger['totems'] = {'CP': 0, 'XP': 0};
+		if (item.system.points === 'CP')
+			this.points.cp.generalSpent += CONFIG.Tribe8.costs.totem;
+		else
+			this.points.xp.spent += CONFIG.Tribe8.costs.totem;
+		this.pointsLedger['totems'][item.system.points] += CONFIG.Tribe8.costs.totem;
 	}
 }
 

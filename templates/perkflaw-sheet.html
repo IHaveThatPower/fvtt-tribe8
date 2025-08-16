@@ -37,9 +37,9 @@
 			{{ else }}
 			<div class="rank">Use</div>
 			{{/if}}
-			<input type="radio" value="cp" id="system.points[{{@index}}].cp" name="system.points[{{@index}}]"{{#if (eq this "cp")}} checked{{/if}} />
+			<input type="radio" value="CP" id="system.points[{{@index}}].cp" name="system.points[{{@index}}]"{{#if (eq this "CP")}} checked{{/if}} />
 			<label for="system.points[{{@index}}].cp">CP</label>
-			<input type="radio" value="xp" id="system.points[{{@index}}].xp" name="system.points[{{@index}}]"{{#if (eq this "xp")}} checked{{/if}} />
+			<input type="radio" value="XP" id="system.points[{{@index}}].xp" name="system.points[{{@index}}]"{{#if (eq this "XP")}} checked{{/if}} />
 			<label for="system.points[{{@index}}].xp">XP</label>
 			<button name="remove-rank" data-action="removeRank" title="Remove Rank"><i class="far fa-circle-xmark"></i></button>
 		</div>

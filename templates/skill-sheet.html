@@ -49,7 +49,7 @@
 	</div>
 	<div class="specializations">
 		<h3>Specializations</h3>
-		{{#if context.isOwned}}
+		{{#if document.isEmbedded}}
 		{{#each specializations}}
 		<div class="specialization" data-edit-id="{{this.id}}">
 			<input type="text" value="{{this.name}}" name="specializations[{{this.id}}].name" />

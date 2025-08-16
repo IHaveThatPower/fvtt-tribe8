@@ -22,7 +22,7 @@ export class Tribe8ManeuverSheet extends Tribe8ItemSheet {
 	 * Title of the sheet
 	 */
 	get title() {
-		return `Maneuver: ${this.document.name}` + (this.document.system.forSkill ? ` (${this.document.system.constructor.COMBAT_SKILLS[this.document.system.forSkill]})` : '');
+		return `Maneuver: ${this.document.name}` + (this.document.system.forSkill ? ` (${CONFIG.Tribe8.COMBAT_SKILLS[this.document.system.forSkill]})` : '');
 	}
 
 	/**

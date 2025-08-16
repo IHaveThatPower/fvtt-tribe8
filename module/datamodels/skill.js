@@ -1,5 +1,6 @@
 const fields = foundry.data.fields;
 import { Tribe8ItemModel } from './item.js';
+import { Tribe8Item } from '../documents/item.js';
 
 export class Tribe8SkillModel extends Tribe8ItemModel {
 	static defineSchema() {
@@ -48,17 +49,6 @@ export class Tribe8SkillModel extends Tribe8ItemModel {
 			data.points.edie.fromXP = 0;
 
 		return super.migrateData(data);
-	}
-
-	/**
-	 * Prepare base data for a skill
-	 */
-	prepareBaseData(...args) {
-		super.prepareBaseData(...args)
-		const {name: canonName, system: {name: canonSystemName, specific: canonSpecificName}} = Tribe8ItemModel.canonizeName(this.parent.name, this.name, this.specific, this.specify);
-		this.parent.name = canonName;
-		this.name = canonSystemName;
-		this.specific = canonSpecificName;
 	}
 
 	/**

@@ -1,5 +1,6 @@
 const fields = foundry.data.fields;
 import { Tribe8ItemModel } from './item.js';
+import { Tribe8Item } from '../documents/item.js';
 
 export class Tribe8PerkFlawModel extends Tribe8ItemModel {
 	static defineSchema() {
@@ -25,8 +26,8 @@ export class Tribe8PerkFlawModel extends Tribe8ItemModel {
 			points: new fields.ArrayField(
 				new fields.StringField({
 					hint: "The type of points used to pay for this rank of the Perk, or refunded for this rank of the Flaw.",
-					choices: ["cp", "xp"],
-					initial: "cp",
+					choices: ["CP", "XP"],
+					initial: "CP",
 					required: true, nullable: false
 				}), {
 					hint: "The type of points used to pay for the Perk, or to refund for the Flaw. Each rank is stored separately.",
@@ -42,6 +43,11 @@ export class Tribe8PerkFlawModel extends Tribe8ItemModel {
 	 */
 	static migrateData(data) {
 		foundry.abstract.Document._addDataFieldMigration(data, "system.cost", "system.baseCost");
+		if (data.points && data.points.length) {
+			for (let r = 0; r < data.points.length; r++) {
+				data.points[r] = data.points[r].toUpperCase();
+			}
+		}
 		return super.migrateData(data);
 	}
 
@@ -49,12 +55,6 @@ export class Tribe8PerkFlawModel extends Tribe8ItemModel {
 	 * Prepare base data for a Perk/Flaw
 	 */
 	prepareBaseData(...args) {
-		super.prepareBaseData(...args)
-		const {name: canonName, system: {name: canonSystemName, specific: canonSpecificName}} = Tribe8ItemModel.canonizeName(this.parent.name, this.name, this.specific, this.specify);
-		this.parent.name = canonName;
-		this.name = canonSystemName;
-		this.specific = canonSpecificName;
-
 		if (this.parent.type == 'flaw') {
 			if (this.baseCost > 0)
 				this.baseCost *= -1;

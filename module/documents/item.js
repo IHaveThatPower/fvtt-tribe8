@@ -54,7 +54,7 @@ export class Tribe8Item extends Item {
 	 * Get the actor owner of this item, if there is one.
 	 */
 	getActorOwner() {
-		if (this.isOwned) {
+		if (this.isEmbedded) {
 			return this.parent;
 		}
 		return false;
@@ -65,30 +65,60 @@ export class Tribe8Item extends Item {
 	 */
 	static migrateData(data) {
 		if (data.type == 'skill') {
-			/**
-			 * If the specializations property has an Object constructor
-			 * (as opposed to an Array constructor, as is the case with
-			 * ArrayField), good bet it's the old-style.
-			 */
-			if (data?.system?.specializations && data.system.specializations.constructor?.name === 'Object' && Object.keys(data.system.specializations).length) {
-				if (!data.flags) data.flags = {};
-				if (!data.flags['tribe8']) data.flags['tribe8'] = {};
-				try {
-					// Stash the data on a flag.
-					// deepClone can't handle advanced data fields, hence the try/catch, just incase
-					data.flags['tribe8']['legacy-specializations'] = foundry.utils.deepClone(data.system.specializations, {strict: true});
-
-					// Having safely stashed it, nuke it from the migration data
-					delete data.system.specializations;
-
-					// If it didn't work for some reason, raise a ruckus
-					if (!Object.keys(data.flags['tribe8']['legacy-specializations']).length)
-						throw new Error("Failed to migrate specialization data");
-				}
-				catch (error) {} // No need to report anything
-			}
+			this.migrateSpecializations(data);
 		}
+		this.migrateNames(data);
 		return super.migrateData(data);
+	}
+
+	/**
+	 * Store legacy object Specializations from Skills to the Skill's
+	 * flags, for later regeneration as proper Embedded Items
+	 *
+	 */
+	static migrateSpecializations(data) {
+		/**
+		 * If the specializations property has an Object constructor
+		 * (as opposed to an Array constructor, as is the case with
+		 * ArrayField), good bet it's the old-style.
+		 */
+		if (data?.system?.specializations && data.system.specializations.constructor?.name === 'Object' && Object.keys(data.system.specializations).length) {
+			if (!data.flags) data.flags = {};
+			if (!data.flags['tribe8']) data.flags['tribe8'] = {};
+			try {
+				// Stash the data on a flag.
+				// deepClone can't handle advanced data fields, hence the try/catch, just incase
+				data.flags['tribe8']['legacy-specializations'] = foundry.utils.deepClone(data.system.specializations, {strict: true});
+
+				// Having safely stashed it, nuke it from the migration data
+				delete data.system.specializations;
+
+				// If it didn't work for some reason, raise a ruckus
+				if (!Object.keys(data.flags['tribe8']['legacy-specializations']).length)
+					throw new Error("Failed to migrate specialization data");
+			}
+			catch (error) {} // No need to report anything
+		}
+	}
+
+	/**
+	 * Align certain Items' names, system names, and system sub-names
+	 * for consistency.
+	 *
+	 */
+	static migrateNames(data) {
+		const {
+			name: canonName,
+			system: {
+				name: canonSystemName,
+				specific: canonSpecificName
+			}
+		} = this.canonizeName(data.name, data.system?.name, data.system?.specific, data.system?.specify);
+		data.name = canonName;
+		if (!data.system)
+			data.system = {};
+		data.system.name = canonSystemName;
+		data.system.specific = canonSpecificName;
 	}
 
 	/**
@@ -284,5 +314,59 @@ export class Tribe8Item extends Item {
 			throw new Error("Cannot use Aspect comparison function to sort non-Aspect items");
 		// TBD if we want to change this up at all
 		return Tribe8Item.cmpFallback(a, b);
+	}
+
+	/**
+	 * Handle proper Skill and Perk/Flaw naming, accounting for special
+	 * sub-identifiers
+	 *
+	 * @returns	Object{name, system{name, specific}}
+	 */
+	static canonizeName(name = '', sysName = '', specific = '', specify = false) {
+		// Setup our storage object
+		const canonName = {name: '', system: { name: '', specific: ''}};
+
+		// If we had a document name and no system name, apply the document name to the system name
+		if ((!sysName || sysName.length == 0) && (name && name.length > 0)) {
+			canonName.system.name = name.split('(')[0].trim();
+		}
+		// If we did have a system name, set it to the system name
+		else if (sysName && sysName.trim().length > 0) {
+			canonName.system.name = sysName;
+		}
+		// If we didn't have either...give it a placeholder name?
+		else {
+			canonName.name = "Broken Skill";
+			canonName.system.name = `${canonName.name}`;
+			console.warn("Cannot determine system base name for Item, so giving it a dummy name");
+		}
+		// Did we indicate that this Item uses a specification/category?
+		// Note that we may not have checked the checkbox, but the item might still have had one in its data, so we check both
+		if (specify || specific) {
+			// If the value given to us was empty...
+			if (!specific || specific.length == 0) {
+				// ...see if we can split something off of the document name
+				canonName.system.specific = name.split(/[\(\)]/g)?.filter(n => n)?.slice(1)?.join(' ')?.trim();
+
+				// If we didn't find anything, give it a stand-in name if we definitively indicated that we want a specifier
+				if (!canonName.system.specific && specify)
+					canonName.system.specific = 'Unspecified';
+			}
+			// If it wasn't, just use it.
+			else {
+				canonName.system.specific = specific;
+			}
+		}
+		// Compose the document name from the now-defined parts
+		canonName.name = `${canonName.system.name}`;
+		if (specify)
+			canonName.name = `${canonName.name} (${canonName.system.specific})`;
+
+		// If we get this far and have a zero-length name, bail out
+		if (!canonName.name || canonName.length == 0)
+			throw new Error("Should never generate a name of no value");
+
+		// Return the assembled name data
+		return canonName;
 	}
 }

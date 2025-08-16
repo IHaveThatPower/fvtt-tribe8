@@ -113,11 +113,12 @@ foundry.applications.handlebars.loadTemplates(
 		"character-sheet_basic.html",
 		"character-sheet_injuries.html",
 		"character-sheet_magic.html",
+		"character-sheet_magic_aspects.html",
 		"character-sheet_maneuvers.html",
 		"character-sheet_pf.html",
 		"character-sheet_points.html",
 		"character-sheet_skills.html",
-		
+
 		// Shared Item sheet parts
 		"item-sheet_buttons.html",
 		"item-sheet_description.html"
