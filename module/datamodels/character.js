@@ -1,5 +1,4 @@
 const fields = foundry.data.fields;
-import { Tribe8ManeuverModel } from './maneuver.js';
 
 export class Tribe8CharacterModel extends foundry.abstract.TypeDataModel {
 	static defineSchema() {
@@ -78,12 +77,11 @@ export class Tribe8CharacterModel extends foundry.abstract.TypeDataModel {
 		for (let key of Object.keys(schemaData)) {
 			// console.log("Checking key", typeof data[key], key, ":", data[key]);
 			if (data[key]) {
-				if (typeof data[key] == 'object') {
+				if (data[key].constructor.name === 'Object') {
 					data[key] = ((typeof that.constructor.recursivelyFixLabelsAndNames == 'function') ? that.constructor : that).recursivelyFixLabelsAndNames(data[key], schemaData[key].fields);
 					continue;
 				}
-				if (typeof data[key] == 'array') {
-					// console.log("Not recurisvely migrating array data");
+				if (data[key].constructor.name === 'Array') {
 					continue;
 				}
 				// Only change these
@@ -205,6 +203,7 @@ export class Tribe8CharacterModel extends foundry.abstract.TypeDataModel {
 					break;
 				case 'totem':
 					this._applyTotemPoints(item);
+					break;
 				default:
 					// Other items, like actual equipment, don't affect points
 					break;
@@ -284,7 +283,7 @@ export class Tribe8CharacterModel extends foundry.abstract.TypeDataModel {
 		// Initialize the combat skill reference list
 		const combatSkillReference = {...CONFIG.Tribe8.COMBAT_SKILLS};
 		for (let key of Object.keys(combatSkillReference)) {
-			if (typeof combatSkillReference[key] != 'array') {
+			if (combatSkillReference[key].constructor.name !== 'Array') {
 				combatSkillReference[key] = [CONFIG.Tribe8.slugify(combatSkillReference[key])];
 			}
 		}

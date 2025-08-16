@@ -62,7 +62,7 @@ export function Tribe8Sheet(BaseApplication) {
 
 			// Store window position data for next time it's opened
 			const { width, height, top, left } = this.position;
-			if (!!this.windowKey)
+			if (this.windowKey.length)
 				game.user.setFlag("tribe8", `sheetDimensions.${this.windowKey}`, {width, height, top, left});
 		}
 

@@ -61,14 +61,12 @@ export class Tribe8ManeuverSheet extends Tribe8ItemSheet {
 		// Add a + prefix to any positive (or 0) values in the various
 		// combat modifier fields.
 		for (let field of this.constructor.COMBAT_MODIFIER_FIELDS) {
-			let asNumber;
 			if (context.document.system[field] === null || context.document.system[field] === "") {
 				continue;
 			}
-			if (asNumber = Number(context.document.system[field])) {
-				if (asNumber >= 0) {
-					context.document.system[field] = `+${asNumber}`;
-				}
+			let asNumber = Number(context.document.system[field]);
+			if (asNumber && asNumber >= 0) {
+				context.document.system[field] = `+${asNumber}`;
 			}
 		}
 		return context;
@@ -84,7 +82,7 @@ export class Tribe8ManeuverSheet extends Tribe8ItemSheet {
 		// Extract identified array-based elements
 		const allowedTypes = {}; // Object so we can use explicit keys
 		for (const key of checkKeys) {
-			const propertyPath = key.split(/[\[\.]/);
+			const propertyPath = key.split(/[[.]/);
 			let chosenType;
 			if ((propertyPath[0] ?? "") == 'system' && (propertyPath[1] ?? "") == 'allowedTypes' && (chosenType = propertyPath[2].replace(']', '') ?? "").length == 1) {
 				// Found a valid value, so store it and then delete it from the formData
@@ -96,7 +94,7 @@ export class Tribe8ManeuverSheet extends Tribe8ItemSheet {
 		}
 		// Bolt them back onto the formData as a proper array
 		for (let type in allowedTypes) {
-			if (allowedTypes.hasOwnProperty(type)) { // Make sure we're only targeting the properties of the specializations object, and not its inherited ones
+			if (Object.hasOwn(allowedTypes, type)) { // Make sure we're only targeting the properties of the specializations object, and not its inherited ones
 				if (!formData.object['system.==allowedTypes']) {
 					formData.object['system.==allowedTypes'] = {};
 				}
@@ -111,7 +109,7 @@ export class Tribe8ManeuverSheet extends Tribe8ItemSheet {
 
 		// Handle blanks, N/As, and plus-prefixed numbers
 		for (let field of this.constructor.COMBAT_MODIFIER_FIELDS.map((f) => `system.${f}`).concat(['system.forSkill'])) {
-			if (formData.object.hasOwnProperty(field)) {
+			if (Object.hasOwn(formData.object, field)) {
 				const submittedValue = (formData.object[field] ?? "").trim();
 				// If the user submitted some variation of N/A or empty, null out the field
 				if (submittedValue.toUpperCase() == "N/A" || submittedValue == "") {

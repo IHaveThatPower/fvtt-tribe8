@@ -1,6 +1,5 @@
 const fields = foundry.data.fields;
 import { Tribe8ItemModel } from './item.js';
-import { Tribe8Item } from '../documents/item.js';
 
 export class Tribe8SkillModel extends Tribe8ItemModel {
 	static defineSchema() {
@@ -152,8 +151,8 @@ export class Tribe8SkillModel extends Tribe8ItemModel {
 
 		// Update the actor
 		if (data.owner) {
-			let owner;
-			if (owner = this.parent.getActorOwner()) {
+			let owner = this.parent.getActorOwner();
+			if (owner) {
 				await owner.update({'system.edie.other': data.owner.other});
 			}
 		}
@@ -173,8 +172,8 @@ export class Tribe8SkillModel extends Tribe8ItemModel {
 			'spendBonus': amount,
 			'spendXP': 0
 		}
-		let owner;
-		if (owner = this.parent.getActorOwner()) {
+		let owner = this.parent.getActorOwner();
+		if (owner) {
 			// Does the owner have enough eDie at all?
 			if (owner.system.edie.total < amount) {
 				foundry.ui.notifications.error("You do not have enough EDie!");

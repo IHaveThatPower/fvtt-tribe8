@@ -1,6 +1,5 @@
 const fields = foundry.data.fields;
 import { Tribe8ItemModel } from './item.js';
-import { Tribe8Item } from '../documents/item.js';
 
 export class Tribe8PerkFlawModel extends Tribe8ItemModel {
 	static defineSchema() {
@@ -54,7 +53,8 @@ export class Tribe8PerkFlawModel extends Tribe8ItemModel {
 	/**
 	 * Prepare base data for a Perk/Flaw
 	 */
-	prepareBaseData(...args) {
+	prepareBaseData() {
+		super.prepareBaseData();
 		if (this.parent.type == 'flaw') {
 			if (this.baseCost > 0)
 				this.baseCost *= -1;

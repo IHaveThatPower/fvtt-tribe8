@@ -1,3 +1,4 @@
+const { Actor } = foundry.documents;
 import { Tribe8Item } from './item.js'; // For sorting
 
 export class Tribe8Actor extends Actor {
@@ -28,7 +29,7 @@ export class Tribe8Actor extends Actor {
 			const skillItems = skills.filter((s) => s.id == spec.system.skill);
 			if (!skillItems.length) {
 				console.warn(`Actor.${this.id}.Specialization.${spec.id} lists Skill.${spec.system.skill}, but no matching Skill was found on the Actor`);
-				removeSpecs.push(specialization.id);
+				removeSpecs.push(spec.id);
 				continue;
 			}
 			// Make sure the Skill lists the Specialization
@@ -46,7 +47,7 @@ export class Tribe8Actor extends Actor {
 					// Make sure the listed Specialization exists on the Actor
 					const specItems = specializations.filter((s) => s.id == specId);
 					if (!specItems.length) {
-						console.warn(`Specialization.${specId} not found on Actor.${actor.id}.Skill${skill.id}. Removing from list.`);
+						console.warn(`Specialization.${specId} not found on Actor.${skill.parent.id}.Skill${skill.id}. Removing from list.`);
 						const removeIndex = skill.system.specializations.indexOf(specId);
 						if (removeIndex >= 0) {
 							await skill.update({'system.specializations': skill.system.specializations.splice(removeIndex, 1)});
@@ -81,7 +82,7 @@ export class Tribe8Actor extends Actor {
 
 		const possibleOwners = Object.entries(this.ownership) // Get all ownership entries
 								.filter(([id, level]) => (level == foundry.CONST.DOCUMENT_OWNERSHIP_LEVELS.OWNER && id != 'default')) // Get only true, non-default owners
-								.map(([id, level]) => id) // Drop the level, now that we're dealing only with owners
+								.map(([id]) => id) // Drop the level, now that we're dealing only with owners
 								.sort((a, b) => { // We assume the "older" owner is the primary one
 									const aUser = game.users.get(a);
 									const bUser = game.users.get(b);

@@ -1,12 +1,17 @@
-// TODO: Overall System List
-// * Equipment tab
-// * Combat tab
-// * See how nasty it'd be to correctly capitalize the document type names
-// * Localize!
-// * Make starting CP a system setting for the GM, and then make the initial CP boxes something GM users can edit
-// * Some way to trade attribute points (i.e. PSY for other attributes)
-// * Sundering?
-// * Technosmithig?
+/**
+ * TODO: Overall System List
+ * = Short Term
+ *   - Styling to indicate over-expenditure of points
+ *   - Equipment tab
+ *   - Combat tab
+ *   - See how nasty it'd be to correctly capitalize the document type names
+ * = Longer Term
+ * - Localize!
+ * - Make starting CP a system setting for the GM, and then make the initial CP boxes something GM users can edit
+ * - Some way to trade attribute points (i.e. PSY for other attributes)
+ * - Sundering?
+ * - Technosmithig?
+ */
 
 import { Tribe8 } from './config.js';
 /* Documents */
@@ -43,7 +48,6 @@ import * as initHandlebars from './handlebars.js';
 /* -------------------------------------------- */
 
 Hooks.once('init', function() {
-	let versionInfo = game.world.coreVersion;
 	// Splash Screen
 	console.log(`Initializing Tribe 8 Roleplaying Game System`);
 
@@ -148,7 +152,7 @@ Hooks.once('init', function() {
 
 	// Register system settings
 	// Attempt to add Chainprinter font, if present
-	CONFIG.fontDefinitions["Chainprinter"] = {
+	CONFIG.fontDefinitions.Chainprinter = {
 		editor: true,
 		fonts: [
 			{

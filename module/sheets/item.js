@@ -45,7 +45,7 @@ export class Tribe8ItemSheet extends Tribe8Sheet(ItemSheetV2) {
 	/**
 	 * Delete existing item
 	 */
-	static deleteItem(event, target) {
+	static deleteItem(event) {
 		event.preventDefault();
 		event.stopPropagation();
 		const item = this.document;

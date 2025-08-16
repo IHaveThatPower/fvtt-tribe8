@@ -1,3 +1,4 @@
+const { Item } = foundry.documents;
 import { Tribe8Actor } from './actor.js';
 
 export class Tribe8Item extends Item {
@@ -97,7 +98,9 @@ export class Tribe8Item extends Item {
 				if (!Object.keys(data.flags['tribe8']['legacy-specializations']).length)
 					throw new Error("Failed to migrate specialization data");
 			}
-			catch (error) {} // No need to report anything
+			catch {
+				// No need to report anything
+			}
 		}
 	}
 
@@ -125,23 +128,16 @@ export class Tribe8Item extends Item {
 	 * Return the default artwork for the given item type
 	 */
 	static getDefaultArtwork(itemData) {
-		switch (itemData.type) {
-			case 'skill':
-				return {img: "systems/tribe8/icons/skill.svg"};
-				break;
-			case 'perk':
-				return {img: "systems/tribe8/icons/perk.svg"};
-				break;
-			case 'flaw':
-				return {img: "systems/tribe8/icons/flaw.svg"};
-				break;
-			case 'maneuver':
-				return {img: "systems/tribe8/icons/maneuver.svg"};
-				break;
-			default:
-				return super.getDefaultArtwork(itemData);
-				break;
-		}
+		const {type} = itemData;
+		if (type === 'skill')
+			return {img: "systems/tribe8/icons/skill.svg"};
+		if (type === 'perk')
+			return {img: "systems/tribe8/icons/perk.svg"};
+		if (type === 'flaw')
+			return {img: "systems/tribe8/icons/flaw.svg"};
+		if (type === 'maneuver')
+			return {img: "systems/tribe8/icons/maneuver.svg"};
+		return super.getDefaultArtwork(itemData);
 	}
 
 	/**
@@ -151,29 +147,18 @@ export class Tribe8Item extends Item {
 	 * @param	Tribe8Item b
 	 */
 	static cmp(a, b) {
-		switch (a.type) {
-			case 'skill':
-				return Tribe8Item.cmpSkill(a, b);
-				break;
-			case 'perk':
-			case 'flaw':
-				return Tribe8Item.cmpPerkFlaw(a, b);
-				break;
-			case 'maneuver':
-				return Tribe8Item.cmpManeuver(a, b);
-				break;
-			case 'aspect':
-				return Tribe8Item.cmpAspect(a, b);
-				break;
-			case 'eminence':
-				return Tribe8Item.cmpEminence(a, b);
-				break;
-			/*
-			case 'totem':
-				return Tribe8Item.cmpTotem(a, b);
-				break;
-			*/
-		}
+		if (a.type === 'skill')
+			return Tribe8Item.cmpSkill(a, b);
+		if (a.type === 'perk' || a.type === 'flaw')
+			return Tribe8Item.cmpPerkFlaw(a, b);
+		if (a.type === 'maneuver')
+			return Tribe8Item.cmpManeuver(a, b);
+		if (a.type === 'aspect')
+			return Tribe8Item.cmpAspect(a, b);
+		if (a.type === 'eminence')
+			return Tribe8Item.cmpEminence(a, b);
+		if (a.type === 'totem')
+			return Tribe8Item.cmpTotem(a, b);
 		return Tribe8Item.cmpFallback(a, b);
 	}
 
@@ -371,7 +356,7 @@ export class Tribe8Item extends Item {
 			// If the value given to us was empty...
 			if (!specific || specific.length == 0) {
 				// ...see if we can split something off of the document name
-				canonName.system.specific = name.split(/[\(\)]/g)?.filter(n => n)?.slice(1)?.join(' ')?.trim();
+				canonName.system.specific = name.split(/[()]/g)?.filter(n => n)?.slice(1)?.join(' ')?.trim();
 
 				// If we didn't find anything, give it a stand-in name if we definitively indicated that we want a specifier
 				if (!canonName.system.specific && specify)

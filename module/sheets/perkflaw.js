@@ -49,7 +49,7 @@ class Tribe8PerkFlawSheet extends Tribe8ItemSheet {
 		// Extract identified array-based elements
 		const rankPoints = {}; // Object so we can use explicit keys
 		for (const key of checkKeys) {
-			const propertyPath = key.split(/[\[\.]/);
+			const propertyPath = key.split(/[[.]/);
 			if (propertyPath[0] == 'system' && propertyPath[1] == 'points') {
 				// Found a valid value, so store it and then delete it from the formData
 				if (formData.object[key])

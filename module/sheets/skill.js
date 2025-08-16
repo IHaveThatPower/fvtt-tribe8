@@ -1,5 +1,4 @@
 import { Tribe8ItemSheet } from './item.js';
-import { Tribe8SkillModel } from '../datamodels/skill.js';
 const { DialogV2 } = foundry.applications.api;
 
 export class Tribe8SkillSheet extends Tribe8ItemSheet {
@@ -59,7 +58,7 @@ export class Tribe8SkillSheet extends Tribe8ItemSheet {
 
 		// Extract identified array-based elements
 		for (let key of checkKeys) {
-			let propertyPath = key.split(/[\[\]\.]/).filter(p => p);
+			let propertyPath = key.split(/[[\].]/).filter(p => p);
 			this._extractSpecializationsFromForm(key, propertyPath, formData, this.specializations);
 		}
 
@@ -148,7 +147,7 @@ export class Tribe8SkillSheet extends Tribe8ItemSheet {
 	/**
 	 * Increment edie "other" amount
 	 */
-	static incrementEdie(event, target) {
+	static incrementEdie(event) {
 		// Don't _also_ submit the form
 		event.preventDefault();
 		event.stopPropagation();
@@ -158,7 +157,7 @@ export class Tribe8SkillSheet extends Tribe8ItemSheet {
 	/**
 	 * Decrement edie "other" amount
 	 */
-	static decrementEdie(event, target) {
+	static decrementEdie(event) {
 		// Don't _also_ submit the form
 		event.preventDefault();
 		event.stopPropagation();
