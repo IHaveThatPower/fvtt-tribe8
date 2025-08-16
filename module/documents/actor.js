@@ -3,6 +3,140 @@ import { Tribe8Item } from './item.js'; // For sorting
 
 export class Tribe8Actor extends Actor {
 	/**
+	 * @param {object} data
+	 * @return {object}
+	 */
+	static migrateData(data) {
+		if (data.system && data.type) {
+			const ourModel = (CONFIG.Actor?.dataModels || {})[data.type];
+			if (ourModel) {
+				console.log(`Beginning Migration for Actor.${data._id}`);
+				const originalSystemData = foundry.utils.deepClone(data.system);
+				const migratedSystem = ourModel.migrateData(data.system);
+				let mutatedSystem = foundry.utils.deepClone(ourModel.migrateData(migratedSystem));
+				// TODO: This is _almost_ the same thing that
+				// Tribe8ChracterModel.recursivelyFixLabelsAndNames()
+				// does...possible unification?
+				const migrateReport = {
+					'keysDeleted': 0,
+					'keysInitial': Object.keys(mutatedSystem).length,
+					'recursion': {}
+				};
+
+				/**
+				 * Recursive function that determines what pieces of
+				 * data to preserve for flagging, and which would be
+				 * redundant.
+				 *
+				 * @param {object} mData
+				 * @param {object} systemData
+				 * @param {object} originalData
+				 * @param {int} depth
+				 * @return {object}
+				 */
+				mutatedSystem = (function flag(mData, systemData, originalData, depth) {
+					let newDataObject = {};
+					if (mData.constructor.name !== 'Object') {
+						console.warn("Attempted to generate a set of migration flags for a non-object");
+						return mData;
+					}
+					for (let key of Object.keys(mData)) {
+						// Objects are where we actually need recursion
+						if (mData[key].constructor.name === 'Object') {
+							// Initialize a new entry in our return object
+							newDataObject[key] = {};
+							migrateReport.recursion[depth+1] = {'keysDeleted': 0, 'keysInitial': Object.keys(mData[key]).length};
+
+							// Recursive call!
+							newDataObject[key] = flag(mData[key], systemData[key] ?? {}, originalData[key] ?? {}, depth + 1);
+
+							// Post-recursion analysis
+							// If the resulting object is now empty, delete it
+							if (Object.keys(newDataObject[key] || {}).length === 0 && Object.keys(systemData[key] || {}).length != 0) {
+								// If the property exists on the prototype, delete it first, or it'll just come right back
+								if (newDataObject.prototype && newDataObject.prototype[key])
+									delete newDataObject.prototype[key];
+								// Now delete the property itself
+								delete newDataObject[key];
+								if (Object.hasOwn(newDataObject, key)) console.error("Property still set after destructuring!");
+								if (depth == 0) migrateReport.keysDeleted++;
+							}
+						}
+						// Arrays we don't mess with; we just don't clone them
+						else if (mData.constructor.name === 'Array') {
+							console.log(`Ignoring Array field ${key}`);
+							if (depth === 0) migrateReport.keysDeleted++;
+							else migrateReport.recursion[depth].keysDeleted++
+						}
+						// Here's where we really change stuff
+						else {
+							/**
+							 * If the data's the same, we don't
+							 * need to flag it for migration
+							 */
+							if (systemData[key] === originalData[key]) {
+								if (depth === 0) migrateReport.keysDeleted++;
+								else migrateReport.recursion[depth].keysDeleted++;
+							}
+							else {
+								newDataObject[key] = systemData[key];
+							}
+						}
+					}
+					// if (depth != 0) console.log(migrateReport.recursion[depth]);
+					return newDataObject;
+				})(mutatedSystem, migratedSystem, originalSystemData, 0);
+				if (migrateReport.keysDeleted == 0 || migrateReport.keysInitial == Object.keys(mutatedSystem).length) {
+					console.warn(`We destructured ${migrateReport.keysDeleted} keys, but the initial key count was ${migrateReport.keysInitial} and the current count is ${Object.keys(mutatedSystem).length}`);
+				}
+				if (Object.keys(mutatedSystem).length > 0) {
+					// Now store what we just computed as flags.
+					if (!data.flags) data.flags = {};
+					if (!data.flags.tribe8) data.flags.tribe8 = {};
+					data.flags.tribe8.migrateSystemData = mutatedSystem;
+				}
+			}
+		}
+		return super.migrateData(data);
+	}
+
+	/**
+	 * Updates system properties based on those saved to the Actor's
+	 * flags by migrateData(), above.
+	 */
+	async migrateSystemData() {
+		const systemMigrateFlags = this.getFlag('tribe8', 'migrateSystemData');
+		if (!systemMigrateFlags || !Object.keys(systemMigrateFlags || {}).length)
+			return;
+		// Dive down into each property to construct an update() path
+		const that = this;
+		let encounteredErrors = false;
+		await (async function descend(path, value) {
+			// If we hit a non-object, we've got a thing to set
+			if (value.constructor.name !== 'Object') {
+				return await that.update({path: value});
+			}
+			// If we've got an object, time to dive in...
+			for (let key of Object.keys(value)) {
+				const newPath = `${path}.${key}`;
+				// Sanity check
+				if (newPath.length > 255) {
+					console.error(`Flag update path exceeded 255 characters, breaking at ${newPath}`);
+					break;
+				}
+				const result = descend(`${newPath}`, value[key]);
+				if (!result) {
+					console.warn(`Unsuccessful recursion when updating ${newPath}`);
+					encounteredErrors = true;
+				}
+			}
+		})('system', systemMigrateFlags);
+		if (!encounteredErrors) {
+			this.unsetFlag('tribe8', 'migrateSystemData');
+		}
+	}
+
+	/**
 	 * Converts legacy specializations backed up on Item flags into
 	 * actual Specialization documents associated with the proper
 	 * Skill

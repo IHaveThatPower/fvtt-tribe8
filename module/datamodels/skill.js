@@ -36,16 +36,12 @@ export class Tribe8SkillModel extends Tribe8ItemModel {
 	 */
 	static migrateData(data) {
 		// Fix points object
-		if (typeof data.points != 'object')
-			data.points = {};
+		if (data.points && typeof data.points != 'object') data.points = {};
 		// Fix edie object
-		if (typeof data.points.edie != 'object')
-			data.points.edie = {};
+		if (data.points?.edie && typeof data.points.edie != 'object') data.points.edie = {};
 		// Initialize edie values
-		if (!data.points.edie.fromBonus)
-			data.points.edie.fromBonus = 0;
-		if (!data.points.edie.fromXP)
-			data.points.edie.fromXP = 0;
+		if (data.points?.edie && !Object.hasOwn(data.points.edie, "fromBonus")) data.points.edie.fromBonus = 0;
+		if (data.points?.edie && !Object.hasOwn(data.points.edie, "fromXP")) data.points.edie.fromXP = 0;
 
 		return super.migrateData(data);
 	}
@@ -144,10 +140,18 @@ export class Tribe8SkillModel extends Tribe8ItemModel {
 		}
 
 		// Update the item
-		await this.parent.update({
-			'system.points.edie.fromBonus': (this.points.edie.fromBonus + data.spendBonus),
-			'system.points.edie.fromXP': (this.points.edie.fromXP + data.spendXP)
-		});
+		const newFromBonus = this.points.edie.fromBonus + data.spendBonus;
+		const newFromXP = this.points.edie.fromXP + data.spendXP;
+		const update = {
+			'system.points.edie.fromBonus': newFromBonus,
+			'system.points.edie.fromXP': newFromXP
+		};
+		const skill = await this.parent.update(update);
+
+		// Don't mess with the actor if our values didn't change
+		if (skill.system.points.edie.fromBonus != newFromBonus || skill.system.points.edie.fromXP != newFromXP) {
+			console.warn(`EDie state on Skill.${skill.id} unchanged`);
+		}
 
 		// Update the actor
 		if (data.owner) {

@@ -180,6 +180,7 @@ Hooks.once('init', function() {
 Hooks.on('setup', function() {
 	(async () => {
 		for (let a of game.actors) {
+			await a.migrateSystemData();
 			await a.createSpecializationsFromLegacy();
 			a.alignSkillsAndSpecializations();
 		}

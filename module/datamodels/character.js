@@ -16,7 +16,7 @@ export class Tribe8CharacterModel extends foundry.abstract.TypeDataModel {
 						})
 					)
 				),
-                secondary: new fields.SchemaField({
+				secondary: new fields.SchemaField({
 					physical: new fields.SchemaField({
 						str: new fields.SchemaField(Tribe8SecondaryAttribute('Strength', 'str')),
 						hea: new fields.SchemaField(Tribe8SecondaryAttribute('Health', 'hea')),
@@ -59,11 +59,14 @@ export class Tribe8CharacterModel extends foundry.abstract.TypeDataModel {
 	 * Migrate data
 	 */
 	static migrateData(data) {
+		// Ensure we get a proper static reference
+		const that = ((this.name ?? '').toLowerCase() !== 'function' ? this : this.constructor);
+
 		// Use the "general" property instead of the "character" property
 		foundry.abstract.Document._addDataFieldMigration(data, "system.points.cp.character", "system.points.cp.general");
 
-		const schemaData = ((typeof this.constructor.defineSchema == 'function') ? this.constructor : this).defineSchema();
-		data = ((typeof this.constructor.recursivelyFixLabelsAndNames == 'function') ? this.constructor : this).recursivelyFixLabelsAndNames(data, schemaData);
+		const schemaData = that.defineSchema();
+		data = that.recursivelyFixLabelsAndNames(data, schemaData);
 
 		return super.migrateData(data);
 	}
@@ -71,14 +74,12 @@ export class Tribe8CharacterModel extends foundry.abstract.TypeDataModel {
 	/**
 	 * Recursive function that fixes invalid labels and names
 	 */
-	static recursivelyFixLabelsAndNames(data, schemaData) {
-		const that = this;
-		// console.log("Working with data", data, "and schema", schemaData);
-		for (let key of Object.keys(schemaData)) {
-			// console.log("Checking key", typeof data[key], key, ":", data[key]);
+	static recursivelyFixLabelsAndNames(data, schema) {
+		const that = ((this.name ?? '').toLowerCase() !== 'function' ? this : this.constructor);
+		for (let key of Object.keys(schema)) {
 			if (data[key]) {
-				if (data[key].constructor.name === 'Object') {
-					data[key] = ((typeof that.constructor.recursivelyFixLabelsAndNames == 'function') ? that.constructor : that).recursivelyFixLabelsAndNames(data[key], schemaData[key].fields);
+				if (data[key].constructor.name === 'Object' || schema[key].fields) {
+					data[key] = that.recursivelyFixLabelsAndNames(data[key], schema[key].fields);
 					continue;
 				}
 				if (data[key].constructor.name === 'Array') {
@@ -86,7 +87,9 @@ export class Tribe8CharacterModel extends foundry.abstract.TypeDataModel {
 				}
 				// Only change these
 				if (key == 'hint' || key == 'label' || key == 'name') {
-					data[key] = schemaData[key].initial;
+					if (schema[key].initial && data[key] != schema[key].initial) {
+						data[key] = schema[key].initial;
+					}
 				}
 			}
 		}
@@ -485,18 +488,18 @@ export class Tribe8CharacterModel extends foundry.abstract.TypeDataModel {
 
 function Tribe8PrimaryAttribute(name, label) {
 	return {
-		label: new fields.StringField({hint: "The short name used to identify this attribute on a character sheet", blank: false, initial: label, required: true}),
-		name: new fields.StringField({hint: "The full name of this attribute", blank: false, initial: name, required: true}),
-		value: new fields.NumberField({hint: "The current calculated value of this attribute", initial: -1, positive: false, required: true}),
-		cp: new fields.NumberField({hint: "The number of CP invested in this attribute", initial: 0, positive: false, required: true}),
-		xp: new fields.NumberField({hint: "The number of XP invested in this attribute", initial: 0, required: true})
+		'label': new fields.StringField({hint: "The short name used to identify this attribute on a character sheet", blank: false, initial: `${label}`, required: true}),
+		'name': new fields.StringField({hint: "The full name of this attribute", blank: false, initial: `${name}`, required: true}),
+		'value': new fields.NumberField({hint: "The current calculated value of this attribute", initial: -1, positive: false, required: true}),
+		'cp': new fields.NumberField({hint: "The number of CP invested in this attribute", initial: 0, positive: false, required: true}),
+		'xp': new fields.NumberField({hint: "The number of XP invested in this attribute", initial: 0, required: true})
 	};
 }
 
 function Tribe8SecondaryAttribute(name, label) {
 	return {
-		label: new fields.StringField({hint: "The short name used to identify this attribute on a character sheet", blank: false, initial: label, required: true}),
-		name: new fields.StringField({hint: "The full name of this attribute", blank: false, initial: name, required: true}),
-		value: new fields.NumberField({hint: "The current calculated value of this attribute", initial: 0, required: true})
+		'label': new fields.StringField({hint: "The short name used to identify this attribute on a character sheet", blank: false, initial: `${label}`, required: true}),
+		'name': new fields.StringField({hint: "The full name of this attribute", blank: false, initial: `${name}`, required: true}),
+		'value': new fields.NumberField({hint: "The current calculated value of this attribute", initial: 0, required: true})
 	};
 }

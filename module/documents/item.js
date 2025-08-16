@@ -65,10 +65,16 @@ export class Tribe8Item extends Item {
 	 * Handle any document-level migration hacks we need to do
 	 */
 	static migrateData(data) {
-		if (data.type == 'skill') {
-			this.migrateSpecializations(data);
-		}
+		if (data.type == 'skill') this.migrateSpecializations(data);
 		this.migrateNames(data);
+
+		// Invoke the system migration, too
+		if (data.system && data.type) {
+			const ourModel = (CONFIG.Item?.dataModels || {})[data.type];
+			if (ourModel) {
+				data.system = ourModel.migrateData(data.system);
+			}
+		}
 		return super.migrateData(data);
 	}
 
@@ -110,6 +116,9 @@ export class Tribe8Item extends Item {
 	 *
 	 */
 	static migrateNames(data) {
+		// If we don't have ANY name data, assume this is a different sort of update and leave it alone
+		if (!data.name && !data.system?.name && !data.system?.specific)
+			return;
 		const {
 			name: canonName,
 			system: {
@@ -118,10 +127,18 @@ export class Tribe8Item extends Item {
 			}
 		} = this.canonizeName(data.name, data.system?.name, data.system?.specific, data.system?.specify);
 		data.name = canonName;
-		if (!data.system)
-			data.system = {};
-		data.system.name = canonSystemName;
-		data.system.specific = canonSpecificName;
+
+		// Only correct data.system if the data package included it
+		if (data.system) {
+			if (canonSystemName) {
+				if (!data.system.name || data.system.name != canonSystemName)
+					data.system.name = canonSystemName;
+			}
+			if (canonSpecificName) {
+				if (!data.system.specific || data.system.specific != canonSpecificName)
+					data.system.specific = canonSpecificName;
+			}
+		}
 	}
 
 	/**

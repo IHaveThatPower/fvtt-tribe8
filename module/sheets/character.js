@@ -182,18 +182,13 @@ export class Tribe8CharacterSheet extends Tribe8Sheet(ActorSheetV2) {
 		// Rig up manual input on eDie fields
 		this.element.querySelectorAll('div.edie-block div.value input[type=number]').forEach((i) => {
 			i.addEventListener('keyup', (e) => {
-				if (!e.target) {
-					return;
-				}
+				if (!e.target) return;
+
 				// Find the skill
-				const skillId = (e.target.closest('div.skill') || {}).dataset?.id;
-				if (!skillId) {
-					return;
-				}
+				const skillId = (e.target.closest('div.skill') || {}).dataset?.itemId;
+				if (!skillId) return;
 				const skill = this.document.getEmbeddedDocument("Item", skillId);
-				if (!skill) {
-					return;
-				}
+				if (!skill) return;
 				skill.system.eDieKeyInputEventHandler(e);
 			});
 		});
