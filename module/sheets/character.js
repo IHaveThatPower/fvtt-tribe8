@@ -35,6 +35,7 @@ export class Tribe8CharacterSheet extends Tribe8Sheet(ActorSheetV2) {
 	 * Basic character name, no prefix.
 	 *
 	 * @return {string} The name of the character
+	 * @access public
 	 */
 	get title() {
 		return this.document.name;
@@ -192,13 +193,24 @@ export class Tribe8CharacterSheet extends Tribe8Sheet(ActorSheetV2) {
 	}
 
 	/**
-	 * Handle any special _onRender events.
+	 * Handle any special _onRender events, including event listeners
+	 * that we need to ensure re-register with their elements on each
+	 * re-render.
 	 *
 	 * @param {object} context    The rendering context
 	 * @param {object} options    Supplemental rendering options
 	 * @access protected
 	 */
 	async _onRender(context, options) {
+		// Artwork editing
+		this.element.querySelector('div.portrait')?.addEventListener('click', () => {
+			new foundry.applications.apps.ImagePopout({
+				src: this.document.img,
+				uuid: this.document.uuid,
+				window: { title: this.document.name }
+			}).render({ force: true });
+		});
+
 		// Rig up manual input on eDie fields
 		this.element.querySelectorAll('div.edie-block div.value input[type=number]').forEach((i) => {
 			i.addEventListener('keyup', (e) => {
@@ -212,6 +224,17 @@ export class Tribe8CharacterSheet extends Tribe8Sheet(ActorSheetV2) {
 				skill.system.eDieKeyInputEventHandler(e);
 			});
 		});
+
+		// Scale System Shock icon font size based on container
+		const shockIcons = this.element.querySelectorAll('div.shock-state i');
+		const baseIconHeight = shockIcons[0]?.parentNode?.offsetHeight; // Just use offset here, since we're (probably...) not dealing with CSS transforms
+		if (baseIconHeight) {
+			shockIcons.forEach((i) => {
+				const height = baseIconHeight * 0.75;
+				i.style.fontSize = `${height}px`;
+			});
+		}
+
 		super._onRender(context, options);
 	}
 

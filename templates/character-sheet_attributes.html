@@ -1,17 +1,17 @@
 <div class="primary-attributes">
-	<h2>Attributes</h2>
+	<h2>{{localize "tribe8.actor.character.attributes.name.plural"}}</h2>
 	{{#each document.system.attributes.primary as |data att|}}
 	<div class="attribute-block">
-		<div class="name">{{localize data.label}}</div>
+		<div class="name" title="{{localize (concat "tribe8.actor.character.attributes.primary." att ".full")}}">{{localize (concat "tribe8.actor.character.attributes.primary." att ".short")}}</div>
 		<div class="value">{{data.value}}</div>
 		<div class="points">
 			<div class="cp">
 				<input type="number" value="{{#if data.cp}}{{data.cp}}{{else}}0{{/if}}" name="system.attributes.primary.{{att}}.cp"  />
-				<label for="system.attributes.primary.{{att}}.cp">CP</label>
+				<label for="system.attributes.primary.{{att}}.cp">{{localize tribe8.currency.cp.short}}</label>
 			</div>
 			<div class="xp">
 				<input type="number" value="{{#if data.xp}}{{data.xp}}{{else}}0{{/if}}" name="system.attributes.primary.{{att}}.xp"  />
-				<label for="system.attributes.primary.{{att}}.xp">XP</label>
+				<label for="system.attributes.primary.{{att}}.xp">{{localize tribe8.currency.xp.short}}</label>
 			</div>
 		</div>
 	</div>
@@ -21,13 +21,22 @@
 	{{/each}}
 </div>
 <div class="secondary-attributes">
-	<h3>Secondary Attributes</h3>
+	<h3>{{localize "tribe8.actor.character.attributes.secondary.name.plural"}}</h3>
 	{{#each document.system.attributes.secondary.physical as |attribute key|}}
 	{{#if (not (or (eq key "shock") (eq key "thresholds")))}}
 	<div class="attribute-block">
-		<div class="name">{{localize this.label}}</div>
+		<div class="name" title="{{localize (concat "tribe8.actor.character.attributes.secondary.physical." key ".full")}}">{{localize (concat "tribe8.actor.character.attributes.secondary.physical." key ".short")}}</div>
 		<div class="value">{{this.value}}</div>
 	</div>
 	{{/if}}
 	{{/each}}
+	<h3>{{localize "tribe8.actor.character.movement.name"}}</h3>
+	<div class="move-rates">
+	{{#each document.system.movement}}
+		<div class="attribute-block move-rate">
+			<div class="name" title="{{localize (concat "tribe8.actor.character.movement." @key ".full")}}">{{localize (concat "tribe8.actor.character.movement." @key ".short")}}</div>
+			<div class="value">{{this}}m</div>
+		</div>
+	{{/each}}
+	</div>
 </div>

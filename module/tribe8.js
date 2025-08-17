@@ -90,50 +90,9 @@ Hooks.once('init', function() {
 	};
 
 	// Register sheet application classes
-	foundry.documents.collections.Actors.unregisterSheet('core', foundry.applications.sheets.ActorSheet);
-	foundry.documents.collections.Actors.unregisterSheet('core', foundry.applications.sheets.ActorSheetV2);
-	foundry.documents.collections.Actors.registerSheet('tribe8', Tribe8CharacterSheet, {
-		types: ['character'],
-		makeDefault: true
-	});
-	foundry.documents.collections.Items.unregisterSheet('core', foundry.applications.sheets.ItemSheet);
-	foundry.documents.collections.Items.unregisterSheet('core', foundry.applications.sheets.ItemSheetV2);
-	foundry.documents.collections.Items.registerSheet('tribe8', Tribe8ItemSheet, {
-		types: ['item'],
-		makeDefault: true
-	});
-	foundry.documents.collections.Items.registerSheet('tribe8', Tribe8SkillSheet, {
-		types: ['skill'],
-	});
-	foundry.documents.collections.Items.registerSheet('tribe8', Tribe8PerkSheet, {
-		types: ['perk'],
-	});
-	foundry.documents.collections.Items.registerSheet('tribe8', Tribe8FlawSheet, {
-		types: ['flaw'],
-	});
-	foundry.documents.collections.Items.registerSheet('tribe8', Tribe8ManeuverSheet, {
-		types: ['maneuver'],
-	});
-	foundry.documents.collections.Items.registerSheet('tribe8', Tribe8EminenceSheet, {
-		types: ['eminence'],
-	});
-	foundry.documents.collections.Items.registerSheet('tribe8', Tribe8AspectSheet, {
-		types: ['aspect'],
-	});
-	foundry.documents.collections.Items.registerSheet('tribe8', Tribe8TotemSheet, {
-		types: ['totem'],
-	});
-	/*
-	foundry.documents.collections.Items.registerSheet('tribe8', Tribe8GearSheet, {
-		types: ['gear'],
-	});
-	foundry.documents.collections.Items.registerSheet('tribe8', Tribe8WeaponSheet, {
-		types: ['weapon'],
-	});
-	foundry.documents.collections.Items.registerSheet('tribe8', Tribe8ArmorSheet, {
-		types: ['armor'],
-	});
-	*/
+	const { Actors, Items } = foundry.documents.collections;
+	CONFIG.Tribe8.registerSheets('Actor', Actors);
+	CONFIG.Tribe8.registerSheets('Item', Items);
 
 	// Register system settings
 	// Attempt to add Chainprinter font, if present

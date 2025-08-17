@@ -10,7 +10,9 @@
 	--color-maneuver-bonus: rgba(0, 255, 154, 0.25);
 	--color-eminence-used: var(--color-flaw-granted);
 	--color-aspect-granted: var(--color-perk-granted);
-
+	--color-shock-state-border: rgba(255, 255, 255, 0.1);
+	--color-system-shock-healthy: rgb(114 170 205);
+	--color-system-shock-wounded: rgb(59 43 43);
 
 	/* Alt rows */
 	--alt-background: rgba(255, 255, 255, 0.05);

@@ -3,7 +3,11 @@
 		"actor": {
 			"character": {
 				"attributes": {
+					"name.singular": "Attribute",
+					"name.plural": "Attributes",
 					"primary": {
+						"name.singular": "Primary Attribute",
+						"name.plural": "Primary Attributes",
 						"agi.short": "AGI",
 						"agi.full": "Agility",
 						"app.short": "APP",
@@ -26,6 +30,8 @@
 						"wil.full": "Willpower"
 					},
 					"secondary": {
+						"name.singular": "Secondary Attribute",
+						"name.plural": "Secondary Attributes",
 						"physical": {
 							"str.short": "STR",
 							"str.full": "Strength",
@@ -49,8 +55,31 @@
 							"shock.full": "System Shock"
 						}
 					}
+				},
+				"movement": {
+					"name": "Movement",
+					"sprinting.full": "Sprinting",
+					"sprinting.short": "Spr",
+					"running.full": "Running",
+					"running.short": "Run",
+					"jogging.full": "Jogging",
+					"jogging.short": "Jog",
+					"walking.full": "Walking",
+					"walking.short": "Wlk",
+					"crawling.full": "Crawling",
+					"crawling.short": "Crwl"
+				},
+				"injuries": {
+					"penalty.full": "Action Penalty",
+					"penalty.short": "AP"
 				}
 			}
+		},
+		"currency": {
+			"cp.name": "Character Points",
+			"cp.short": "CP",
+			"xp.name": "Experience Points",
+			"xp.short": "XP"
 		}
 	}
 }

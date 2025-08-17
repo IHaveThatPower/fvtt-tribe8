@@ -50,22 +50,29 @@ export function Tribe8Sheet(BaseApplication) {
 				});
 			});
 
-			/**
-			 * If the user has stored position preferences for this
-			 * type of sheet, override the defaults with them. However,
-			 * we only want to do this when they first open the sheet,
-			 * not every time it re-renders!
-			 */
-			if (options.isFirstRender) {
-				const {width, height, top, left} = game.user.getFlag("tribe8", `sheetDimensions.${this.windowKey}`) ?? {};
-				if (!options.position) options.position = {};
-				if (width) options.position.width = Math.min(Math.max(width, this.constructor.MIN_WIDTH), window.innerWidth);
-				if (height) options.position.height = Math.min(Math.max(height, this.constructor.MIN_HEIGHT), window.innerHeight);
-				if (left) options.position.left = Math.min(Math.max(left, this.constructor.MIN_LEFT), window.innerWidth - this.constructor.MIN_WIDTH);
-				if (top) options.position.top = Math.min(Math.max(top, this.constructor.MIN_TOP), window.innerHeight - this.constructor.MIN_HEIGHT);
-			}
-
 			await super._onRender(context, options);
+		}
+
+		/**
+		 * If the user has stored position preferences for this type of
+		 * sheet, override the defaults with them. However, we only
+		 * want to do this when they first open the sheet, not every
+		 * time it re-renders!
+		 *
+		 * This is called by _onRender() (via several layers of parent)
+		 *
+		 * @param {object} context    The rendering context
+		 * @param {object} options    Supplemental rendering options
+		 * @access protected
+		 */
+		async _onFirstRender(context, options) {
+			const {width, height, top, left} = game.user.getFlag("tribe8", `sheetDimensions.${this.windowKey}`) ?? {};
+			if (!options.position) options.position = {};
+			if (width) options.position.width = Math.min(Math.max(width, this.constructor.MIN_WIDTH), window.innerWidth);
+			if (height) options.position.height = Math.min(Math.max(height, this.constructor.MIN_HEIGHT), window.innerHeight);
+			if (left) options.position.left = Math.min(Math.max(left, this.constructor.MIN_LEFT), window.innerWidth - this.constructor.MIN_WIDTH);
+			if (top) options.position.top = Math.min(Math.max(top, this.constructor.MIN_TOP), window.innerHeight - this.constructor.MIN_HEIGHT);
+			await super._onFirstRender(context, options);
 		}
 
 		/**

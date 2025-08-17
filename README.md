@@ -39,16 +39,14 @@ At present, no stock Items (i.e. Skills, Perks, Flaws, Combat Maneuvers, Aspects
 This is a rough, ever-changing list that depicts in approximate priority order what's on the list of yet-to-be-implemented features.
 
 ### Short Term
-- Tracking of number of Flesh and Deep Wounds
-- Calculate and show Movement rate
 - Create a mini Application for editing Attribute points, rather than having them be directly on the sheet, to save some space and de-crowd the already-crowded sheet.
 - Equipment tab
 - Combat tab
-- Character artwork support
+- Character artwork editing support
 - See how nasty it'd be to correctly capitalize the document type names
 
 ### Longer Term
-- Localize!
+- Fully localize!
 - Make starting CP a system setting for the GM, and then make the initial CP boxes something GM users can edit
 - Some way to trade attribute points (i.e. PSY for other attributes)
 - Sundering?

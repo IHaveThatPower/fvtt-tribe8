@@ -43,6 +43,10 @@ export class Tribe8CharacterModel extends foundry.abstract.TypeDataModel {
 					})
 				})
 			}),
+			wounds: new fields.SchemaField({
+				flesh: new fields.NumberField({hint: "Number of Flesh Wounds sustained", initial: 0, required: true}),
+				deep: new fields.NumberField({hint: "Number of Deep Wounds sustained", initial: 0, required: true})
+			}),
 			points: new fields.SchemaField({
 				cp: new fields.SchemaField({
 					attributes: new fields.NumberField({hint: "Number of initial character points that can be spent on attributes", initial: 30, required: true}),
@@ -128,6 +132,8 @@ export class Tribe8CharacterModel extends foundry.abstract.TypeDataModel {
 		this.#preparePrimaryAttributes();
 		this.#prepareSecondaryAttributes();
 		this.#preparePoints();
+		this.#prepareWounds();
+		this.#prepareMovement();
 	}
 
 	/**
@@ -247,6 +253,70 @@ export class Tribe8CharacterModel extends foundry.abstract.TypeDataModel {
 		if (this.points.xp.spent < this.points.xp.total)
 			this.edie.fromXP = this.points.xp.total - this.points.xp.spent;
 		this.edie.total = this.edie.fromXP + this.edie.other;
+	}
+
+	/**
+	 * Determine the effects of the character's current wound state.
+	 *
+	 * @access private
+	 */
+	#prepareWounds() {
+		this.actionPenalty = 0;
+		this.actionPenalty += this.wounds.flesh * CONFIG.Tribe8.woundPenalties.flesh;
+		this.actionPenalty += this.wounds.deep * CONFIG.Tribe8.woundPenalties.deep;
+
+		this.attributes.secondary.physical.shock.current = this.actionPenalty * -1;
+	}
+
+	/**
+	 * Determine the character's various movement rates, accounting for
+	 * their wounds.
+	 *
+	 * @access private
+	 */
+	#prepareMovement() {
+		const fitness = this.attributes.primary.fit;
+		const athletics = (this.parent.getSkills({search: ['athletics']}) ?? [])[0];
+
+		// Calculate our basis (Sprinting) rate
+		let movementBasis = fitness.value + (athletics ? athletics.system.level : 0);
+		movementBasis *= CONFIG.Tribe8.movementFormula.multiplier;
+		movementBasis += CONFIG.Tribe8.movementFormula.base;
+
+		// Calculate our actual rates
+		this.movement = {...CONFIG.Tribe8.movementRates};
+		for (let rate of Object.keys(this.movement))
+			this.movement[rate] *= movementBasis;
+
+		// Apply any penalties from wounds.
+		if (this.wounds.deep > 0 || this.wounds.flesh > 0) {
+			((currentWounds, movementRates) => {
+				const injuryMult = CONFIG.Tribe8.movementInjuryMultipliers;
+				// sort() works here simply because "d" comes before "f", putting the more-severe wound category first.
+				for (let type of Object.keys(this.wounds).sort()) {
+					// Each key corresponds to a number of wounds of that type at and above which the penalty applies.
+					// Sorting it in reverse means we go through in descending order, seeing which one applies.
+					const sortedWoundThresholds = Object.keys(injuryMult[type]).map(t => Number(t)).sort().reverse();
+					for (let woundThreshold of sortedWoundThresholds) {
+						// As soon as we find a threshold that matches our current wound count of this type, we're done
+						if (currentWounds[type] >= woundThreshold) {
+							const injuredRates = injuryMult[type][woundThreshold];
+							// Apply any multipliers we find in the reference table to our existing rates
+							for (let rate of Object.keys(injuredRates)) {
+								movementRates[rate] *= injuredRates[rate];
+							}
+							return;
+						}
+					}
+				}
+			})(this.wounds, this.movement);
+		}
+
+		// Round the numbers a bit, if needed
+		const roundScale = 10 ** Math.min(Math.max(CONFIG.Tribe8.movementPrecision, 0), 4); // Enforce a hard limit of millimeter precision
+		for (let rate in this.movement) {
+			this.movement[rate] = Math.round(this.movement[rate] * roundScale) / roundScale;
+		}
 	}
 
 	/**

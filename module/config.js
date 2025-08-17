@@ -62,6 +62,65 @@ Tribe8.costs = {
 }
 
 /**
+ * The penalties imposed per type of wound.
+ */
+Tribe8.woundPenalties = {
+	flesh: -1,
+	deep: -2
+}
+
+/**
+ * The basic movement formula. The multiplier is applied to the sum of
+ * the Fitness attribute and Athletics skill, and then added to the base
+ * to determine the sprinting rate.
+ */
+Tribe8.movementFormula = {
+	base: 20,
+	multiplier: 5
+}
+
+/**
+ * The movement rate multipliers
+ */
+Tribe8.movementRates = {
+	sprinting: 1,
+	running: (2/3),
+	jogging: (1/2),
+	walking: (1/3),
+	crawling: (1/5)
+}
+
+/**
+ * Injury multipliers for movement
+ */
+Tribe8.movementInjuryMultipliers = {
+	flesh: {
+		1: {
+			sprinting: 0,
+			running: 0
+		}
+	},
+	deep: {
+		1: {
+			sprinting: 0,
+			running: 0,
+			jogging: 0
+		},
+		2: {
+			sprinting: 0,
+			running: 0,
+			jogging: 0,
+			walking: 0
+		}
+	}
+}
+
+/**
+ * How precise our rounding is for movement display.
+ */
+Tribe8.movementPrecision = 1;
+
+/**
  * Uniform utility to convert a provided string into an alphanumeric-
  * only, lowercase string.
  *
@@ -119,4 +178,41 @@ Tribe8.findCombatSkill = function(key, skills) {
 		}
 		return false;
 	});
+}
+
+/**
+ * Register sheets of the indicated type using the supplied sheet
+ * collection.
+ *
+ * @param  {string}          sheetType    The type of sheet we're going to register (Actor or Item)
+ * @param  {WorldCollection} docs         The existing document collection for the entity type
+ * @throws {Error}                        If we don't have the expected global game namespace.
+ */
+Tribe8.registerSheets = function(sheetType, docs) {
+	if (!game.tribe8 || !game.tribe8.applications) {
+		throw new Error('Cannot register sheets without the Tribe 8 game namespace');
+	}
+	const { sheets } = foundry.applications;
+
+	// Unregister core sheets
+	for (let suffix of ['Sheet', 'SheetV2']) {
+		const sheetName =`${sheetType}${suffix}`;
+		if (sheets[sheetName]) {
+			docs.unregisterSheet('core', sheets[sheetName]);
+		}
+	}
+
+	// Register our sheets
+	for (let modelType in CONFIG[sheetType].dataModels) {
+		if (Tribe8.slugify(modelType) == 'specialization') // Doesn't have its own sheet
+			continue;
+		const sheetName = `Tribe8${modelType[0].toUpperCase() + modelType.slice(1)}Sheet`;
+		const sheet = game.tribe8.applications[sheetName];
+		if (!sheet) {
+			console.warn(`No defined sheet found for ${modelType}`);
+			continue;
+		}
+		const makeDefault = ((sheetType == 'Actor' && modelType == 'character') || (sheetType == 'Item' && modelType == 'item'));
+		docs.registerSheet('tribe8', sheet, { types: [modelType], makeDefault: makeDefault });
+	}
 }
