@@ -23,6 +23,9 @@ class Tribe8PerkFlawSheet extends Tribe8ItemSheet {
 
 	/**
 	 * Prepare the context object supplied to the application
+	 *
+	 * @param  {object} options    The set of options provided for rendering the sheet
+	 * @return {object}            The computed context object for Handlebars to use in populating the sheet
 	 */
 	async _prepareContext(options) {
 		const context = await super._prepareContext(options);
@@ -41,6 +44,8 @@ class Tribe8PerkFlawSheet extends Tribe8ItemSheet {
 
 	/**
 	 * Handle the submit data
+	 *
+	 * @inheritdoc
 	 */
 	_prepareSubmitData(event, form, formData, updateData) {
 		// Identify array-based form elements
@@ -71,12 +76,13 @@ class Tribe8PerkFlawSheet extends Tribe8ItemSheet {
 
 	/**
 	 * Remove a rank from a Perk/Flaw
+	 *
+	 * @param {Event}           event     The event triggered by interaction with the form element
+	 * @param {HTMLFormElement} target    The element that triggered the event
 	 */
 	static removeRank(event, target) {
 		event.stopPropagation();
 		event.preventDefault();
-		console.log(event);
-		console.log(target);
 		const rankIdx = Number(target?.parentNode?.dataset?.rank);
 		if (!rankIdx || !this.document.system.points[rankIdx])
 			return;
@@ -100,7 +106,9 @@ export class Tribe8PerkSheet extends Tribe8PerkFlawSheet {
 	static DEFAULT_ICON = "systems/tribe8/icons/perk.svg";
 
 	/**
-	 * Title of the sheet
+	 * Modified title, with Perk prefix
+	 *
+	 * @return {string} The document name, prefixed with "Perk"
 	 */
 	get title() {
 		return `Perk: ${this.document.name}`;
@@ -110,7 +118,9 @@ export class Tribe8FlawSheet extends Tribe8PerkFlawSheet {
 	static DEFAULT_ICON = "systems/tribe8/icons/flaw.svg";
 
 	/**
-	 * Title of the sheet
+	 * Modified title, with Flaw prefix
+	 *
+	 * @return {string} The document name, prefixed with "Flaw"
 	 */
 	get title() {
 		return `Flaw: ${this.document.name}`;

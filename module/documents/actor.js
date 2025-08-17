@@ -3,8 +3,14 @@ import { Tribe8Item } from './item.js'; // For sorting
 
 export class Tribe8Actor extends Actor {
 	/**
-	 * @param {object} data
-	 * @return {object}
+	 * Compute a differential model of system data used to initialize
+	 * this Actor, that data after the Character model has run
+	 * migrateData() on it, then store it as flag data to be used for
+	 * true migration in the setup Hook
+	 *
+	 * @param  {object} data    Object containing data fed in for migration
+	 * @return {object}         Mutated data object for migration
+	 * @see    ../tribe8.js
 	 */
 	static migrateData(data) {
 		if (data.system && data.type) {
@@ -28,10 +34,10 @@ export class Tribe8Actor extends Actor {
 				 * data to preserve for flagging, and which would be
 				 * redundant.
 				 *
-				 * @param {object} mData
-				 * @param {object} systemData
-				 * @param {object} originalData
-				 * @param {int} depth
+				 * @param  {object} mData
+				 * @param  {object} systemData
+				 * @param  {object} originalData
+				 * @param  {int}    depth
 				 * @return {object}
 				 */
 				mutatedSystem = (function flag(mData, systemData, originalData, depth) {
@@ -209,6 +215,8 @@ export class Tribe8Actor extends Actor {
 	/**
 	 * Utility function to determine which player (if any) owns this
 	 * actor.
+	 *
+	 * @return {string|bool} A matching User ID, or false if no player owner was found
 	 */
 	getPlayerOwner() {
 		if (!this.hasPlayerOwner)
@@ -238,7 +246,7 @@ export class Tribe8Actor extends Actor {
 	 * Get a list of this character's Skills that can be used to make
 	 * attacks in combat.
 	 *
-	 * @return	Object
+	 * @return {object} An object containing all of the valid combat skills possessed by this Actor
 	 */
 	getCombatSkills() {
 		// Define the default names of the combat Skills, based on config

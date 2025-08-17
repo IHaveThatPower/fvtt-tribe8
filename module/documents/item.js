@@ -53,6 +53,8 @@ export class Tribe8Item extends Item {
 
 	/**
 	 * Get the actor owner of this item, if there is one.
+	 *
+	 * @return {Actor|bool} Either the parent Tribe8Actor or false if none is found
 	 */
 	getActorOwner() {
 		if (this.isEmbedded) {
@@ -63,6 +65,9 @@ export class Tribe8Item extends Item {
 
 	/**
 	 * Handle any document-level migration hacks we need to do
+	 *
+	 * @param  {object} data    The supplied data migration object
+	 * @return {object}         The transformed migration data
 	 */
 	static migrateData(data) {
 		if (data.type == 'skill') this.migrateSpecializations(data);
@@ -82,6 +87,7 @@ export class Tribe8Item extends Item {
 	 * Store legacy object Specializations from Skills to the Skill's
 	 * flags, for later regeneration as proper Embedded Items
 	 *
+	 * @param {object} data    The supplied data migration object
 	 */
 	static migrateSpecializations(data) {
 		/**
@@ -114,6 +120,7 @@ export class Tribe8Item extends Item {
 	 * Align certain Items' names, system names, and system sub-names
 	 * for consistency.
 	 *
+	 * @param {object} data    The supplied data migration object
 	 */
 	static migrateNames(data) {
 		// If we don't have ANY name data, assume this is a different sort of update and leave it alone
@@ -143,6 +150,9 @@ export class Tribe8Item extends Item {
 
 	/**
 	 * Return the default artwork for the given item type
+	 *
+	 * @param  {object} itemData    Data object that includes item type
+	 * @return {object}             An object with a single key pointing to the default artwork path
 	 */
 	static getDefaultArtwork(itemData) {
 		const {type} = itemData;
@@ -160,8 +170,9 @@ export class Tribe8Item extends Item {
 	/**
 	 * Item sort comparison meta-function
 	 *
-	 * @param	Tribe8Item a
-	 * @param	Tribe8Item b
+	 * @param  {Tribe8Item} a    The first comparison item
+	 * @param  {Tribe8Item} b    The second comparison item
+	 * @return {int}             The result of the comparison
 	 */
 	static cmp(a, b) {
 		if (a.type === 'skill')
@@ -182,9 +193,10 @@ export class Tribe8Item extends Item {
 	/**
 	 * Fallback sort, if other sorting attempts have resulted equal
 	 *
-	 * @param	Tribe8Item a
-	 * @param	Tribe8Item b
-	 * @return	int
+	 * @param  {Tribe8Item} a    The first comparison item
+	 * @param  {Tribe8Item} b    The second comparison item
+	 * @return {int}             The result of the comparison
+	 * @throws {Error}           When the Item types mismatch
 	 */
 	static cmpFallback(a, b) {
 		if (a.type != b.type)
@@ -199,9 +211,10 @@ export class Tribe8Item extends Item {
 	/**
 	 * Sort for Skills
 	 *
-	 * @param	Tribe8Item a
-	 * @param	Tribe8Item	b
-	 * @return	int
+	 * @param  {Tribe8Item} a    The first comparison item
+	 * @param  {Tribe8Item} b    The second comparison item
+	 * @return {int}             The result of the comparison
+	 * @throws {Error}           When the Item types mismatch
 	 */
 	static cmpSkill(a, b) {
 		if (a.type != 'skill' || b.type != 'skill')
@@ -219,9 +232,10 @@ export class Tribe8Item extends Item {
 	/**
 	 * Sort for Perks and Flaws
 	 *
-	 * @param	Tribe8Item a
-	 * @param	Tribe8Item b
-	 * @return	int
+	 * @param  {Tribe8Item} a    The first comparison item
+	 * @param  {Tribe8Item} b    The second comparison item
+	 * @return {int}             The result of the comparison
+	 * @throws {Error}           When the Item types mismatch
 	 */
 	static cmpPerkFlaw(a, b) {
 		if ((a.type != 'perk' && a.type != 'flaw') || (b.type != 'perk' && b.type != 'flaw'))
@@ -246,9 +260,10 @@ export class Tribe8Item extends Item {
 	/**
 	 * Sort for Maneuvers
 	 *
-	 * @param	Tribe8Item a
-	 * @param	Tribe8Item b
-	 * @return	int
+	 * @param  {Tribe8Item} a    The first comparison item
+	 * @param  {Tribe8Item} b    The second comparison item
+	 * @return {int}             The result of the comparison
+	 * @throws {Error}           When the Item types mismatch
 	 */
 	static cmpManeuver(a, b) {
 		if (a.type != 'maneuver' || b.type != 'maneuver')
@@ -292,9 +307,10 @@ export class Tribe8Item extends Item {
 	/**
 	 * Sort for Eminences
 	 *
-	 * @param	Tribe8Item a
-	 * @param	Tribe8Item b
-	 * @return	int
+	 * @param  {Tribe8Item} a    The first comparison item
+	 * @param  {Tribe8Item} b    The second comparison item
+	 * @return {int}             The result of the comparison
+	 * @throws {Error}           When the Item types mismatch
 	 */
 	static cmpEminence(a, b) {
 		if (a.type != 'eminence' || b.type != 'eminence')
@@ -307,9 +323,10 @@ export class Tribe8Item extends Item {
 	/**
 	 * Sort for Aspects
 	 *
-	 * @param	Tribe8Item a
-	 * @param	Tribe8Item b
-	 * @return	int
+	 * @param  {Tribe8Item} a    The first comparison item
+	 * @param  {Tribe8Item} b    The second comparison item
+	 * @return {int}             The result of the comparison
+	 * @throws {Error}           When the Item types mismatch
 	 */
 	static cmpAspect(a, b) {
 		if (a.type != 'aspect' || b.type != 'aspect')
@@ -321,9 +338,10 @@ export class Tribe8Item extends Item {
 	/**
 	 * Sort for Totems
 	 *
-	 * @param	Tribe8Item a
-	 * @param	Tribe8Item b
-	 * @return	int
+	 * @param  {Tribe8Item} a    The first comparison item
+	 * @param  {Tribe8Item} b    The second comparison item
+	 * @return {int}             The result of the comparison
+	 * @throws {Error}           When the Item types mismatch
 	 */
 	static cmpTotem(a, b) {
 		if (a.type != 'totem' || b.type != 'totem')
@@ -347,7 +365,12 @@ export class Tribe8Item extends Item {
 	 * Handle proper Skill and Perk/Flaw naming, accounting for special
 	 * sub-identifiers
 	 *
-	 * @returns	Object{name, system{name, specific}}
+	 * @param  {string} [name='']          The top-level Item name
+	 * @param  {string} [sysName='']       The name on the system object of the Item, if any
+	 * @param  {string} [specific='']      The subtype ("specific") sub-identifier on the system object of the Item, if any
+	 * @param  {bool}   [specify=false]    Whether or not the toggle was enabled to include a sub-identifier
+	 * @return {object}                    An object containing the derived identification data, in {name: {string}, system: {name: {string}, specific: {string}}} format
+	 * @throws {Error}                     If we go through the whole process and end up with an empty name
 	 */
 	static canonizeName(name = '', sysName = '', specific = '', specify = false) {
 		// Setup our storage object

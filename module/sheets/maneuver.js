@@ -19,14 +19,21 @@ export class Tribe8ManeuverSheet extends Tribe8ItemSheet {
 	static COMBAT_MODIFIER_FIELDS = ['accuracy', 'initiative', 'defense', 'parry', 'damage'];
 
 	/**
-	 * Title of the sheet
+	 * Title of the sheet, prefixed with "Maneuver" and the Skill to
+	 * which it applies.
+	 *
+	 * @return {string} The assembled title
 	 */
 	get title() {
 		return `Maneuver: ${this.document.name}` + (this.document.system.forSkill ? ` (${CONFIG.Tribe8.COMBAT_SKILLS[this.document.system.forSkill]})` : '');
 	}
 
 	/**
-	 * Prepare the context object supplied to the application
+	 * Assemble data relevant to combat skills, in addition to other
+	 * required rendering context.
+	 *
+	 * @param  {object} options    The set of options provided for rendering the sheet
+	 * @return {object}            The computed context object for Handlebars to use in populating the sheet
 	 */
 	async _prepareContext(options) {
 		const context = await super._prepareContext(options);
@@ -74,6 +81,8 @@ export class Tribe8ManeuverSheet extends Tribe8ItemSheet {
 
 	/**
 	 * Handle the submit data
+	 *
+	 * @inheritdoc
 	 */
 	_prepareSubmitData(event, form, formData, updateData) {
 		// Identify array-based form elements

@@ -26,7 +26,9 @@ export class Tribe8SkillSheet extends Tribe8ItemSheet {
 	static DEFAULT_ICON = "systems/tribe8/icons/skill.svg";
 
 	/**
-	 * Title of the sheet
+	 * Modified title, with Skill prefix
+	 *
+	 * @return {string} The document name, prefixed with "Skill"
 	 */
 	get title() {
 		return `Skill: ${this.document.name}`;
@@ -34,6 +36,9 @@ export class Tribe8SkillSheet extends Tribe8ItemSheet {
 
 	/**
 	 * Prepare the context object supplied to the application
+	 *
+	 * @param  {object} options    The set of options provided for rendering the sheet
+	 * @return {object}            The computed context object for Handlebars to use in populating the sheet
 	 */
 	async _prepareContext(options) {
 		const item = this.document;
@@ -47,7 +52,11 @@ export class Tribe8SkillSheet extends Tribe8ItemSheet {
 	}
 
 	/**
-	 * Handle the submit data
+	 * @description Handle the submit data. In particular:
+	 * - Extract Specialization-related form fields and stash them for
+	 *   separate processing
+	 * - Compute any eDie delta and handle that separately
+	 * @inheritdoc
 	 */
 	_prepareSubmitData(event, form, formData, updateData) {
 		// Identify array-based form elements
@@ -83,7 +92,14 @@ export class Tribe8SkillSheet extends Tribe8ItemSheet {
 	}
 
 	/**
-	 * Process the submitted data
+	 * Process the submitted data, or rather don't if the instigator
+	 * of the submission was a form input the name of which starts with
+	 * `newSpecialization`. Prior to actually submitting:
+	 *
+	 * - Process the eDie
+	 * - Update Specializations
+	 *
+	 * @inheritdoc
 	 */
 	async _processSubmitData(event, form, submitData, options={}) {
 		// Stop the process if the event was emitted by one of the newSpecialization inputs
@@ -106,6 +122,11 @@ export class Tribe8SkillSheet extends Tribe8ItemSheet {
 
 	/**
 	 * Extract specializations from formData and return them separately
+	 *
+	 * @param {string}           key                The full name of the form element we're checking
+	 * @param {Array<string>}    propertyPath       Identifying information from the form element that triggerd this
+	 * @param {FormDataExtended} [formData={}]      The submitted form data
+	 * @param {object}           specializations    Any existing specializations we've already found, and which we'll write to
 	 */
 	_extractSpecializationsFromForm(key, propertyPath, formData = {}, specializations = {}) {
 		if (key.match(/^specializations\[/)) {
@@ -146,6 +167,8 @@ export class Tribe8SkillSheet extends Tribe8ItemSheet {
 
 	/**
 	 * Increment edie "other" amount
+	 *
+	 * @param {Event} event    The event triggered by interaction with the form element
 	 */
 	static incrementEdie(event) {
 		// Don't _also_ submit the form
@@ -156,6 +179,8 @@ export class Tribe8SkillSheet extends Tribe8ItemSheet {
 
 	/**
 	 * Decrement edie "other" amount
+	 *
+	 * @param {Event} event    The event triggered by interaction with the form element
 	 */
 	static decrementEdie(event) {
 		// Don't _also_ submit the form
@@ -165,10 +190,12 @@ export class Tribe8SkillSheet extends Tribe8ItemSheet {
 	}
 
 	/**
-	 * Add a specialization to a skill
+	 * Add a Specialization to an Actor, and then tie it to a Skill.
+	 * Once done, re-render the form.
 	 *
-	 * TODO: Move a lot of this code to the Skill Model, which already
-	 * does a version of it for the inline editing.
+	 * @param {Event}           event     The event triggered by interaction with the form element
+	 * @param {HTMLFormElement} target    The element that triggered the event
+	 * @todo Move a lot of this code to the Skill Model, which already does a version of it for the inline editing.
 	 */
 	static addSpecialization(event, target) {
 		event.stopPropagation();
@@ -204,8 +231,9 @@ export class Tribe8SkillSheet extends Tribe8ItemSheet {
 	/**
 	 * Remove an existing specialization
 	 *
-	 * TODO: Move a lot of this code to the Skill Model, which already
-	 * does a version of it for the inline editing.
+	 * @param {Event}           event     The event triggered by interaction with the form element
+	 * @param {HTMLFormElement} target    The element that triggered the event
+	 * @todo Move a lot of this code to the Skill Model, which already does a version of it for the inline editing.
 	 */
 	static removeSpecialization(event, target) {
 		event.stopPropagation();

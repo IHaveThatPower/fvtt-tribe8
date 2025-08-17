@@ -32,7 +32,11 @@ export class Tribe8SkillModel extends Tribe8ItemModel {
 	}
 
 	/**
-	 * Migrate data
+	 * Correct any source data using legacy points not-objects and then
+	 * initialize the edie fields within the points object.
+	 *
+	 * @param  {object} data    The source data
+	 * @return {object}         The transformed data
 	 */
 	static migrateData(data) {
 		// Fix points object
@@ -48,6 +52,8 @@ export class Tribe8SkillModel extends Tribe8ItemModel {
 
 	/**
 	 * Prepare derived data for a skill
+	 *
+	 * @param {...Parameters} args    Standard invocation arguments, which this method doesn't use
 	 */
 	prepareDerivedData(...args) {
 		super.prepareDerivedData(...args);
@@ -90,6 +96,8 @@ export class Tribe8SkillModel extends Tribe8ItemModel {
 
 	/**
 	 * Get the total e-die spent on this skill
+	 *
+	 * @return {int} The total eDie spent on the skill
 	 */
 	get eDieSpent() {
 		return this.points.edie.fromBonus + this.points.edie.fromXP;
@@ -97,6 +105,8 @@ export class Tribe8SkillModel extends Tribe8ItemModel {
 
 	/**
 	 * Add a Specialization to this Skill
+	 *
+	 * @param {object} data    Essential data for creating a new Specialization
 	 */
 	async addSpecialization(data) {
 		const skill = this.parent;
@@ -128,6 +138,9 @@ export class Tribe8SkillModel extends Tribe8ItemModel {
 
 	/**
 	 * Spend (or refund) e-die into (or out of) this skill
+	 *
+	 * @param  {int}  [amount=1]    Amount by which we want to alter the current eDie total.
+	 * @return {bool}               Whether we succeeded or not
 	 */
 	async alterEdie(amount = 1) {
 		const data = this.computeAlterEdie(amount);
@@ -165,6 +178,10 @@ export class Tribe8SkillModel extends Tribe8ItemModel {
 
 	/**
 	 * Compute an e-die refund amount
+	 *
+	 * @param  {int}    [amount=1]    Amount by which we want to alter the current eDie total.
+	 * @return {object}               The computed set of updated data values to be applied to this Skill model
+	 * @see    alterEdie
 	 */
 	computeAlterEdie(amount = 1) {
 		// Bail out if value is just 0
@@ -203,7 +220,8 @@ export class Tribe8SkillModel extends Tribe8ItemModel {
 	/**
 	 * Handle manual interaction with an EDie field for this skill.
 	 *
-	 * TODO: Should this be somewhere else? Weird to put a UI handle on a DataModel...
+	 * @param {KeyboardEent} e    The triggering keyboard event
+	 * @todo Should this be somewhere else? Weird to put a UI handler on a DataModel...
 	 */
 	eDieKeyInputEventHandler(e) {
 		// Get the current and previous value

@@ -17,7 +17,10 @@ export class Tribe8AspectSheet extends Tribe8ItemSheet {
 	}
 
 	/**
-	 * Title of the sheet
+	 * Prepend 'Aspect' to the sheet title, and include the tribe, if
+	 * specified
+	 *
+	 * @return {string} The assembled sheet title
 	 */
 	get title() {
 		return `Aspect: ${this.document.name}` + (this.document.system.tribe ? ` (${this.document.system.tribe})` : '');

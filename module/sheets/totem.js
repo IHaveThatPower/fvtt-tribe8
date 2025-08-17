@@ -17,7 +17,10 @@ export class Tribe8TotemSheet extends Tribe8ItemSheet {
 	}
 
 	/**
-	 * Title of the sheet
+	 * Prepend 'Totem' to the sheet title, and include the totem type,
+	 * if specified
+	 *
+	 * @return {string} The assembled sheet title
 	 */
 	get title() {
 		return `Totem: ${this.document.name}` + (this.document.system.totemType ? ` (${this.document.system.totemType})` : '');

@@ -64,6 +64,9 @@ Tribe8.costs = {
 /**
  * Uniform utility to convert a provided string into an alphanumeric-
  * only, lowercase string.
+ *
+ * @param  {string} string    The string to transform
+ * @return {string}           The sanitized slug-style string
  */
 Tribe8.slugify = function(string) {
 	return string.trim().toLowerCase().replace(/[^a-zA-Z0-9]/g, '');
@@ -72,6 +75,9 @@ Tribe8.slugify = function(string) {
 /**
  * Identify array-style form elements in a submit package and return
  * their names.
+ *
+ * @param  {FormData} formData    A FormData object
+ * @return {Array}                An array of form field names that have array notation
  */
 Tribe8.checkFormArrayElements = function(formData) {
 	const checkKeys = [];
@@ -87,6 +93,10 @@ Tribe8.checkFormArrayElements = function(formData) {
  * Given a single-character identifier and an array of skill items,
  * find the one that matches the combat skill indicated by the
  * indentifier
+ *
+ * @param  {string}        key       The one-letter combat skill category designator
+ * @param  {Array}         skills    The list of skills to be filtered
+ * @return {Array|boolean}           The matching list of combat skill slug names, or false if none found
  */
 Tribe8.findCombatSkill = function(key, skills) {
 	if (Object.keys(Tribe8.COMBAT_SKILLS).indexOf(key) < 0)

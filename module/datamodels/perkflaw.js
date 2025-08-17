@@ -38,7 +38,12 @@ export class Tribe8PerkFlawModel extends Tribe8ItemModel {
 	}
 
 	/**
-	 * Migrate data
+	 * Ensure any source data using the legacy "cost" field switches to
+	 * "baseCost", and ensure any source data with lowercase points
+	 * values is switched to uppercase
+	 *
+	 * @param  {object} data    The stored source data
+	 * @return {object}         The transformed data
 	 */
 	static migrateData(data) {
 		foundry.abstract.Document._addDataFieldMigration(data, "system.cost", "system.baseCost");

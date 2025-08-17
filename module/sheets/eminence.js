@@ -17,7 +17,10 @@ export class Tribe8EminenceSheet extends Tribe8ItemSheet {
 	}
 
 	/**
-	 * Title of the sheet
+	 * Title of the sheet, prefixed with "Eminence" and any supplied
+	 * tribe
+	 *
+	 * @return {string} The assembled title
 	 */
 	get title() {
 		return `Eminence: ${this.document.name}` + (this.document.system.tribe ? ` (${this.document.system.tribe})` : '');

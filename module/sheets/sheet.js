@@ -7,6 +7,9 @@ const { HandlebarsApplicationMixin } = foundry.applications.api;
  *
  * This is mainly for utility behaviors, like setting up common
  * listeners or recording data about sheets.
+ *
+ * @param  {Constructor<ApplicationV2>} BaseApplication    The constructor reference to an ApplicationV2 or child class
+ * @return {Tribe8Sheet}                                   The resulting mixin class
  */
 export function Tribe8Sheet(BaseApplication) {
 	class Tribe8Sheet extends HandlebarsApplicationMixin(BaseApplication) {
@@ -17,6 +20,8 @@ export function Tribe8Sheet(BaseApplication) {
 
 		/**
 		 * Directly inherit from parent
+		 *
+		 * @param {...*} args    Typical arguments supplied to the ApplicationV2 constructor
 		 */
 		constructor(...args) {
 		  super(...args);
@@ -24,6 +29,8 @@ export function Tribe8Sheet(BaseApplication) {
 
 		/**
 		 * Handle any special _onRender events.
+		 *
+		 * @inheritdoc
 		 */
 		async _onRender(context, options) {
 			// When rendering, always re-render the title
@@ -56,6 +63,8 @@ export function Tribe8Sheet(BaseApplication) {
 		/**
 		 * Record the sheet's window position for the user just before
 		 * it closes.
+		 *
+		 * @inheritdoc
 		 */
 		async _preClose(options) {
 			await super._preClose(options);
@@ -68,6 +77,8 @@ export function Tribe8Sheet(BaseApplication) {
 
 		/**
 		 * Utility for generating a key for the current window
+		 *
+		 * @return {string} A consistent key used to identify the type of sheet this is
 		 */
 		get windowKey() {
 			return `${this.document.type}${this.document.limited ? ":limited" : ""}`;

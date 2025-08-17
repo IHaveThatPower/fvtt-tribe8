@@ -8,9 +8,9 @@ export default function () {
 /**
  * Add a number to another number
  *
- * @param  Number a
- * @param  Number b
- * @return Number
+ * @param  {int} a
+ * @param  {int} b
+ * @return {int}
  */
 Handlebars.registerHelper('add', function (a, b) {
 	if (arguments.length != 3) // We were only passed the default options
@@ -27,9 +27,9 @@ Handlebars.registerHelper('add', function (a, b) {
 /**
  * Subtract a number from another number
  *
- * @param  Number a
- * @param  Number b
- * @return Number
+ * @param  {int} a
+ * @param  {int} b
+ * @return {int}
  */
 Handlebars.registerHelper('sub', function (a, b) {
 	if (arguments.length != 3) // We were only passed the default options
@@ -46,8 +46,8 @@ Handlebars.registerHelper('sub', function (a, b) {
 /**
  * Convert a number to Roman numerals
  *
- * @param  Number a
- * @return String
+ * @param  {int}    a
+ * @return {string}
  */
 Handlebars.registerHelper('roman', function (a) {
 	if (arguments.length != 2) // We were only passed the default options
@@ -78,9 +78,9 @@ Handlebars.registerHelper('roman', function (a) {
 /**
  * Repeat a block from either 0 or 1 to the specified value.
  *
- * @param  int times      Repetition count
- * @param  bool includeZero  Whether we start at 0 or 1
- * @return  string
+ * @param  {int}    times          Repetition count
+ * @param  {bool}   includeZero    Whether we start at 0 or 1
+ * @return {string}
  */
 Handlebars.registerHelper('repeat', function() {
 	if (arguments.length <= 1) // We were only passed the default options

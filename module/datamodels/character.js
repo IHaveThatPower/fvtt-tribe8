@@ -56,7 +56,11 @@ export class Tribe8CharacterModel extends foundry.abstract.TypeDataModel {
 	}
 
 	/**
-	 * Migrate data
+	 * Remap any legacy data to the new model format, prior to
+	 * attempting to load it.
+	 *
+	 * @param  {object} data    The source data
+	 * @return {object}         The transformed source data
 	 */
 	static migrateData(data) {
 		// Ensure we get a proper static reference
@@ -72,7 +76,13 @@ export class Tribe8CharacterModel extends foundry.abstract.TypeDataModel {
 	}
 
 	/**
-	 * Recursive function that fixes invalid labels and names
+	 * Loop through the source data to fix certain schema properties
+	 * that may have drifted, but aren't meant to be user-changeable.
+	 * If an object is encountered, recursively evaluate it.
+	 *
+	 * @param  {object} data      The source data
+	 * @param  {object} schema    The schema or subset thereof specific to this key "depth"
+	 * @return {object}           The transformed data
 	 */
 	static recursivelyFixLabelsAndNames(data, schema) {
 		const that = ((this.name ?? '').toLowerCase() !== 'function' ? this : this.constructor);
@@ -97,7 +107,10 @@ export class Tribe8CharacterModel extends foundry.abstract.TypeDataModel {
 	}
 
 	/**
-	 * Prepare derived data
+	 * Call out to internal methods that ensure the model has all the
+	 * derived information it needs to properly represent the character.
+	 *
+	 * @param {...Parameters} args    Standard invocation arguments, which this method doesn't use
 	 */
 	prepareDerivedData(...args) {
 		super.prepareDerivedData(...args)
@@ -224,6 +237,8 @@ export class Tribe8CharacterModel extends foundry.abstract.TypeDataModel {
 	 * Add a given skill's points to the current tally. Called by
 	 * _preparePoints()
 	 *
+	 * @param  {Tribe8Item} item    The item from which we're applying points
+	 * @throws {Error}              If we encounter a specialization that somehow doesn't belong to this model's document
 	 */
 	_applySkillPoints(item) {
 		if (!this.pointsLedger['skills']) this.pointsLedger['skills'] = {'CP': 0, 'XP': 0, 'EDice': {'XP': 0, 'Bonus': 0}};
@@ -260,6 +275,8 @@ export class Tribe8CharacterModel extends foundry.abstract.TypeDataModel {
 	/**
 	 * Add a given perk or flaw's points to the current tally. Called
 	 * by _preparePoints()
+	 *
+	 * @param {Tribe8Item} item    The item from which we're applying points
 	 */
 	_applyPerkFlawPoints(item) {
 		if (item.system.granted) return; // No cost applied
@@ -360,6 +377,8 @@ export class Tribe8CharacterModel extends foundry.abstract.TypeDataModel {
 	/**
 	 * Add a given combat maneuver's cost to the current tally. Called
 	 * by _preparePoints()
+	 *
+	 * @param {Tribe8Item} item    The item from which we're applying points
 	 */
 	_applyManeuverPoints(item) {
 		if (item.system.granted) return;
@@ -454,6 +473,8 @@ export class Tribe8CharacterModel extends foundry.abstract.TypeDataModel {
 	/**
 	 * Add a given aspect's points to the current tally. Called by
 	 * _preparePoints()
+	 *
+	 * @param {Tribe8Item} item    The item from which we're applying points
 	 */
 	_applyAspectPoints(item) {
 		if (item.system.granted) return; // No cost applied
@@ -472,6 +493,8 @@ export class Tribe8CharacterModel extends foundry.abstract.TypeDataModel {
 	/**
 	 * Add a given totem's cost to the current tally. Called by
 	 * _preparePoints()
+	 *
+	 * @param {Tribe8Item} item    The item from which we're applying points
 	 */
 	_applyTotemPoints(item) {
 		if (item.inFreeSlot) return;
@@ -486,6 +509,14 @@ export class Tribe8CharacterModel extends foundry.abstract.TypeDataModel {
 	}
 }
 
+/**
+ * Helper function that returns a populated object with fields common to
+ * all primary Attributes
+ *
+ * @param  {string} name     The name of this Attribute
+ * @param  {string} label    The 3-letter label for the Attribute
+ * @return {object}          The pre-populated primary Attribute fields
+ */
 function Tribe8PrimaryAttribute(name, label) {
 	return {
 		'label': new fields.StringField({hint: "The short name used to identify this attribute on a character sheet", blank: false, initial: `${label}`, required: true}),
@@ -496,6 +527,14 @@ function Tribe8PrimaryAttribute(name, label) {
 	};
 }
 
+/**
+ * Helper function that returns a populated object with fields common to
+ * all secondary Attributes
+ *
+ * @param  {string} name     The name of this Attribute
+ * @param  {string} label    The short label for the Attribute
+ * @return {object}          The pre-populated secondary Attribute fields
+ */
 function Tribe8SecondaryAttribute(name, label) {
 	return {
 		'label': new fields.StringField({hint: "The short name used to identify this attribute on a character sheet", blank: false, initial: `${label}`, required: true}),
