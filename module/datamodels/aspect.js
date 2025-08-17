@@ -3,6 +3,12 @@ import { Tribe8 } from '../config.js';
 import { Tribe8ItemModel } from './item.js';
 
 export class Tribe8AspectModel extends Tribe8ItemModel {
+	/**
+	 * Defines the schema for an Aspect.
+	 *
+	 * @return {object} The schema definition for an Aspect
+	 * @access public
+	 */
 	static defineSchema() {
 		return {
 			...super.defineSchema(),

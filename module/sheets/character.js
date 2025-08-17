@@ -46,6 +46,7 @@ export class Tribe8CharacterSheet extends Tribe8Sheet(ActorSheetV2) {
 	 *
 	 * @param  {object} options    The set of options provided for rendering the sheet
 	 * @return {object}            The computed context object for Handlebars to use in populating the sheet
+	 * @access protected
 	 */
 	async _prepareContext(options) {
 		const context = await super._prepareContext(options);
@@ -149,14 +150,19 @@ export class Tribe8CharacterSheet extends Tribe8Sheet(ActorSheetV2) {
 	/**
 	 * Transform/manipulate the form submission data
 	 *
-	 * @inheritdoc
+	 * @param  {Event}            event              The triggering event
+	 * @param  {HTMLFormElement}  form               The top-level form element
+	 * @param  {FormDataExtended} formData           The actual data payload
+	 * @param  {object}           [updateData={}]    Any supplemental data
+	 * @return {object}                              Prepared submission data as an object
+	 * @access protected
 	 */
 	_prepareSubmitData(event, form, formData, updateData) {
 		// Identify array-based form elements
 		const checkKeys = CONFIG.Tribe8.checkFormArrayElements(formData);
 
 		// Extract identified array-based elements
-		this._interpretSystemShock(formData.object, checkKeys);
+		this.#interpretSystemShock(formData.object, checkKeys);
 
 		return super._prepareSubmitData(event, form, formData, updateData);
 	}
@@ -166,8 +172,9 @@ export class Tribe8CharacterSheet extends Tribe8Sheet(ActorSheetV2) {
 	 *
 	 * @param {FormData}      formDataObject    The inner FormData object from the submitted FormDataExtended
 	 * @param {Array<string>} checkKeys         Array-style form field names to be parsed
+	 * @access private
 	 */
-	_interpretSystemShock(formDataObject, checkKeys) {
+	#interpretSystemShock(formDataObject, checkKeys) {
 		let systemShockChecked = 0;
 		for (const key of checkKeys) {
 			let propertyPath = key.split(/[[.]/);
@@ -187,7 +194,9 @@ export class Tribe8CharacterSheet extends Tribe8Sheet(ActorSheetV2) {
 	/**
 	 * Handle any special _onRender events.
 	 *
-	 * @inheritdoc
+	 * @param {object} context    The rendering context
+	 * @param {object} options    Supplemental rendering options
+	 * @access protected
 	 */
 	async _onRender(context, options) {
 		// Rig up manual input on eDie fields
@@ -211,6 +220,7 @@ export class Tribe8CharacterSheet extends Tribe8Sheet(ActorSheetV2) {
 	 *
 	 * @param {Event}           event     The event triggered by interaction with the form element
 	 * @param {HTMLFormElement} target    The element that triggered the event
+	 * @access public
 	 */
 	static incrementEdie(event, target) {
 		event.preventDefault();
@@ -235,6 +245,7 @@ export class Tribe8CharacterSheet extends Tribe8Sheet(ActorSheetV2) {
 	 *
 	 * @param {Event}           event     The event triggered by interaction with the form element
 	 * @param {HTMLFormElement} target    The element that triggered the event
+	 * @access public
 	 */
 	static decrementEdie(event, target) {
 		event.preventDefault();
@@ -259,6 +270,7 @@ export class Tribe8CharacterSheet extends Tribe8Sheet(ActorSheetV2) {
 	 *
 	 * @param {Event}           event     The event triggered by interaction with the form element
 	 * @param {HTMLFormElement} target    The element that triggered the event
+	 * @access public
 	 */
 	static addNewItem(event, target) {
 		event.preventDefault();
@@ -283,12 +295,12 @@ export class Tribe8CharacterSheet extends Tribe8Sheet(ActorSheetV2) {
 				modal: true
 			}).then((result) => {
 				if (result == 'perk' || result == 'flaw') {
-					that._addNewItem(result, actionParts);
+					that.#addNewItem(result, actionParts);
 				}
 			});
 		}
 		else {
-			this._addNewItem(addItemType, actionParts);
+			this.#addNewItem(addItemType, actionParts);
 		}
 	}
 
@@ -297,8 +309,9 @@ export class Tribe8CharacterSheet extends Tribe8Sheet(ActorSheetV2) {
 	 *
 	 * @param {string}        itemType            The item type derived from inspecting the 'action' data
 	 * @param {Array<string>} [actionParts=[]]    List of strings previously obtained by splitting apart the 'action' data on a form element
+	 * @access private
 	 */
-	_addNewItem(itemType, actionParts = []) {
+	#addNewItem(itemType, actionParts = []) {
 		const newItemName = `New ${itemType[0].toUpperCase()}${itemType.slice(1)}`;
 		const newItemPayload = {type: itemType, name: newItemName};
 		if (itemType == 'aspect' && actionParts.length)
@@ -315,11 +328,12 @@ export class Tribe8CharacterSheet extends Tribe8Sheet(ActorSheetV2) {
 	 *
 	 * @param {Event}           event     The event triggered by interaction with the form element
 	 * @param {HTMLFormElement} target    The element that triggered the event
+	 * @access public
 	 */
 	static editItem(event, target) {
 		event.preventDefault();
 		event.stopPropagation();
-		const item = this._getItemFromTarget(target);
+		const item = this.#getItemFromTarget(target);
 		if (!item) return;
 		item.sheet.render(true);
 	}
@@ -329,8 +343,9 @@ export class Tribe8CharacterSheet extends Tribe8Sheet(ActorSheetV2) {
 	 *
 	 * @param  {HTMLFormElement} target    The form element interacted with
 	 * @return {Tribe8Item|bool}           Either the matching Item, or false if it couldn't be found
+	 * @access private
 	 */
-	_getItemFromTarget(target) {
+	#getItemFromTarget(target) {
 		// Check the provided item, its parent, and any .identity div child
 		const id =
 			target.dataset?.itemId ??
@@ -353,6 +368,7 @@ export class Tribe8CharacterSheet extends Tribe8Sheet(ActorSheetV2) {
 	 *
 	 * @param {Event}           event     The event triggered by interaction with the form element
 	 * @param {HTMLFormElement} target    The element that triggered the event
+	 * @access public
 	 */
 	static useEminence(event, target) {
 		event.stopPropagation();

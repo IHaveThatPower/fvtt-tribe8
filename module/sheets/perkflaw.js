@@ -3,12 +3,8 @@ const { DialogV2 } = foundry.applications.api;
 
 class Tribe8PerkFlawSheet extends Tribe8ItemSheet {
 	static DEFAULT_OPTIONS = {
-		window: {
-			contentClasses: ["tribe8", "pf", "sheet", "item"]
-		},
-		position: {
-			width: 300
-		},
+		window: { contentClasses: ["tribe8", "pf", "sheet", "item"] },
+		position: { width: 300 },
 		actions: {
 			removeRank: Tribe8PerkFlawSheet.removeRank
 		}
@@ -16,9 +12,7 @@ class Tribe8PerkFlawSheet extends Tribe8ItemSheet {
 	}
 
 	static PARTS = {
-		form: {
-			template: 'systems/tribe8/templates/perkflaw-sheet.html'
-		}
+		form: { template: 'systems/tribe8/templates/perkflaw-sheet.html' }
 	}
 
 	/**
@@ -26,6 +20,7 @@ class Tribe8PerkFlawSheet extends Tribe8ItemSheet {
 	 *
 	 * @param  {object} options    The set of options provided for rendering the sheet
 	 * @return {object}            The computed context object for Handlebars to use in populating the sheet
+	 * @access protected
 	 */
 	async _prepareContext(options) {
 		const context = await super._prepareContext(options);
@@ -45,7 +40,12 @@ class Tribe8PerkFlawSheet extends Tribe8ItemSheet {
 	/**
 	 * Handle the submit data
 	 *
-	 * @inheritdoc
+	 * @param  {Event}            event              The triggering event
+	 * @param  {HTMLFormElement}  form               The top-level form element
+	 * @param  {FormDataExtended} formData           The actual data payload
+	 * @param  {object}           [updateData={}]    Any supplemental data
+	 * @return {object}                              Prepared submission data as an object
+	 * @access protected
 	 */
 	_prepareSubmitData(event, form, formData, updateData) {
 		// Identify array-based form elements
@@ -79,6 +79,7 @@ class Tribe8PerkFlawSheet extends Tribe8ItemSheet {
 	 *
 	 * @param {Event}           event     The event triggered by interaction with the form element
 	 * @param {HTMLFormElement} target    The element that triggered the event
+	 * @access public
 	 */
 	static removeRank(event, target) {
 		event.stopPropagation();
@@ -109,6 +110,7 @@ export class Tribe8PerkSheet extends Tribe8PerkFlawSheet {
 	 * Modified title, with Perk prefix
 	 *
 	 * @return {string} The document name, prefixed with "Perk"
+	 * @access public
 	 */
 	get title() {
 		return `Perk: ${this.document.name}`;
@@ -121,6 +123,7 @@ export class Tribe8FlawSheet extends Tribe8PerkFlawSheet {
 	 * Modified title, with Flaw prefix
 	 *
 	 * @return {string} The document name, prefixed with "Flaw"
+	 * @access public
 	 */
 	get title() {
 		return `Flaw: ${this.document.name}`;

@@ -1,7 +1,7 @@
 const { HandlebarsApplicationMixin } = foundry.applications.api;
 
 /**
- * This class provides a common set of base behaviors to any application
+ * This class mixin provides a common set of base behaviors to any application
  * that uses the HandlebarsApplicationMixin (namely, ActorSheetV2 and
  * ItemSheetV2);
  *
@@ -21,6 +21,7 @@ export function Tribe8Sheet(BaseApplication) {
 		/**
 		 * Directly inherit from parent
 		 *
+		 * @class
 		 * @param {...*} args    Typical arguments supplied to the ApplicationV2 constructor
 		 */
 		constructor(...args) {
@@ -30,7 +31,9 @@ export function Tribe8Sheet(BaseApplication) {
 		/**
 		 * Handle any special _onRender events.
 		 *
-		 * @inheritdoc
+		 * @param {object} context    The rendering context
+		 * @param {object} options    Supplemental rendering options
+		 * @access protected
 		 */
 		async _onRender(context, options) {
 			// When rendering, always re-render the title
@@ -49,23 +52,28 @@ export function Tribe8Sheet(BaseApplication) {
 
 			/**
 			 * If the user has stored position preferences for this
-			 * type of sheet, override the defaults with them.
+			 * type of sheet, override the defaults with them. However,
+			 * we only want to do this when they first open the sheet,
+			 * not every time it re-renders!
 			 */
-			const {width, height, top, left} = game.user.getFlag("tribe8", `sheetDimensions.${this.windowKey}`) ?? {};
-			if (!options.position) options.position = {};
-			if (width) options.position.width = Math.min(Math.max(width, this.constructor.MIN_WIDTH), window.innerWidth);
-			if (height) options.position.height = Math.min(Math.max(height, this.constructor.MIN_HEIGHT), window.innerHeight);
-			if (left) options.position.left = Math.min(Math.max(left, this.constructor.MIN_LEFT), window.innerWidth - this.constructor.MIN_WIDTH);
-			if (top) options.position.top = Math.min(Math.max(top, this.constructor.MIN_TOP), window.innerHeight - this.constructor.MIN_HEIGHT);
+			if (options.isFirstRender) {
+				const {width, height, top, left} = game.user.getFlag("tribe8", `sheetDimensions.${this.windowKey}`) ?? {};
+				if (!options.position) options.position = {};
+				if (width) options.position.width = Math.min(Math.max(width, this.constructor.MIN_WIDTH), window.innerWidth);
+				if (height) options.position.height = Math.min(Math.max(height, this.constructor.MIN_HEIGHT), window.innerHeight);
+				if (left) options.position.left = Math.min(Math.max(left, this.constructor.MIN_LEFT), window.innerWidth - this.constructor.MIN_WIDTH);
+				if (top) options.position.top = Math.min(Math.max(top, this.constructor.MIN_TOP), window.innerHeight - this.constructor.MIN_HEIGHT);
+			}
 
-			return await super._onRender(context, options);
+			await super._onRender(context, options);
 		}
 
 		/**
 		 * Record the sheet's window position for the user just before
 		 * it closes.
 		 *
-		 * @inheritdoc
+		 * @param {object} options    Options pertinent to what happens when this sheet closes
+		 * @access protected
 		 */
 		async _preClose(options) {
 			await super._preClose(options);
@@ -80,6 +88,7 @@ export function Tribe8Sheet(BaseApplication) {
 		 * Utility for generating a key for the current window
 		 *
 		 * @return {string} A consistent key used to identify the type of sheet this is
+		 * @access public
 		 */
 		get windowKey() {
 			return `${this.document.type}${this.document.limited ? ":limited" : ""}`;

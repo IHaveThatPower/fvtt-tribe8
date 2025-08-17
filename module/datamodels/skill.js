@@ -2,6 +2,12 @@ const fields = foundry.data.fields;
 import { Tribe8ItemModel } from './item.js';
 
 export class Tribe8SkillModel extends Tribe8ItemModel {
+	/**
+	 * Defines the schema for a Skill.
+	 *
+	 * @return {object} The schema definition for a Skill
+	 * @access public
+	 */
 	static defineSchema() {
 		return {
 			...super.defineSchema(),
@@ -37,6 +43,7 @@ export class Tribe8SkillModel extends Tribe8ItemModel {
 	 *
 	 * @param  {object} data    The source data
 	 * @return {object}         The transformed data
+	 * @access public
 	 */
 	static migrateData(data) {
 		// Fix points object
@@ -54,6 +61,7 @@ export class Tribe8SkillModel extends Tribe8ItemModel {
 	 * Prepare derived data for a skill
 	 *
 	 * @param {...Parameters} args    Standard invocation arguments, which this method doesn't use
+	 * @access public
 	 */
 	prepareDerivedData(...args) {
 		super.prepareDerivedData(...args);
@@ -98,6 +106,7 @@ export class Tribe8SkillModel extends Tribe8ItemModel {
 	 * Get the total e-die spent on this skill
 	 *
 	 * @return {int} The total eDie spent on the skill
+	 * @access public
 	 */
 	get eDieSpent() {
 		return this.points.edie.fromBonus + this.points.edie.fromXP;
@@ -107,6 +116,7 @@ export class Tribe8SkillModel extends Tribe8ItemModel {
 	 * Add a Specialization to this Skill
 	 *
 	 * @param {object} data    Essential data for creating a new Specialization
+	 * @access public
 	 */
 	async addSpecialization(data) {
 		const skill = this.parent;
@@ -141,9 +151,10 @@ export class Tribe8SkillModel extends Tribe8ItemModel {
 	 *
 	 * @param  {int}  [amount=1]    Amount by which we want to alter the current eDie total.
 	 * @return {bool}               Whether we succeeded or not
+	 * @access public
 	 */
 	async alterEdie(amount = 1) {
-		const data = this.computeAlterEdie(amount);
+		const data = this.#computeAlterEdie(amount);
 		if (!data) return false;
 
 		// Don't do anything if we'd go negative
@@ -181,9 +192,10 @@ export class Tribe8SkillModel extends Tribe8ItemModel {
 	 *
 	 * @param  {int}    [amount=1]    Amount by which we want to alter the current eDie total.
 	 * @return {object}               The computed set of updated data values to be applied to this Skill model
+	 * @access private
 	 * @see    alterEdie
 	 */
-	computeAlterEdie(amount = 1) {
+	#computeAlterEdie(amount = 1) {
 		// Bail out if value is just 0
 		amount = Number(amount);
 		if (!amount) return false;
@@ -220,8 +232,10 @@ export class Tribe8SkillModel extends Tribe8ItemModel {
 	/**
 	 * Handle manual interaction with an EDie field for this skill.
 	 *
+	 * TODO: Should this be somewhere else? Weird to put a UI handler on a DataModel...
+	 *
 	 * @param {KeyboardEent} e    The triggering keyboard event
-	 * @todo Should this be somewhere else? Weird to put a UI handler on a DataModel...
+	 * @access public
 	 */
 	eDieKeyInputEventHandler(e) {
 		// Get the current and previous value

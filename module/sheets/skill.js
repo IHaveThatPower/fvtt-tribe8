@@ -3,12 +3,8 @@ const { DialogV2 } = foundry.applications.api;
 
 export class Tribe8SkillSheet extends Tribe8ItemSheet {
 	static DEFAULT_OPTIONS = {
-		window: {
-			contentClasses: ["tribe8", "skill", "sheet", "item"]
-		},
-		position: {
-			width: 300
-		},
+		window: { contentClasses: ["tribe8", "skill", "sheet", "item"] },
+		position: { width: 300 },
 		actions: {
 			incrementEdie: Tribe8SkillSheet.incrementEdie,
 			decrementEdie: Tribe8SkillSheet.decrementEdie,
@@ -18,9 +14,7 @@ export class Tribe8SkillSheet extends Tribe8ItemSheet {
 	}
 
 	static PARTS = {
-		form: {
-			template: 'systems/tribe8/templates/skill-sheet.html'
-		}
+		form: { template: 'systems/tribe8/templates/skill-sheet.html' }
 	}
 
 	static DEFAULT_ICON = "systems/tribe8/icons/skill.svg";
@@ -29,6 +23,7 @@ export class Tribe8SkillSheet extends Tribe8ItemSheet {
 	 * Modified title, with Skill prefix
 	 *
 	 * @return {string} The document name, prefixed with "Skill"
+	 * @access public
 	 */
 	get title() {
 		return `Skill: ${this.document.name}`;
@@ -39,6 +34,7 @@ export class Tribe8SkillSheet extends Tribe8ItemSheet {
 	 *
 	 * @param  {object} options    The set of options provided for rendering the sheet
 	 * @return {object}            The computed context object for Handlebars to use in populating the sheet
+	 * @access protected
 	 */
 	async _prepareContext(options) {
 		const item = this.document;
@@ -52,11 +48,19 @@ export class Tribe8SkillSheet extends Tribe8ItemSheet {
 	}
 
 	/**
-	 * @description Handle the submit data. In particular:
+	 * Handle the submit data. In particular:
+	 * ```
 	 * - Extract Specialization-related form fields and stash them for
-	 *   separate processing
+	 * separate processing
 	 * - Compute any eDie delta and handle that separately
-	 * @inheritdoc
+	 * ```
+	 *
+	 * @param  {Event}            event              The triggering event
+	 * @param  {HTMLFormElement}  form               The top-level form element
+	 * @param  {FormDataExtended} formData           The actual data payload
+	 * @param  {object}           [updateData={}]    Any supplemental data
+	 * @return {object}                              Prepared submission data as an object
+	 * @access protected
 	 */
 	_prepareSubmitData(event, form, formData, updateData) {
 		// Identify array-based form elements
@@ -68,7 +72,7 @@ export class Tribe8SkillSheet extends Tribe8ItemSheet {
 		// Extract identified array-based elements
 		for (let key of checkKeys) {
 			let propertyPath = key.split(/[[\].]/).filter(p => p);
-			this._extractSpecializationsFromForm(key, propertyPath, formData, this.specializations);
+			this.#extractSpecializationsFromForm(key, propertyPath, formData, this.specializations);
 		}
 
 		// Restructure the submitted edie value to be differential, drop it off the formData
@@ -95,11 +99,16 @@ export class Tribe8SkillSheet extends Tribe8ItemSheet {
 	 * Process the submitted data, or rather don't if the instigator
 	 * of the submission was a form input the name of which starts with
 	 * `newSpecialization`. Prior to actually submitting:
-	 *
+	 * ```
 	 * - Process the eDie
 	 * - Update Specializations
+	 * ```
 	 *
-	 * @inheritdoc
+	 * @param {Event}           event           The event that triggered submission
+	 * @param {HTMLFormElement} form            The form element doing the submitting
+	 * @param {object}          submitData      The processed submit data
+	 * @param {object}          [options={}]    Any extra options that need to be passed along
+	 * @access protected
 	 */
 	async _processSubmitData(event, form, submitData, options={}) {
 		// Stop the process if the event was emitted by one of the newSpecialization inputs
@@ -114,7 +123,7 @@ export class Tribe8SkillSheet extends Tribe8ItemSheet {
 		}
 
 		// Now, update any specializations
-		await this._updateSpecializations();
+		await this.#updateSpecializations();
 
 		// Finally, process the submission
 		await super._processSubmitData(event, form, submitData, options);
@@ -127,8 +136,9 @@ export class Tribe8SkillSheet extends Tribe8ItemSheet {
 	 * @param {Array<string>}    propertyPath       Identifying information from the form element that triggerd this
 	 * @param {FormDataExtended} [formData={}]      The submitted form data
 	 * @param {object}           specializations    Any existing specializations we've already found, and which we'll write to
+	 * @access private
 	 */
-	_extractSpecializationsFromForm(key, propertyPath, formData = {}, specializations = {}) {
+	#extractSpecializationsFromForm(key, propertyPath, formData = {}, specializations = {}) {
 		if (key.match(/^specializations\[/)) {
 			if (propertyPath.length != 3)
 				console.warn("Unexpected propertyPath pattern", propertyPath);
@@ -143,8 +153,10 @@ export class Tribe8SkillSheet extends Tribe8ItemSheet {
 
 	/**
 	 * Update Specialization Items attached to this Skill
+	 *
+	 * @access private
 	 */
-	async _updateSpecializations() {
+	async #updateSpecializations() {
 		if (this.specializations) {
 			const sheet = this;
 			const actor = this.document.parent;
@@ -169,6 +181,7 @@ export class Tribe8SkillSheet extends Tribe8ItemSheet {
 	 * Increment edie "other" amount
 	 *
 	 * @param {Event} event    The event triggered by interaction with the form element
+	 * @access public
 	 */
 	static incrementEdie(event) {
 		// Don't _also_ submit the form
@@ -181,6 +194,7 @@ export class Tribe8SkillSheet extends Tribe8ItemSheet {
 	 * Decrement edie "other" amount
 	 *
 	 * @param {Event} event    The event triggered by interaction with the form element
+	 * @access public
 	 */
 	static decrementEdie(event) {
 		// Don't _also_ submit the form
@@ -193,9 +207,12 @@ export class Tribe8SkillSheet extends Tribe8ItemSheet {
 	 * Add a Specialization to an Actor, and then tie it to a Skill.
 	 * Once done, re-render the form.
 	 *
+	 * TODO: Move a lot of this code to the Skill Model, which already
+	 * does a version of it for the inline editing.
+	 *
 	 * @param {Event}           event     The event triggered by interaction with the form element
 	 * @param {HTMLFormElement} target    The element that triggered the event
-	 * @todo Move a lot of this code to the Skill Model, which already does a version of it for the inline editing.
+	 * @access public
 	 */
 	static addSpecialization(event, target) {
 		event.stopPropagation();
@@ -231,9 +248,12 @@ export class Tribe8SkillSheet extends Tribe8ItemSheet {
 	/**
 	 * Remove an existing specialization
 	 *
+	 * TODO: Move a lot of this code to the Skill Model, which already
+	 * does a version of it for the inline editing.
+	 *
 	 * @param {Event}           event     The event triggered by interaction with the form element
 	 * @param {HTMLFormElement} target    The element that triggered the event
-	 * @todo Move a lot of this code to the Skill Model, which already does a version of it for the inline editing.
+	 * @access public
 	 */
 	static removeSpecialization(event, target) {
 		event.stopPropagation();

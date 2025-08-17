@@ -2,6 +2,12 @@ const fields = foundry.data.fields;
 import { Tribe8ItemModel } from './item.js';
 
 export class Tribe8TotemModel extends Tribe8ItemModel {
+	/**
+	 * Defines the schema for a Ritual Totem.
+	 *
+	 * @return {object} The schema definition for a Totem
+	 * @access public
+	 */
 	static defineSchema() {
 		return {
 			...super.defineSchema(),

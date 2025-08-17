@@ -13,9 +13,7 @@ export class Tribe8ItemSheet extends Tribe8Sheet(ItemSheetV2) {
 			width: "auto",
 			height: "auto"
 		},
-		window: {
-			resizable: true,
-		},
+		window: { resizable: true },
 		actions: {
 			deleteItem: Tribe8ItemSheet.deleteItem
 		}
@@ -26,6 +24,7 @@ export class Tribe8ItemSheet extends Tribe8Sheet(ItemSheetV2) {
 	 * override this.
 	 *
 	 * @return {string} The name of the item
+	 * @access public
 	 */
 	get title() {
 		return this.document.name;
@@ -36,6 +35,7 @@ export class Tribe8ItemSheet extends Tribe8Sheet(ItemSheetV2) {
 	 *
 	 * @param  {object} options    The set of options provided for rendering the sheet
 	 * @return {object}            The computed context object for Handlebars to use in populating the sheet
+	 * @access protected
 	 */
 	async _prepareContext(options) {
 		const context = await super._prepareContext(options);
@@ -52,6 +52,7 @@ export class Tribe8ItemSheet extends Tribe8Sheet(ItemSheetV2) {
 	 * Delete existing item
 	 *
 	 * @param {Event} event    The event triggered by interaction with the form element
+	 * @access public
 	 */
 	static deleteItem(event) {
 		event.preventDefault();

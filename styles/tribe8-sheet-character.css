@@ -116,7 +116,7 @@ div.portrait div.content {
 	overflow: hidden;
 	font-size: 5rem;
 	line-height: 85%;
-	font-family: 'Chainprinter';
+	font-family: var(--font-header);
 	text-transform: uppercase;
 }
 

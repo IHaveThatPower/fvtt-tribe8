@@ -2,6 +2,12 @@ const fields = foundry.data.fields;
 import { Tribe8ItemModel } from './item.js';
 
 export class Tribe8ManeuverModel extends Tribe8ItemModel {
+	/**
+	 * Defines the schema for a Combat Maneuver.
+	 *
+	 * @return {object} The schema definition for a Combat Maneuver
+	 * @access public
+	 */
 	static defineSchema() {
 		return {
 			...super.defineSchema(),

@@ -2,18 +2,12 @@ import { Tribe8ItemSheet } from './item.js';
 
 export class Tribe8ManeuverSheet extends Tribe8ItemSheet {
 	static DEFAULT_OPTIONS = {
-		window: {
-			contentClasses: ["tribe8", "maneuver", "sheet", "item"]
-		},
-		position: {
-			width: 360
-		}
+		window: { contentClasses: ["tribe8", "maneuver", "sheet", "item"] },
+		position: { width: 360 }
 	}
 
 	static PARTS = {
-		form: {
-			template: 'systems/tribe8/templates/maneuver-sheet.html'
-		}
+		form: { template: 'systems/tribe8/templates/maneuver-sheet.html' }
 	}
 
 	static COMBAT_MODIFIER_FIELDS = ['accuracy', 'initiative', 'defense', 'parry', 'damage'];
@@ -23,6 +17,7 @@ export class Tribe8ManeuverSheet extends Tribe8ItemSheet {
 	 * which it applies.
 	 *
 	 * @return {string} The assembled title
+	 * @access public
 	 */
 	get title() {
 		return `Maneuver: ${this.document.name}` + (this.document.system.forSkill ? ` (${CONFIG.Tribe8.COMBAT_SKILLS[this.document.system.forSkill]})` : '');
@@ -34,6 +29,7 @@ export class Tribe8ManeuverSheet extends Tribe8ItemSheet {
 	 *
 	 * @param  {object} options    The set of options provided for rendering the sheet
 	 * @return {object}            The computed context object for Handlebars to use in populating the sheet
+	 * @access protected
 	 */
 	async _prepareContext(options) {
 		const context = await super._prepareContext(options);
@@ -82,7 +78,12 @@ export class Tribe8ManeuverSheet extends Tribe8ItemSheet {
 	/**
 	 * Handle the submit data
 	 *
-	 * @inheritdoc
+	 * @param  {Event}            event              The triggering event
+	 * @param  {HTMLFormElement}  form               The top-level form element
+	 * @param  {FormDataExtended} formData           The actual data payload
+	 * @param  {object}           [updateData={}]    Any supplemental data
+	 * @return {object}                              Prepared submission data as an object
+	 * @access protected
 	 */
 	_prepareSubmitData(event, form, formData, updateData) {
 		// Identify array-based form elements

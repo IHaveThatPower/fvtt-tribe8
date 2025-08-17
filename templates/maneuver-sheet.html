@@ -9,7 +9,8 @@
 			</select>
 		</div>
 	</div>
-	<div class="allowed"><!-- TODO: GM Only -->
+	{{!-- TODO: Eventually, the idea is for these to only be visible to the GM, who can pre-configure them before players add them to their sheets. --}}
+	<div class="allowed">
 		<input type="checkbox" name="system.allowedTypes[C]" value=true{{#if document.system.allowedTypes.C}} checked{{/if}} title="Can be used with Cavalry Skill" />
 		<label for="system.allowedTypes[C]" title="Can be used with Cavalry Skill">C</label>
 		<input type="checkbox" name="system.allowedTypes[D]" value=true{{#if document.system.allowedTypes.D}} checked{{/if}} title="Can be used with Defense Skill" />

@@ -1,6 +1,12 @@
 const fields = foundry.data.fields;
 
 export class Tribe8SpecializationModel extends foundry.abstract.TypeDataModel {
+	/**
+	 * Defines the schema for a Skill Specialization.
+	 *
+	 * @return {object} The schema definition for a Specialization
+	 * @access public
+	 */
 	static defineSchema() {
 		return {
 			granted: new fields.BooleanField({hint: "Whether or not this Specialization was granted for free by the Weaver", initial: false, required: true, nullable: false}),

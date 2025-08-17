@@ -23,8 +23,7 @@
 <div class="secondary-attributes">
 	<h3>Secondary Attributes</h3>
 	{{#each document.system.attributes.secondary.physical as |attribute key|}}
-	{{#if (or (eq key "shock") (eq key "thresholds"))}}
-	{{else}}
+	{{#if (not (or (eq key "shock") (eq key "thresholds")))}}
 	<div class="attribute-block">
 		<div class="name">{{localize this.label}}</div>
 		<div class="value">{{this.value}}</div>

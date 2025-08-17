@@ -3,58 +3,10 @@ import { Tribe8Actor } from './actor.js';
 
 export class Tribe8Item extends Item {
 	/**
-	 * Create Specialization Items and add them to the Item's parent
-	 * Actor, if applicable, if they were originally created in the
-	 * basic object format.
-	 *
-	 * This should not be called until after the game setup completes
-	 */
-	async createSpecializationsFromLegacy() {
-		const source = this.getFlag('tribe8', 'legacy-specializations');
-		// Probably nothing to do
-		if (!source || !Object.keys(source).length)
-			return;
-
-		try {
-			if (this.parent && this.parent instanceof Tribe8Actor) {
-				// What specializations do we already have for this current item?
-				const currSpecs = Array.from(this.parent.getEmbeddedCollection("Item")).filter((i) => i.type == 'specialization');
-				const specsToCreate = [];
-				for (let key of Object.keys(source)) {
-					const oldSpec = source[key];
-					const oldSpecNameSlug = CONFIG.Tribe8.slugify(oldSpec.name);
-					// Do we have any specializations that match?
-					if (currSpecs.map((s) => CONFIG.Tribe8.slugify(s.name)).indexOf(oldSpecNameSlug) > -1) {
-						// console.log(`A '${oldSpec.name}' Specialization already exists for the ${this.name} Skill`);
-						continue;
-					}
-					// Are we already creating this?
-					if (specsToCreate.map((s) => CONFIG.Tribe8.slugify(s.name)).indexOf(oldSpecNameSlug) > -1) {
-						// console.log(`A '${oldSpec.name}' Specialization is already going to be created for the ${this.name} Skill`);
-						continue;
-					}
-					specsToCreate.push({type: 'specialization', name: oldSpec.name, system: {points: oldSpec.points.toUpperCase(), skill: this.id}});
-				}
-				if (specsToCreate.length) {
-					const newSpecs = await this.parent.createEmbeddedDocuments("Item", specsToCreate);
-					await this.update({'system.specializations': newSpecs.map((n) => n.id)});
-				}
-			}
-		}
-		catch (error) {
-			console.error(error);
-			return;
-		}
-
-		// Clear the flag
-		await this.setFlag('tribe8', 'legacy-specializations', 1); // Override the object first
-		await this.unsetFlag('tribe8', 'legacy-specializations'); // Now clear it out
-	}
-
-	/**
 	 * Get the actor owner of this item, if there is one.
 	 *
 	 * @return {Actor|bool} Either the parent Tribe8Actor or false if none is found
+	 * @access public
 	 */
 	getActorOwner() {
 		if (this.isEmbedded) {
@@ -64,95 +16,11 @@ export class Tribe8Item extends Item {
 	}
 
 	/**
-	 * Handle any document-level migration hacks we need to do
-	 *
-	 * @param  {object} data    The supplied data migration object
-	 * @return {object}         The transformed migration data
-	 */
-	static migrateData(data) {
-		if (data.type == 'skill') this.migrateSpecializations(data);
-		this.migrateNames(data);
-
-		// Invoke the system migration, too
-		if (data.system && data.type) {
-			const ourModel = (CONFIG.Item?.dataModels || {})[data.type];
-			if (ourModel) {
-				data.system = ourModel.migrateData(data.system);
-			}
-		}
-		return super.migrateData(data);
-	}
-
-	/**
-	 * Store legacy object Specializations from Skills to the Skill's
-	 * flags, for later regeneration as proper Embedded Items
-	 *
-	 * @param {object} data    The supplied data migration object
-	 */
-	static migrateSpecializations(data) {
-		/**
-		 * If the specializations property has an Object constructor
-		 * (as opposed to an Array constructor, as is the case with
-		 * ArrayField), good bet it's the old-style.
-		 */
-		if (data?.system?.specializations && data.system.specializations.constructor?.name === 'Object' && Object.keys(data.system.specializations).length) {
-			if (!data.flags) data.flags = {};
-			if (!data.flags['tribe8']) data.flags['tribe8'] = {};
-			try {
-				// Stash the data on a flag.
-				// deepClone can't handle advanced data fields, hence the try/catch, just incase
-				data.flags['tribe8']['legacy-specializations'] = foundry.utils.deepClone(data.system.specializations, {strict: true});
-
-				// Having safely stashed it, nuke it from the migration data
-				delete data.system.specializations;
-
-				// If it didn't work for some reason, raise a ruckus
-				if (!Object.keys(data.flags['tribe8']['legacy-specializations']).length)
-					throw new Error("Failed to migrate specialization data");
-			}
-			catch {
-				// No need to report anything
-			}
-		}
-	}
-
-	/**
-	 * Align certain Items' names, system names, and system sub-names
-	 * for consistency.
-	 *
-	 * @param {object} data    The supplied data migration object
-	 */
-	static migrateNames(data) {
-		// If we don't have ANY name data, assume this is a different sort of update and leave it alone
-		if (!data.name && !data.system?.name && !data.system?.specific)
-			return;
-		const {
-			name: canonName,
-			system: {
-				name: canonSystemName,
-				specific: canonSpecificName
-			}
-		} = this.canonizeName(data.name, data.system?.name, data.system?.specific, data.system?.specify);
-		data.name = canonName;
-
-		// Only correct data.system if the data package included it
-		if (data.system) {
-			if (canonSystemName) {
-				if (!data.system.name || data.system.name != canonSystemName)
-					data.system.name = canonSystemName;
-			}
-			if (canonSpecificName) {
-				if (!data.system.specific || data.system.specific != canonSpecificName)
-					data.system.specific = canonSpecificName;
-			}
-		}
-	}
-
-	/**
 	 * Return the default artwork for the given item type
 	 *
 	 * @param  {object} itemData    Data object that includes item type
 	 * @return {object}             An object with a single key pointing to the default artwork path
+	 * @access public
 	 */
 	static getDefaultArtwork(itemData) {
 		const {type} = itemData;
@@ -173,21 +41,22 @@ export class Tribe8Item extends Item {
 	 * @param  {Tribe8Item} a    The first comparison item
 	 * @param  {Tribe8Item} b    The second comparison item
 	 * @return {int}             The result of the comparison
+	 * @access public
 	 */
 	static cmp(a, b) {
 		if (a.type === 'skill')
-			return Tribe8Item.cmpSkill(a, b);
+			return Tribe8Item.#cmpSkill(a, b);
 		if (a.type === 'perk' || a.type === 'flaw')
-			return Tribe8Item.cmpPerkFlaw(a, b);
+			return Tribe8Item.#cmpPerkFlaw(a, b);
 		if (a.type === 'maneuver')
-			return Tribe8Item.cmpManeuver(a, b);
+			return Tribe8Item.#cmpManeuver(a, b);
 		if (a.type === 'aspect')
-			return Tribe8Item.cmpAspect(a, b);
+			return Tribe8Item.#cmpAspect(a, b);
 		if (a.type === 'eminence')
-			return Tribe8Item.cmpEminence(a, b);
+			return Tribe8Item.#cmpEminence(a, b);
 		if (a.type === 'totem')
-			return Tribe8Item.cmpTotem(a, b);
-		return Tribe8Item.cmpFallback(a, b);
+			return Tribe8Item.#cmpTotem(a, b);
+		return Tribe8Item.#cmpFallback(a, b);
 	}
 
 	/**
@@ -197,8 +66,9 @@ export class Tribe8Item extends Item {
 	 * @param  {Tribe8Item} b    The second comparison item
 	 * @return {int}             The result of the comparison
 	 * @throws {Error}           When the Item types mismatch
+	 * @access private
 	 */
-	static cmpFallback(a, b) {
+	static #cmpFallback(a, b) {
 		if (a.type != b.type)
 			throw new Error("Cannot compare items of different types");
 		if (a.name < b.name) return -1;
@@ -215,8 +85,9 @@ export class Tribe8Item extends Item {
 	 * @param  {Tribe8Item} b    The second comparison item
 	 * @return {int}             The result of the comparison
 	 * @throws {Error}           When the Item types mismatch
+	 * @access private
 	 */
-	static cmpSkill(a, b) {
+	static #cmpSkill(a, b) {
 		if (a.type != 'skill' || b.type != 'skill')
 			throw new Error("Cannot use Skill comparison function to sort non-Skill items");
 
@@ -226,7 +97,7 @@ export class Tribe8Item extends Item {
 		if (a.system.cpx > b.system.cpx) return -1;
 		if (a.system.cpx < b.system.cpx) return 1;
 
-		return Tribe8Item.cmpFallback(a, b);
+		return Tribe8Item.#cmpFallback(a, b);
 	}
 
 	/**
@@ -236,8 +107,9 @@ export class Tribe8Item extends Item {
 	 * @param  {Tribe8Item} b    The second comparison item
 	 * @return {int}             The result of the comparison
 	 * @throws {Error}           When the Item types mismatch
+	 * @access private
 	 */
-	static cmpPerkFlaw(a, b) {
+	static #cmpPerkFlaw(a, b) {
 		if ((a.type != 'perk' && a.type != 'flaw') || (b.type != 'perk' && b.type != 'flaw'))
 			throw new Error("Cannot use Perk/Flaw comparison function to sort non-Perk/Flaw items");
 
@@ -254,7 +126,7 @@ export class Tribe8Item extends Item {
 		if (a.system.points.length > b.system.points.length) return -1;
 		if (a.system.points.length < b.system.points.length) return 1;
 
-		return Tribe8Item.cmpFallback(a, b);
+		return Tribe8Item.#cmpFallback(a, b);
 	}
 
 	/**
@@ -264,15 +136,16 @@ export class Tribe8Item extends Item {
 	 * @param  {Tribe8Item} b    The second comparison item
 	 * @return {int}             The result of the comparison
 	 * @throws {Error}           When the Item types mismatch
+	 * @access private
 	 */
-	static cmpManeuver(a, b) {
+	static #cmpManeuver(a, b) {
 		if (a.type != 'maneuver' || b.type != 'maneuver')
 			throw new Error("Cannot use Maneuver comparison function to sort non-Maneuver items");
 
 		// If the skills don't match, we need to first consult their sorting algorithm
 		if (a.system.forSkill != b.system.forSkill)
 		{
-			const combatSkills = a.parent?.getCombatSkills() || {};
+			const combatSkills = a.parent?.getSkills({combat: true}) || {};
 
 			// Identify the relevant skills to our a and b
 			const aSkill = (combatSkills[a.system.forSkill] || [])[0];
@@ -301,7 +174,7 @@ export class Tribe8Item extends Item {
 		}
 		if (a.system.complexity > b.system.complexity) return -1;
 		if (a.system.complexity < b.system.complexity) return 1;
-		return Tribe8Item.cmpFallback(a, b);
+		return Tribe8Item.#cmpFallback(a, b);
 	}
 
 	/**
@@ -311,13 +184,14 @@ export class Tribe8Item extends Item {
 	 * @param  {Tribe8Item} b    The second comparison item
 	 * @return {int}             The result of the comparison
 	 * @throws {Error}           When the Item types mismatch
+	 * @access private
 	 */
-	static cmpEminence(a, b) {
+	static #cmpEminence(a, b) {
 		if (a.type != 'eminence' || b.type != 'eminence')
 			throw new Error("Cannot use Eminence comparison function to sort non-Eminence items");
 		if (!a.system.used && b.system.used) return -1;
 		if (a.system.used && !b.system.used) return 1;
-		return Tribe8Item.cmpFallback(a, b);
+		return Tribe8Item.#cmpFallback(a, b);
 	}
 
 	/**
@@ -327,12 +201,13 @@ export class Tribe8Item extends Item {
 	 * @param  {Tribe8Item} b    The second comparison item
 	 * @return {int}             The result of the comparison
 	 * @throws {Error}           When the Item types mismatch
+	 * @access private
 	 */
-	static cmpAspect(a, b) {
+	static #cmpAspect(a, b) {
 		if (a.type != 'aspect' || b.type != 'aspect')
 			throw new Error("Cannot use Aspect comparison function to sort non-Aspect items");
 		// TBD if we want to change this up at all
-		return Tribe8Item.cmpFallback(a, b);
+		return Tribe8Item.#cmpFallback(a, b);
 	}
 
 	/**
@@ -342,8 +217,9 @@ export class Tribe8Item extends Item {
 	 * @param  {Tribe8Item} b    The second comparison item
 	 * @return {int}             The result of the comparison
 	 * @throws {Error}           When the Item types mismatch
+	 * @access private
 	 */
-	static cmpTotem(a, b) {
+	static #cmpTotem(a, b) {
 		if (a.type != 'totem' || b.type != 'totem')
 			throw new Error("Cannot use Totem comparison function to sort non-Totem items");
 		if (a.system.granted && !b.system.granted) return -1;
@@ -358,7 +234,7 @@ export class Tribe8Item extends Item {
 			if (aFromCpx && !bFromCpx) return -1;
 			if (!aFromCpx && bFromCpx) return 1;
 		}
-		return Tribe8Item.cmpFallback(a, b);
+		return Tribe8Item.#cmpFallback(a, b);
 	}
 
 	/**
@@ -371,8 +247,9 @@ export class Tribe8Item extends Item {
 	 * @param  {bool}   [specify=false]    Whether or not the toggle was enabled to include a sub-identifier
 	 * @return {object}                    An object containing the derived identification data, in {name: {string}, system: {name: {string}, specific: {string}}} format
 	 * @throws {Error}                     If we go through the whole process and end up with an empty name
+	 * @access private
 	 */
-	static canonizeName(name = '', sysName = '', specific = '', specify = false) {
+	static #canonizeName(name = '', sysName = '', specific = '', specify = false) {
 		// Setup our storage object
 		const canonName = {name: '', system: { name: '', specific: ''}};
 
@@ -418,5 +295,144 @@ export class Tribe8Item extends Item {
 
 		// Return the assembled name data
 		return canonName;
+	}
+
+	/**
+	 * Handle any document-level migration hacks we need to do
+	 *
+	 * @param  {object} data    The supplied data migration object
+	 * @return {object}         The transformed migration data
+	 * @access public
+	 */
+	static migrateData(data) {
+		if (data.type == 'skill') this.#migrateSpecializations(data);
+		this.#migrateNames(data);
+
+		// Invoke the system migration, too
+		if (data.system && data.type) {
+			const ourModel = (CONFIG.Item?.dataModels || {})[data.type];
+			if (ourModel) {
+				data.system = ourModel.migrateData(data.system);
+			}
+		}
+		return super.migrateData(data);
+	}
+
+	/**
+	 * Store legacy object Specializations from Skills to the Skill's
+	 * flags, for later regeneration as proper Embedded Items
+	 *
+	 * @param {object} data    The supplied data migration object
+	 * @access private
+	 */
+	static #migrateSpecializations(data) {
+		/**
+		 * If the specializations property has an Object constructor
+		 * (as opposed to an Array constructor, as is the case with
+		 * ArrayField), good bet it's the old-style.
+		 */
+		if (data?.system?.specializations && data.system.specializations.constructor?.name === 'Object' && Object.keys(data.system.specializations).length) {
+			if (!data.flags) data.flags = {};
+			if (!data.flags['tribe8']) data.flags['tribe8'] = {};
+			try {
+				// Stash the data on a flag.
+				// deepClone can't handle advanced data fields, hence the try/catch, just incase
+				data.flags['tribe8']['legacy-specializations'] = foundry.utils.deepClone(data.system.specializations, {strict: true});
+
+				// Having safely stashed it, nuke it from the migration data
+				delete data.system.specializations;
+
+				// If it didn't work for some reason, raise a ruckus
+				if (!Object.keys(data.flags['tribe8']['legacy-specializations']).length)
+					throw new Error("Failed to migrate specialization data");
+			}
+			catch {
+				// No need to report anything
+			}
+		}
+	}
+
+	/**
+	 * Align certain Items' names, system names, and system sub-names
+	 * for consistency.
+	 *
+	 * @param {object} data    The supplied data migration object
+	 * @access private
+	 */
+	static #migrateNames(data) {
+		// If we don't have ANY name data, assume this is a different sort of update and leave it alone
+		if (!data.name && !data.system?.name && !data.system?.specific)
+			return;
+		const {
+			name: canonName,
+			system: {
+				name: canonSystemName,
+				specific: canonSpecificName
+			}
+		} = this.#canonizeName(data.name, data.system?.name, data.system?.specific, data.system?.specify);
+		data.name = canonName;
+
+		// Only correct data.system if the data package included it
+		if (data.system) {
+			if (canonSystemName) {
+				if (!data.system.name || data.system.name != canonSystemName)
+					data.system.name = canonSystemName;
+			}
+			if (canonSpecificName) {
+				if (!data.system.specific || data.system.specific != canonSpecificName)
+					data.system.specific = canonSpecificName;
+			}
+		}
+	}
+
+	/**
+	 * Create Specialization Items and add them to the Item's parent
+	 * Actor, if applicable, if they were originally created in the
+	 * basic object format.
+	 *
+	 * This should not be called until after the game setup completes
+	 *
+	 * @access public
+	 */
+	async createSpecializationsFromLegacy() {
+		const source = this.getFlag('tribe8', 'legacy-specializations');
+		// Probably nothing to do
+		if (!source || !Object.keys(source).length)
+			return;
+
+		try {
+			if (this.parent && this.parent instanceof Tribe8Actor) {
+				// What specializations do we already have for this current item?
+				const currSpecs = Array.from(this.parent.getEmbeddedCollection("Item")).filter((i) => i.type == 'specialization');
+				const specsToCreate = [];
+				for (let key of Object.keys(source)) {
+					const oldSpec = source[key];
+					const oldSpecNameSlug = CONFIG.Tribe8.slugify(oldSpec.name);
+					// Do we have any specializations that match?
+					if (currSpecs.map((s) => CONFIG.Tribe8.slugify(s.name)).indexOf(oldSpecNameSlug) > -1) {
+						// console.log(`A '${oldSpec.name}' Specialization already exists for the ${this.name} Skill`);
+						continue;
+					}
+					// Are we already creating this?
+					if (specsToCreate.map((s) => CONFIG.Tribe8.slugify(s.name)).indexOf(oldSpecNameSlug) > -1) {
+						// console.log(`A '${oldSpec.name}' Specialization is already going to be created for the ${this.name} Skill`);
+						continue;
+					}
+					specsToCreate.push({type: 'specialization', name: oldSpec.name, system: {points: oldSpec.points.toUpperCase(), skill: this.id}});
+				}
+				if (specsToCreate.length) {
+					const newSpecs = await this.parent.createEmbeddedDocuments("Item", specsToCreate);
+					await this.update({'system.specializations': newSpecs.map((n) => n.id)});
+				}
+			}
+		}
+		catch (error) {
+			console.error(error);
+			return;
+		}
+
+		// Clear the flag
+		await this.setFlag('tribe8', 'legacy-specializations', 1); // Override the object first
+		await this.unsetFlag('tribe8', 'legacy-specializations'); // Now clear it out
 	}
 }

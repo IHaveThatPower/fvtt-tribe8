@@ -2,6 +2,12 @@ const fields = foundry.data.fields;
 import { Tribe8ItemModel } from './item.js';
 
 export class Tribe8PerkFlawModel extends Tribe8ItemModel {
+	/**
+	 * Defines the schema for a Perk or Flaw.
+	 *
+	 * @return {object} The schema definition for a Perk or Flaw
+	 * @access public
+	 */
 	static defineSchema() {
 		return {
 			...super.defineSchema(),
@@ -44,6 +50,7 @@ export class Tribe8PerkFlawModel extends Tribe8ItemModel {
 	 *
 	 * @param  {object} data    The stored source data
 	 * @return {object}         The transformed data
+	 * @access public
 	 */
 	static migrateData(data) {
 		foundry.abstract.Document._addDataFieldMigration(data, "system.cost", "system.baseCost");
@@ -56,15 +63,16 @@ export class Tribe8PerkFlawModel extends Tribe8ItemModel {
 	}
 
 	/**
-	 * Prepare base data for a Perk/Flaw
+	 * Prepare base data for a Perk/Flaw. For Flaws, make sure any
+	 * positive costs are flipped negative.
+	 *
+	 * @access public
 	 */
 	prepareBaseData() {
 		super.prepareBaseData();
 		if (this.parent.type == 'flaw') {
-			if (this.baseCost > 0)
-				this.baseCost *= -1;
-			if (this.perRank > 0)
-				this.perRank *= -1;
+			if (this.baseCost > 0) this.baseCost *= -1;
+			if (this.perRank > 0) this.perRank *= -1;
 		}
 	}
 }

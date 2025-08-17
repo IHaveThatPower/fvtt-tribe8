@@ -1,6 +1,14 @@
 const fields = foundry.data.fields;
 
 export class Tribe8CharacterModel extends foundry.abstract.TypeDataModel {
+	/**
+	 * Defines the schema for a Character. Several fields, notably the
+	 * attributes, call out to other global-to-this-file functions, but
+	 * which are not exported from it.
+	 *
+	 * @return {object} The schema definition for a character
+	 * @access public
+	 */
 	static defineSchema() {
 		return {
 			tribe: new fields.StringField({hint: "Tribe into which the character was born or most directly identifies", blank: true, trim: true}),
@@ -61,6 +69,7 @@ export class Tribe8CharacterModel extends foundry.abstract.TypeDataModel {
 	 *
 	 * @param  {object} data    The source data
 	 * @return {object}         The transformed source data
+	 * @access public
 	 */
 	static migrateData(data) {
 		// Ensure we get a proper static reference
@@ -70,7 +79,7 @@ export class Tribe8CharacterModel extends foundry.abstract.TypeDataModel {
 		foundry.abstract.Document._addDataFieldMigration(data, "system.points.cp.character", "system.points.cp.general");
 
 		const schemaData = that.defineSchema();
-		data = that.recursivelyFixLabelsAndNames(data, schemaData);
+		data = that.#recursivelyFixLabelsAndNames(data, schemaData);
 
 		return super.migrateData(data);
 	}
@@ -83,13 +92,14 @@ export class Tribe8CharacterModel extends foundry.abstract.TypeDataModel {
 	 * @param  {object} data      The source data
 	 * @param  {object} schema    The schema or subset thereof specific to this key "depth"
 	 * @return {object}           The transformed data
+	 * @access private
 	 */
-	static recursivelyFixLabelsAndNames(data, schema) {
+	static #recursivelyFixLabelsAndNames(data, schema) {
 		const that = ((this.name ?? '').toLowerCase() !== 'function' ? this : this.constructor);
 		for (let key of Object.keys(schema)) {
 			if (data[key]) {
 				if (data[key].constructor.name === 'Object' || schema[key].fields) {
-					data[key] = that.recursivelyFixLabelsAndNames(data[key], schema[key].fields);
+					data[key] = that.#recursivelyFixLabelsAndNames(data[key], schema[key].fields);
 					continue;
 				}
 				if (data[key].constructor.name === 'Array') {
@@ -111,18 +121,21 @@ export class Tribe8CharacterModel extends foundry.abstract.TypeDataModel {
 	 * derived information it needs to properly represent the character.
 	 *
 	 * @param {...Parameters} args    Standard invocation arguments, which this method doesn't use
+	 * @access public
 	 */
 	prepareDerivedData(...args) {
 		super.prepareDerivedData(...args)
-		this.preparePrimaryAttributes();
-		this.prepareSecondaryAttributes();
-		this.preparePoints();
+		this.#preparePrimaryAttributes();
+		this.#prepareSecondaryAttributes();
+		this.#preparePoints();
 	}
 
 	/**
 	 * Compute the value of each attribute, based on its CP and XP
+	 *
+	 * @access private
 	 */
-	preparePrimaryAttributes() {
+	#preparePrimaryAttributes() {
 		for (let a in this.attributes.primary) {
 			const attData = this.attributes.primary[a];
 
@@ -150,11 +163,12 @@ export class Tribe8CharacterModel extends foundry.abstract.TypeDataModel {
 	 *
 	 * TODO: This currently only deals with physical secondaries. TBD
 	 * if we end up using the others.
+	 * @access private
 	 */
-	prepareSecondaryAttributes() {
+	#prepareSecondaryAttributes() {
 		const priAtts = this.attributes.primary;
 		const secAtts = this.attributes.secondary.physical;
-		const skills = this.parent.getCombatSkills();
+		const skills = this.parent.getSkills({combat: true});
 
 		// We need to do STR, HEA, and STA first
 		secAtts.str.value = (
@@ -184,8 +198,10 @@ export class Tribe8CharacterModel extends foundry.abstract.TypeDataModel {
 
 	/**
 	 * Compute the total number of CP and XP spent
+	 *
+	 * @access private
 	 */
-	preparePoints() {
+	#preparePoints() {
 		const priAtts = this.attributes.primary;
 
 		// Compute amount spent on Attributes
@@ -200,32 +216,32 @@ export class Tribe8CharacterModel extends foundry.abstract.TypeDataModel {
 		this.pointsLedger = {};
 
 		// Compute amount spent on various items
-		this._prepareBonusManeuverSlots();
-		this._prepareFreeTotemSlots();
+		this.#prepareBonusManeuverSlots();
+		this.#prepareFreeTotemSlots();
 		for (let item of this.parent.getEmbeddedCollection("Item")) {
 			switch (item.type) {
 				case 'skill':
-					this._applySkillPoints(item);
+					this.#applySkillPoints(item);
 					break;
 				case 'perk':
 				case 'flaw':
-					this._applyPerkFlawPoints(item);
+					this.#applyPerkFlawPoints(item);
 					break;
 				case 'maneuver':
-					this._applyManeuverPoints(item);
+					this.#applyManeuverPoints(item);
 					break;
 				case 'aspect':
-					this._applyAspectPoints(item);
+					this.#applyAspectPoints(item);
 					break;
 				case 'totem':
-					this._applyTotemPoints(item);
+					this.#applyTotemPoints(item);
 					break;
 				default:
 					// Other items, like actual equipment, don't affect points
 					break;
 			}
 		}
-		this._fillManeuverSlots();
+		this.#fillManeuverSlots();
 
 		// Compute e-dice
 		if (this.points.xp.spent < this.points.xp.total)
@@ -239,8 +255,9 @@ export class Tribe8CharacterModel extends foundry.abstract.TypeDataModel {
 	 *
 	 * @param  {Tribe8Item} item    The item from which we're applying points
 	 * @throws {Error}              If we encounter a specialization that somehow doesn't belong to this model's document
+	 * @access private
 	 */
-	_applySkillPoints(item) {
+	#applySkillPoints(item) {
 		if (!this.pointsLedger['skills']) this.pointsLedger['skills'] = {'CP': 0, 'XP': 0, 'EDice': {'XP': 0, 'Bonus': 0}};
 		this.points.cp.generalSpent += item.system.points.level.cp;
 		this.points.cp.generalSpent += item.system.points.cpx.cp;
@@ -277,8 +294,9 @@ export class Tribe8CharacterModel extends foundry.abstract.TypeDataModel {
 	 * by _preparePoints()
 	 *
 	 * @param {Tribe8Item} item    The item from which we're applying points
+	 * @access private
 	 */
-	_applyPerkFlawPoints(item) {
+	#applyPerkFlawPoints(item) {
 		if (item.system.granted) return; // No cost applied
 		let bucket = `${item.type}s`;
 		if (!this.pointsLedger[bucket]) this.pointsLedger[bucket] = {'CP': 0, 'XP': 0};
@@ -298,8 +316,10 @@ export class Tribe8CharacterModel extends foundry.abstract.TypeDataModel {
 	/**
 	 * Iterate through all of the character's skills and figure out
 	 * what the "capacity" for bonus maneuvers is.
+	 *
+	 * @access private
 	 */
-	_prepareBonusManeuverSlots() {
+	#prepareBonusManeuverSlots() {
 		// Initialize the combat skill reference list
 		const combatSkillReference = {...CONFIG.Tribe8.COMBAT_SKILLS};
 		for (let key of Object.keys(combatSkillReference)) {
@@ -338,8 +358,10 @@ export class Tribe8CharacterModel extends foundry.abstract.TypeDataModel {
 	/**
 	 * Similar to _prepareBonusManeuverSlots(), prepare slots for Totems
 	 * that the Ritual Skill's Complexity grants for free.
+	 *
+	 * @access private
 	 */
-	_prepareFreeTotemSlots() {
+	#prepareFreeTotemSlots() {
 		// Create a tracking property for free Totems
 		this.totemSlots = [];
 		const ritual = (Array.from(this.parent.getEmbeddedCollection("Item")).filter(i => i.type == 'skill').filter(s => (CONFIG.Tribe8.slugify(s.system?.name || '') == 'ritual')) ?? [])[0];
@@ -379,8 +401,9 @@ export class Tribe8CharacterModel extends foundry.abstract.TypeDataModel {
 	 * by _preparePoints()
 	 *
 	 * @param {Tribe8Item} item    The item from which we're applying points
+	 * @access private
 	 */
-	_applyManeuverPoints(item) {
+	#applyManeuverPoints(item) {
 		if (item.system.granted) return;
 		if (item.system.fromCpx) {
 			// See _fillManeuverSlots()
@@ -403,8 +426,10 @@ export class Tribe8CharacterModel extends foundry.abstract.TypeDataModel {
 	 * Fill maneuvers marked as complexity bonus maneuvers into
 	 * available slots. Any leftover at the end will be applied to
 	 * regular CP or XP, as appropriate.
+	 *
+	 * @access private
 	 */
-	_fillManeuverSlots() {
+	#fillManeuverSlots() {
 		if (!this.maneuversToFillSlots || !this.maneuversToFillSlots.length)
 			return;
 
@@ -475,8 +500,9 @@ export class Tribe8CharacterModel extends foundry.abstract.TypeDataModel {
 	 * _preparePoints()
 	 *
 	 * @param {Tribe8Item} item    The item from which we're applying points
+	 * @access private
 	 */
-	_applyAspectPoints(item) {
+	#applyAspectPoints(item) {
 		if (item.system.granted) return; // No cost applied
 		if (!this.pointsLedger['aspects']) this.pointsLedger['aspects'] = {};
 		const magicType = item.system.ritual ? 'ritual' : 'synthesis';
@@ -491,12 +517,12 @@ export class Tribe8CharacterModel extends foundry.abstract.TypeDataModel {
 	}
 
 	/**
-	 * Add a given totem's cost to the current tally. Called by
-	 * _preparePoints()
+	 * Add a given totem's cost to the current tally.
 	 *
 	 * @param {Tribe8Item} item    The item from which we're applying points
+	 * @access private
 	 */
-	_applyTotemPoints(item) {
+	#applyTotemPoints(item) {
 		if (item.inFreeSlot) return;
 
 		// Okay, we didn't exit early, so we have to pay for it.
