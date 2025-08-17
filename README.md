@@ -28,3 +28,23 @@ Right now, there's not really much to setup. That will probably change in the fu
 All characters are created with 30 attribute points and 50 additional character points. In the future, that will be configurable per-world, as well as adjustable (by the GM) per character.
 
 At present, no stock Items (i.e. Skills, Perks, Flaws, Combat Maneuvers, Aspects, Weapons, etc.) are included. I plan to make packs for those in the future.
+
+## Roadmap (Todo List)
+
+This is a rough, ever-changing list that depicts in approximate priority order what's on the list of yet-to-be-implemented features.
+
+### Short Term
+- Tracking of number of Flesh and Deep Wounds
+- Calculate and show Movement rate
+- Create a mini Application for editing Attribute points, rather than having them be directly on the sheet, to save some space and de-crowd the already-crowded sheet.
+- Equipment tab
+- Combat tab
+- Character artwork support
+- See how nasty it'd be to correctly capitalize the document type names
+
+### Longer Term
+- Localize!
+- Make starting CP a system setting for the GM, and then make the initial CP boxes something GM users can edit
+- Some way to trade attribute points (i.e. PSY for other attributes)
+- Sundering?
+- Technosmithig?
