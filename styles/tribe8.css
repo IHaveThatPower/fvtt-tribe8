@@ -1,7 +1,9 @@
 .tribe8 {
 	--font-header: "Chainprinter", "Font Awesome 6 Pro", monospace;
-	--label-background-color: black;
-	--label-text-color: white;
+	--color-label-text: white;
+	--color-label-background: black;
+	--color-points-over-text: red;
+	--color-points-over-background: rgba(255, 0, 0, 0.1);
 	--color-perk-granted: rgba(0, 96, 255, 0.5);
 	--color-flaw-granted: rgba(128, 48, 0, 0.5);
 	--color-maneuer-granted: var(--color-perk-granted);
@@ -9,8 +11,10 @@
 	--color-eminence-used: var(--color-flaw-granted);
 	--color-aspect-granted: var(--color-perk-granted);
 
+
 	/* Alt rows */
 	--alt-background: rgba(255, 255, 255, 0.05);
+	--color-points-over-background-alt: rgba(255, 0, 0, 0.05);
 	--color-perk-granted-alt: rgba(13, 109, 255, 0.45);
 	--color-flaw-granted-alt: rgba(141, 61, 13, 0.45);
 	--color-maneuer-granted-alt: var(--color-perk-granted-alt);
@@ -126,11 +130,11 @@ div.points input {
 div.points label,
 div.specializations label {
 	width: 100%;
-	background: var(--label-background-color);
+	background: var(--color-label-background);
 	font-size: 85%;
 	text-align: center;
 	display: block;
-	color: var(--label-text-color);
+	color: var(--color-label-text);
 }
 div.points div.cp label {
 	border-radius: 0 0 0 0.5rem;

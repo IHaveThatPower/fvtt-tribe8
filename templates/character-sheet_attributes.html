@@ -21,6 +21,7 @@
 	{{/each}}
 </div>
 <div class="secondary-attributes">
+	<h3>Secondary Attributes</h3>
 	{{#each document.system.attributes.secondary.physical as |attribute key|}}
 	{{#if (or (eq key "shock") (eq key "thresholds"))}}
 	{{else}}

@@ -1,7 +1,7 @@
 /**
  * @todo Overall System List
  * - Short Term
- *   - Styling to indicate over-expenditure of points
+ *   - Tracking of number of Flesh and Deep Wounds
  *   - Equipment tab
  *   - Combat tab
  *   - See how nasty it'd be to correctly capitalize the document type names

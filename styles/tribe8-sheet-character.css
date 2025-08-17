@@ -69,12 +69,18 @@ div.character-sheet div.middle-column {
 	flex-grow: 2;
 	overflow-y: hidden; /* Handled by the skills container itself */
 	min-width: min-content;
-	gap: 0;
+	gap: 1rem;
 }
 div.character-sheet div.middle-column h2 {
 	margin-top: 0;
+	margin-bottom: 0;
 }
 
+div.character-basics {
+	display: block;
+	column-count: 2;
+	gap: 0.5rem;
+}
 div.character-basics input {
 	width: 100%;
 	flex: 1 1 0;
@@ -82,11 +88,36 @@ div.character-basics input {
 }
 div.character-basics div.field {
 	display: flex;
-	flex-direction: row;
+	flex-flow: row;
+	width: 100%;
 }
 div.character-basics div.field label {
 	width: 3rem;
 	align-content: center;
+}
+
+div.portrait {
+	width: 100%;
+	position: relative;
+	border: 1px solid;
+	border-radius: 0.5rem;
+}
+div.portrait:after {
+	content: "";
+	display: block;
+	padding-bottom: 100%; /* Black magic */
+}
+div.portrait div.content {
+	position: absolute;
+	width: 100%;
+	height: 100%;
+	align-content: center;
+	text-align: center;
+	overflow: hidden;
+	font-size: 5rem;
+	line-height: 85%;
+	font-family: 'Chainprinter';
+	text-transform: uppercase;
 }
 
 div.primary-attributes, div.secondary-attributes {
@@ -95,7 +126,7 @@ div.primary-attributes, div.secondary-attributes {
 	flex-wrap: wrap;
 }
 div.primary-attributes {
-	margin-bottom: 1rem;
+	/* margin-bottom: 1rem; */
 }
 div.secondary-attributes {
 	margin-bottom: 0.4rem;
@@ -109,8 +140,8 @@ div.attribute-block {
 
 	div.name {
 		text-align: center;
-		background: var(--label-background-color);
-		color: var(--label-text-color);
+		background: var(--color-label-background);
+		color: var(--color-label-text);
 		font-weight: bold;
 		display: block;
 		text-transform: uppercase;
@@ -254,9 +285,12 @@ div.magic {
 }
 
 div.points-summary dl {
-	display: flex;
+	display: grid;
+	grid-template-columns: 2.5rem 1fr;
+	/*
 	flex-direction: row;
 	flex-wrap: wrap;
+	*/
 }
 div.points-summary dt,
 div.points-summary dd {
@@ -265,21 +299,20 @@ div.points-summary dd {
 	font-size: 0.9rem;
 	font-variant: normal;
 }
-div.points-summary>dl>dt {
-	flex: 0 0 2.5rem;
+div.points-summary>dt:nth-child(0, 2+4n)
+div.points-summary>dt:nth-child(1, 3+4n) {
+	background: var(--alt-background);
 }
-div.points-summary>dl>dd {
-	flex: 1 1 calc(100% - 2.5rem);
+div.points-summary>dl dl {
+	display: grid;
+	grid-template-columns: 4rem 1fr;
 }
-div.points-summary>dl>dd>dl>dt {
-	flex: 0 0 5rem;
-}
-div.points-summary>dl>dd>dl>dd {
-	flex: 1 1 calc(100% - 5rem);
+div.points-summary>dl dl dd {
+	text-align: right;
 }
 div.points-summary input {
 	padding: 0;
-	text-align: left;
+	text-align: center;
 	margin: 0;
 	line-height: 100%;
 	height: 1rem;
@@ -296,6 +329,17 @@ div.points-summary button {
 	height: 1rem;
 	width: 1rem;
 	min-height: unset;
+}
+div.points-summary .over,
+div.points-summary .over input {
+	color: var(--color-points-over-text);
+	font-weight: bold;
+	background: var(--color-points-over-background);
+}
+div.points-summary>dt:nth-child(0, 2+4n) dt.over
+div.points-summary>dt:nth-child(1, 3+4n) dd.over,
+div.points-summary>dt:nth-child(1, 3+4n) dd.over input {
+	background: var(--color-points-over-background-alt);
 }
 
 div.identity {
@@ -344,6 +388,7 @@ div.skills {
 		width: unset;
 		margin-right: 0.4rem;
 		overflow: hidden;
+		max-height: 2.5rem;
 	}
 	div.identity input { /* Old-style */
 		padding: 0;
@@ -355,6 +400,7 @@ div.skills {
 		padding: 0;
 		/* height: 1.5rem; */
 		background: none;
+		white-space: nowrap;
 	}
 	div.identity,
 	div.identity input,  /* Old-style */
@@ -369,6 +415,7 @@ div.skills {
 	div.identity div.name:last-child {
 		/* flex: 1 1 fit-content; */
 		display: block;
+		text-overflow: ellipsis;
 	}
 	div.identity div.name input { /* Old-style */
 		border-top: 0;
@@ -461,8 +508,10 @@ div.skills {
 		padding: 0.1rem 0.2rem;
 		border-radius: 0.25rem 0.5rem 0 0;
 		height: calc(1rem - 1px);
+		flex: 0 0 calc(1rem - 1px);;
 		margin-top: 1px;
-		flex: 0 0 0;
+		text-overflow: ellipsis;
+		overflow: hidden clip;
 	}
 	div.specializations textarea { /* Old-style */
 		width: 100%;
@@ -478,6 +527,8 @@ div.skills {
 		border-radius: 0 0 0.5rem 0.5rem;
 		resize: none;
 		flex: 1 0 1rem;
+		overflow: hidden auto;
+		text-overflow: ellipsis;
 	}
 	div.specializations div.specialization-list {
 		width: 100%;

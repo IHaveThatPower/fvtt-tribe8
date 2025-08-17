@@ -8,9 +8,9 @@ export default function () {
 /**
  * Add a number to another number
  *
- * @param  {int} a
- * @param  {int} b
- * @return {int}
+ * @param  {int} a    first addend
+ * @param  {int} b    second addend
+ * @return {int}      sum
  */
 Handlebars.registerHelper('add', function (a, b) {
 	if (arguments.length != 3) // We were only passed the default options
@@ -27,9 +27,9 @@ Handlebars.registerHelper('add', function (a, b) {
 /**
  * Subtract a number from another number
  *
- * @param  {int} a
- * @param  {int} b
- * @return {int}
+ * @param  {int} a    minuend
+ * @param  {int} b    subtrahend
+ * @return {int}      difference
  */
 Handlebars.registerHelper('sub', function (a, b) {
 	if (arguments.length != 3) // We were only passed the default options
@@ -46,8 +46,8 @@ Handlebars.registerHelper('sub', function (a, b) {
 /**
  * Convert a number to Roman numerals
  *
- * @param  {int}    a
- * @return {string}
+ * @param  {int}    a    The number to be converted
+ * @return {string}      The resulting Roman numerals
  */
 Handlebars.registerHelper('roman', function (a) {
 	if (arguments.length != 2) // We were only passed the default options
@@ -80,7 +80,7 @@ Handlebars.registerHelper('roman', function (a) {
  *
  * @param  {int}    times          Repetition count
  * @param  {bool}   includeZero    Whether we start at 0 or 1
- * @return {string}
+ * @return {string}                The supplied block, repeated
  */
 Handlebars.registerHelper('repeat', function() {
 	if (arguments.length <= 1) // We were only passed the default options
@@ -117,6 +117,7 @@ foundry.applications.handlebars.loadTemplates(
 		"character-sheet_maneuvers.html",
 		"character-sheet_pf.html",
 		"character-sheet_points.html",
+		"character-sheet_portrait.html",
 		"character-sheet_skills.html",
 
 		// Shared Item sheet parts

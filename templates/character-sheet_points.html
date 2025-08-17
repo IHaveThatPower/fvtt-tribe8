@@ -1,31 +1,31 @@
 <div class="points-summary">
 	<h2>Points</h2>
-	<dl>
-		<dt>CP</dt>
-		<dd>
-			<dl>
-				<dt>Att</dt>
-				<dd>{{document.system.points.cp.attributesSpent}} / {{document.system.points.cp.attributes}}</dd>
-				<dt>General</dt>
-				<dd>{{document.system.points.cp.generalSpent}} / {{document.system.points.cp.general}}</dd>
+	<dl class="points">
+		<dt class="points-type cp">CP</dt>
+		<dd class="points-value cp">
+			<dl class="points">
+				<dt class="attribute-points points-type{{#if (gt document.system.points.cp.attributesSpent document.system.points.cp.attributes)}} over{{/if}}">Att</dt>
+				<dd class="attribute-points point-value{{#if (gt document.system.points.cp.attributesSpent document.system.points.cp.attributes)}} over{{/if}}"><span class="points-spent">{{document.system.points.cp.attributesSpent}}</span> / <span class="points-total">{{document.system.points.cp.attributes}}</span></dd>
+				<dt class="general-points points-type{{#if (gt document.system.points.cp.generalSpent document.system.points.cp.general)}} over{{/if}}">General</dt>
+				<dd class="general-points point-value{{#if (gt document.system.points.cp.generalSpent document.system.points.cp.general)}} over{{/if}}"><span class="points-spent">{{document.system.points.cp.generalSpent}}</span> / <span class="points-total">{{document.system.points.cp.general}}</span></dd>
 			</dl>
 		</dd>
-		<dt>XP</dt>
-		<dd>
-			<dl>
-				<dt></dt>
-				<dd>{{document.system.points.xp.spent}} / <input type="number" name="system.points.xp.total" value="{{document.system.points.xp.total}}" /></dd>
+		<dt class="points-type xp">XP</dt>
+		<dd class="points-value xp">
+			<dl class="points">
+				<dt class="general-points points-type{{#if (gt document.system.points.xp.spent document.system.points.xp.total)}} over{{/if}}"></dt>
+				<dd class="general-points points-value{{#if (gt document.system.points.xp.spent document.system.points.xp.total)}} over{{/if}}"><span class="points-spent">{{document.system.points.xp.spent}}</span> / <span class="points-total"><input type="number" name="system.points.xp.total" value="{{document.system.points.xp.total}}" /></span></dd>
 			</dl>
 		</dd>
-		<dt>EDie</dt>
-		<dd>
-			<dl>
-				<dt></dt>
-				<dd>{{document.system.edie.total}}</dd>
-				<dt>From XP</dt>
-				<dd>{{document.system.edie.fromXP}}</dd>
-				<dt>Other</dt>
-				<dd><button name="edie.dec" data-action="decrementEdie">-</button><input type="number" name="system.edie.other" value="{{document.system.edie.other}}" /><button name="edie.inc" data-action="incrementEdie">+</button></dd>
+		<dt class="points-type edie">EDie</dt>
+		<dd class="points-value edie">
+			<dl class="points">
+				<dt class="points-type edie-total{{#if (lt document.system.edie.total 0)}} over{{/if}}">Total</dt>
+				<dd class="points-value edie-total{{#if (lt document.system.edie.total 0)}} over{{/if}}">{{document.system.edie.total}}</dd>
+				<dt class="points-type edie-xp{{#if (lt document.system.edie.fromXP 0)}} over{{/if}}">From XP</dt>
+				<dd class="points-value edie-xp{{#if (lt document.system.edie.fromXP 0)}} over{{/if}}">{{document.system.edie.fromXP}}</dd>
+				<dt class="points-type edie-other">Other</dt>
+				<dd class="points-value edie-other"><button name="edie.dec" data-action="decrementEdie">-</button><input type="number" name="system.edie.other" value="{{document.system.edie.other}}" /><button name="edie.inc" data-action="incrementEdie">+</button></dd>
 			</dl>
 		</dd>
 	</dl>
