@@ -1,0 +1,18 @@
+<div class="attribute-editor">
+	{{#each document.system.attributes.primary as |data att|}}
+	<div class="attribute-block">
+		<div class="name" title="{{localize (concat "tribe8.actor.character.attributes.primary." att ".full")}}">{{localize (concat "tribe8.actor.character.attributes.primary." att ".short")}}</div>
+		<div class="value">{{data.value}}</div>
+		<div class="points">
+			<div class="cp">
+				<input type="number" value="{{#if data.cp}}{{data.cp}}{{else}}0{{/if}}" name="system.attributes.primary.{{att}}.cp"  />
+				<label for="system.attributes.primary.{{att}}.cp">{{localize "tribe8.currency.cp.short"}}</label>
+			</div>
+			<div class="xp">
+				<input type="number" value="{{#if data.xp}}{{data.xp}}{{else}}0{{/if}}" name="system.attributes.primary.{{att}}.xp"  />
+				<label for="system.attributes.primary.{{att}}.xp">{{localize "tribe8.currency.xp.short"}}</label>
+			</div>
+		</div>
+	</div>
+	{{/each}}
+</div>

@@ -1,8 +1,9 @@
 const { DialogV2 } = foundry.applications.api;
 const { ActorSheetV2 } = foundry.applications.sheets;
-import { Tribe8Sheet } from './sheet.js';
+import { Tribe8Application } from '../apps/base-app.js';
+import { Tribe8AttributeEditor } from '../apps/attribute-editor.js';
 
-export class Tribe8CharacterSheet extends Tribe8Sheet(ActorSheetV2) {
+export class Tribe8CharacterSheet extends Tribe8Application(ActorSheetV2) {
 	static DEFAULT_OPTIONS = {
 		form: {
 			closeOnSubmit: false,
@@ -223,6 +224,20 @@ export class Tribe8CharacterSheet extends Tribe8Sheet(ActorSheetV2) {
 				if (!skill) return;
 				skill.system.eDieKeyInputEventHandler(e);
 			});
+		});
+
+		// Spawn Attribute Editor when Attributes are clicked
+		this.element.querySelector('div.primary-attributes').addEventListener('click', (e) => {
+			if (e.target.nodeName == 'H2') return;
+			// Do we already have an open attribute editor for this character? If so, just focus it
+			const attEditorId = `Tribe8AttributeEditor-Actor-${this.document.id}`;
+			const attEditor = foundry.applications.instances[attEditorId];
+			if (attEditor) {
+				attEditor.render({force: true});
+				return;
+			}
+			// Okay, make one!
+			new Tribe8AttributeEditor({id: attEditorId, document: this.document}).render({force: true});
 		});
 
 		// Scale System Shock icon font size based on container

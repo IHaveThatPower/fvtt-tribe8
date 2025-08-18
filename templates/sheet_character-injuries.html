@@ -1,5 +1,5 @@
 <div class="injuries">
-	<h2><span>Injuries</span><span title="{{localize "tribe8.actor.character.injuries.penalty.full"}}">{{document.system.actionPenalty}}</span></h2>
+	<h2><span>Injuries</span>{{#if document.system.actionPenalty}}<span title="{{localize "tribe8.actor.character.injuries.penalty.full"}}">{{document.system.actionPenalty}}</span>{{/if}}</h2>
 	<div class="secondary-attributes">
 		<div class="injury-block injury-type">
 			<div class="header">Severity</div>
@@ -20,7 +20,10 @@
 				<input type="number" name="system.wounds.{{@key}}" value="{{this}}" min=0 max=99 title="Current number of {{#with (lookup @root.document.system.attributes.secondary.physical.thresholds @key)}}{{this.name}}s{{/with}}" />
 			</div>
 			{{/each}}
-			<div class="injury-value severity-instant"><i class="fa fa-solid fa-skull"></i></div>
+			<div class="injury-value severity-instant{{#if (gte
+			document.system.attributes.secondary.physical.shock.current
+			document.system.attributes.secondary.physical.shock.value)
+			}} trauma{{/if}}" title="Trauma state"><i class="fa fa-solid fa-skull"></i></div>
 		</div>
 	</div>
 	<h3><span>{{localize "tribe8.actor.character.attributes.secondary.physical.shock.full"}}</span></h3>

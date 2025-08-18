@@ -1,9 +1,9 @@
 const { DialogV2 } = foundry.applications.api;
 const { ItemSheetV2 } = foundry.applications.sheets;
 const { TextEditor } = foundry.applications.ux;
-import { Tribe8Sheet } from './sheet.js';
+import { Tribe8Application } from '../apps/base-app.js';
 
-export class Tribe8ItemSheet extends Tribe8Sheet(ItemSheetV2) {
+export class Tribe8ItemSheet extends Tribe8Application(ItemSheetV2) {
 	static DEFAULT_OPTIONS = {
 		form: {
 			closeOnSubmit: false,

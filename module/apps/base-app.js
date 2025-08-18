@@ -1,18 +1,18 @@
 const { HandlebarsApplicationMixin } = foundry.applications.api;
 
 /**
- * This class mixin provides a common set of base behaviors to any application
- * that uses the HandlebarsApplicationMixin (namely, ActorSheetV2 and
- * ItemSheetV2);
+ * This class mixin provides a common set of base behaviors to any
+ * application that uses the HandlebarsApplicationMixin (namely,
+ * ActorSheetV2 and ItemSheetV2, as well as the ApplicationV2 base).
  *
  * This is mainly for utility behaviors, like setting up common
  * listeners or recording data about sheets.
  *
  * @param  {Constructor<ApplicationV2>} BaseApplication    The constructor reference to an ApplicationV2 or child class
- * @return {Tribe8Sheet}                                   The resulting mixin class
+ * @return {Tribe8Application}                             The resulting mixin class
  */
-export function Tribe8Sheet(BaseApplication) {
-	class Tribe8Sheet extends HandlebarsApplicationMixin(BaseApplication) {
+export function Tribe8Application(BaseApplication) {
+	class Tribe8Application extends HandlebarsApplicationMixin(BaseApplication) {
 		static MIN_WIDTH = 32;
 		static MIN_HEIGHT = 32;
 		static MIN_TOP = 0;
@@ -50,6 +50,11 @@ export function Tribe8Sheet(BaseApplication) {
 				});
 			});
 
+			// Track position when mouseup fires while over this window
+			this.element.addEventListener('mouseup', () => {
+				this._storePosition();
+			});
+
 			await super._onRender(context, options);
 		}
 
@@ -66,7 +71,7 @@ export function Tribe8Sheet(BaseApplication) {
 		 * @access protected
 		 */
 		async _onFirstRender(context, options) {
-			const {width, height, top, left} = game.user.getFlag("tribe8", `sheetDimensions.${this.windowKey}`) ?? {};
+			const {width, height, top, left} = game.user.getFlag("tribe8", `appDimensions.${this.windowKey}`) ?? {};
 			if (!options.position) options.position = {};
 			if (width) options.position.width = Math.min(Math.max(width, this.constructor.MIN_WIDTH), window.innerWidth);
 			if (height) options.position.height = Math.min(Math.max(height, this.constructor.MIN_HEIGHT), window.innerHeight);
@@ -84,11 +89,18 @@ export function Tribe8Sheet(BaseApplication) {
 		 */
 		async _preClose(options) {
 			await super._preClose(options);
+			await this._storePosition();
+		}
 
-			// Store window position data for next time it's opened
+		/**
+		 * Record the sheet's window position for the user.
+		 *
+		 * @access protected
+		 */
+		async _storePosition() {
 			const { width, height, top, left } = this.position;
 			if (this.windowKey.length)
-				game.user.setFlag("tribe8", `sheetDimensions.${this.windowKey}`, {width, height, top, left});
+				await game.user.setFlag("tribe8", `appDimensions.${this.windowKey}`, {width, height, top, left});
 		}
 
 		/**
@@ -98,8 +110,11 @@ export function Tribe8Sheet(BaseApplication) {
 		 * @access public
 		 */
 		get windowKey() {
-			return `${this.document.type}${this.document.limited ? ":limited" : ""}`;
+			let key = `${this.id.split('-').shift()}`;
+			if (this.document?.limited)
+				key = `${key}:limited`;
+			return key;
 		}
 	}
-	return Tribe8Sheet;
+	return Tribe8Application;
 }

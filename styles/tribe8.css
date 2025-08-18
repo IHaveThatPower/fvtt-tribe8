@@ -13,9 +13,12 @@
 	--color-shock-state-border: rgba(255, 255, 255, 0.1);
 	--color-system-shock-healthy: rgb(114 170 205);
 	--color-system-shock-wounded: rgb(59 43 43);
+	--color-trauma-inactive: #887878;
+	--color-trauma-active: white;
 
 	/* Alt rows */
-	--alt-background: rgba(255, 255, 255, 0.05);
+	--color-background-alt: rgba(255, 255, 255, 0.05);
+	--color-label-background-alt: rgba(128, 128, 128, 0.525);
 	--color-points-over-background-alt: rgba(255, 0, 0, 0.05);
 	--color-perk-granted-alt: rgba(13, 109, 255, 0.45);
 	--color-flaw-granted-alt: rgba(141, 61, 13, 0.45);
@@ -65,7 +68,7 @@ div.item-sheet h3 {
 	margin-bottom: 0.25rem;
 }
 
-.tribe8.sheet {
+.application .tribe8 {
 	padding: 0.25rem;
 
 div.points-block {

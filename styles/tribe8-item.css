@@ -40,7 +40,7 @@ div.costs {
 	gap: 0.4rem;
 	padding: 0.4rem 0;
 	margin: 0.2rem 0;
-	background: var(--alt-background);
+	background: var(--color-background-alt);
 }
 div.cost-field {
 	flex: 0 0 min-content;
