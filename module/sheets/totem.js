@@ -7,7 +7,7 @@ export class Tribe8TotemSheet extends Tribe8ItemSheet {
 	}
 
 	static PARTS = {
-		form: { template: 'systems/tribe8/templates/totem-sheet.html' }
+		form: { template: 'systems/tribe8/templates/sheet_totem.html' }
 	}
 
 	/**

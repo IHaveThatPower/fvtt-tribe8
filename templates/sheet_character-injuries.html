@@ -1,5 +1,5 @@
 <div class="injuries">
-	<h2>Injuries</h2>
+	<h2><span>Injuries</span><span title="{{localize "tribe8.actor.character.injuries.penalty.full"}}">{{document.system.actionPenalty}}</span></h2>
 	<div class="secondary-attributes">
 		<div class="injury-block injury-type">
 			<div class="header">Severity</div>
@@ -23,7 +23,7 @@
 			<div class="injury-value severity-instant"><i class="fa fa-solid fa-skull"></i></div>
 		</div>
 	</div>
-	<h3><span>{{localize "tribe8.actor.character.attributes.secondary.physical.shock.full"}}</span><span title="{{localize "tribe8.actor.character.injuries.penalty.full"}}">{{document.system.actionPenalty}}</span></h3>
+	<h3><span>{{localize "tribe8.actor.character.attributes.secondary.physical.shock.full"}}</span></h3>
 	<div class="shock">
 	{{#with document.system.attributes.secondary.physical.shock as | shock |}}
 	{{#repeat shock.value false}}

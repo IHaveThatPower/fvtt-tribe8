@@ -12,7 +12,7 @@ class Tribe8PerkFlawSheet extends Tribe8ItemSheet {
 	}
 
 	static PARTS = {
-		form: { template: 'systems/tribe8/templates/perkflaw-sheet.html' }
+		form: { template: 'systems/tribe8/templates/sheet_perkflaw.html' }
 	}
 
 	/**

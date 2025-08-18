@@ -1,0 +1,19 @@
+<div class="character-sheet">
+	<div class="left-column">
+		{{> "systems/tribe8/templates/sheet_character-portrait.html"}}
+		{{> "systems/tribe8/templates/sheet_character-basic.html"}}
+		{{> "systems/tribe8/templates/sheet_character-attributes.html"}}
+		{{> "systems/tribe8/templates/sheet_character-points.html"}}
+	</div>
+	<div class="middle-column">
+		{{> "systems/tribe8/templates/sheet_character-skills.html"}}
+	</div>
+	<div class="right-column">
+		{{> "systems/tribe8/templates/sheet_character-pf.html"}}
+		{{#if magic}}
+		{{> "systems/tribe8/templates/sheet_character-magic.html"}}
+		{{/if}}
+		{{> "systems/tribe8/templates/sheet_character-maneuvers.html"}}
+		{{> "systems/tribe8/templates/sheet_character-injuries.html"}}
+	</div>
+</div>
