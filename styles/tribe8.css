@@ -1,25 +1,38 @@
 .tribe8 {
 	--font-header: "Chainprinter", "Font Awesome 6 Pro", monospace;
-	--color-label-text: white;
-	--color-label-background: black;
-	--color-points-over-text: red;
-	--color-points-over-background: rgba(255, 0, 0, 0.1);
+
+	/**
+	 * The following colors use internal Foundry color variables, to
+	 * maintain theme consistency
+	 **/
+	--color-label-text: var(--color-text-emphatic);
+	--color-label-background: var(--color-cool-5-50);
+	--color-points-over-text: var(--color-level-error);
+	--color-edie-low: var(--color-level-error);
+	--color-points-over-background: var(--color-level-error-bg); /* color-mix(in srgb, var(--color-level-error-bg), transparent); */
+	--color-shock-state-border: color-mix(in srgb, var(--color-text-emphatic), transparent 90%);
+	--color-button-border: var(--color-light-5);
+	--color-button-border-hover: var(--color-light-3);
+
+	/**
+	 * The following colors are unique to this system, and have not
+	 * been vetted outside of dark mode
+	 */
 	--color-perk-granted: rgba(0, 96, 255, 0.5);
 	--color-flaw-granted: rgba(128, 48, 0, 0.5);
 	--color-maneuer-granted: var(--color-perk-granted);
 	--color-maneuver-bonus: rgba(0, 255, 154, 0.25);
 	--color-eminence-used: var(--color-flaw-granted);
 	--color-aspect-granted: var(--color-perk-granted);
-	--color-shock-state-border: rgba(255, 255, 255, 0.1);
 	--color-system-shock-healthy: rgb(114 170 205);
 	--color-system-shock-wounded: rgb(59 43 43);
 	--color-trauma-inactive: #887878;
-	--color-trauma-active: white;
+	--color-trauma-active: var(--color-text-emphatic);
 
 	/* Alt rows */
-	--color-background-alt: rgba(255, 255, 255, 0.05);
-	--color-label-background-alt: rgba(128, 128, 128, 0.525);
-	--color-points-over-background-alt: rgba(255, 0, 0, 0.05);
+	--color-background-alt: color-mix(in srgb, var(--color-text-emphatic), transparent 95%);
+	--color-points-over-background-alt: color-mix(in srgb, var(--color-level-error), transparent 95%);
+	--color-label-background-alt: #80808086;
 	--color-perk-granted-alt: rgba(13, 109, 255, 0.45);
 	--color-flaw-granted-alt: rgba(141, 61, 13, 0.45);
 	--color-maneuer-granted-alt: var(--color-perk-granted-alt);

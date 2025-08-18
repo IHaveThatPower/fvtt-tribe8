@@ -410,7 +410,7 @@ export class Tribe8CharacterSheet extends Tribe8Application(ActorSheetV2) {
 	 */
 	static useEminence(event, target) {
 		event.stopPropagation();
-		const item = this._getItemFromTarget(target);
+		const item = this.#getItemFromTarget(target);
 		if (!item) return;
 		item.update({'system.used': target.checked});
 	}

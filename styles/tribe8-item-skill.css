@@ -15,7 +15,7 @@ div.points button {
 	flex: 1 0 0;
 }
 .edie-too-low {
-	color: red;
+	color: var(--color-edie-low);
 }
 
 div.specializations {
