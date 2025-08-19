@@ -7,7 +7,7 @@ export class Tribe8AspectSheet extends Tribe8ItemSheet {
 	}
 
 	static PARTS = {
-		form: { template: 'systems/tribe8/templates/items/aspect.html' }
+		form: { template: 'systems/tribe8/templates/sheets/items/aspect.html' }
 	}
 
 	/**

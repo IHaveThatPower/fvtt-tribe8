@@ -1,0 +1,59 @@
+<div class="item-sheet gear">
+	<div class="identity">
+		<div class="name"><input type="text" name="name" value="{{document.name}}" size=12></div>
+		{{#if document.isEmbedded}}
+		<div class="carried">
+			<input type="checkbox" name="system.carried" value="true"{{#if document.system.carried}} checked{{/if}} />
+			<label for="system.carried" title="{{localize "tribe8.item.gear.carried.hint"}}">{{localize "tribe8.sheets.gear.system.carried.short"}}</label>
+		</div>
+		{{/if}}
+	</div>
+	{{!--
+	storage: new fields.ForeignDocumentField(
+		CONFIG.Item.documentClass,
+		{
+			hint: "tribe8.item.gear.storage.hint",
+			blank: true,
+			nullable: true,
+			idOnly: true
+		}
+	),
+	--}}
+	<div class="properties">
+		<div class="property">
+			<div class="property-name"><label for="system.complexity">{{localize "tribe8.sheets.gear.system.complexity.short"}}</label></div>
+			<div class="property-input">
+				<span class="input-size" data-value="{{document.system.complexity}}">
+					<input type="number" name="system.complexity" value="{{ document.system.complexity }}" placeholder="1" min="1" max="10" />
+				</span>
+			</div>
+		</div>
+		{{!-- TODO: Make this a slider that shows the string representation of the value above/below it --}}
+		<div class="property">
+			<div class="property-name"><label for="system.value">{{localize "tribe8.sheets.gear.system.value.short"}}</label></div>
+			<div class="property-input">
+				<span class="input-size" data-value="{{document.system.value}}">
+					<input type="number" name="system.value" value="{{ document.system.value }}" placeholder="5" min="0" max="99" />
+				</span>
+			</div>
+		</div>
+		<div class="property">
+			<div class="property-name"><label for="system.weight">{{localize "tribe8.sheets.gear.system.weight.short"}}</label></div>
+			<div class="property-input">
+				<span class="input-size" data-value="{{document.system.weight}}">
+					<input type="number" name="system.weight" value="{{ document.system.weight }}" placeholder="0" min="0" max="9999" />
+				</span>
+			</div>
+		</div>
+		<div class="property">
+			<div class="property-name"><label for="system.qty">{{localize "tribe8.sheets.gear.system.qty.short"}}</label></div>
+			<div class="property-input">
+				<span class="input-size" data-value="{{document.system.qty}}">
+					<input type="number" name="system.qty" value="{{ document.system.qty }}" placeholder="0" min="0" max="9999" />
+				</span>
+			</div>
+		</div>
+	</div>
+	{{> "systems/tribe8/templates/sheets/items/partials/description.html"}}
+	{{> "systems/tribe8/templates/sheets/items/partials/buttons.html"}}
+</div>

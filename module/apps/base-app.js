@@ -98,6 +98,8 @@ export function Tribe8Application(BaseApplication) {
 		 * @access protected
 		 */
 		async _storePosition() {
+			// Are we minimized? Don't store that.
+			if (this.minimized) return;
 			const { width, height, top, left } = this.position;
 			if (this.windowKey.length)
 				await game.user.setFlag("tribe8", `appDimensions.${this.windowKey}`, {width, height, top, left});

@@ -332,10 +332,10 @@ export class Tribe8Item extends Item {
 		 * ArrayField), good bet it's the old-style.
 		 */
 		if (data?.system?.specializations && data.system.specializations.constructor?.name === 'Object' && Object.keys(data.system.specializations).length) {
+			// Save the data as a flag instead, directly on the supplied data
 			if (!data.flags) data.flags = {};
 			if (!data.flags['tribe8']) data.flags['tribe8'] = {};
 			try {
-				// Stash the data on a flag.
 				// deepClone can't handle advanced data fields, hence the try/catch, just incase
 				data.flags['tribe8']['legacy-specializations'] = foundry.utils.deepClone(data.system.specializations, {strict: true});
 

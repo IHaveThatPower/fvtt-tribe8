@@ -42,7 +42,6 @@ This is a rough, ever-changing list that depicts in approximate priority order w
 - Equipment tab
 - Combat tab
 - Character artwork editing support
-- See how nasty it'd be to correctly capitalize the document type names
 
 ### Longer Term
 - Fully localize!

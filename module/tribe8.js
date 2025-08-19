@@ -11,6 +11,7 @@ import { Tribe8ManeuverSheet } from './sheets/maneuver.js';
 import { Tribe8EminenceSheet } from './sheets/eminence.js';
 import { Tribe8AspectSheet } from './sheets/aspect.js';
 import { Tribe8TotemSheet } from './sheets/totem.js';
+import { Tribe8GearSheet } from './sheets/gear.js';
 /* Models */
 import { Tribe8CharacterModel } from './datamodels/character.js';
 import { Tribe8ItemModel } from './datamodels/item.js';
@@ -21,8 +22,8 @@ import { Tribe8ManeuverModel } from './datamodels/maneuver.js';
 import { Tribe8EminenceModel } from './datamodels/eminence.js';
 import { Tribe8AspectModel } from './datamodels/aspect.js';
 import { Tribe8TotemModel } from './datamodels/totem.js';
-/*
 import { Tribe8GearModel } from './datamodels/gear.js';
+/*
 import { Tribe8WeaponModel } from './datamodels/weapon.js';
 import { Tribe8ArmorModel } from './datamodels/armor.js';
 */
@@ -48,6 +49,7 @@ Hooks.once('init', function() {
 			Tribe8EminenceSheet,
 			Tribe8AspectSheet,
 			Tribe8TotemSheet,
+			Tribe8GearSheet,
 		},
 		entities: {
 			Tribe8Actor,
@@ -82,10 +84,10 @@ Hooks.once('init', function() {
 		eminence: Tribe8EminenceModel,
 		aspect: Tribe8AspectModel,
 		totem: Tribe8TotemModel,
+		gear: Tribe8GearModel,
 		/*
 		weapon: Tribe8WeaponModel,
 		armor: Tribe8ArmorModel,
-		gear: Tribe8GearModel
 		*/
 	};
 
@@ -124,7 +126,7 @@ Hooks.once('init', function() {
 Hooks.on('setup', function() {
 	(async () => {
 		for (let a of game.actors) {
-			await a.migrateSystemData();
+			await a.migrateSystemData(); // Assumes a.migrateData(data) was called previous, but Foundry itself
 			await a.createSpecializationsFromLegacy();
 			a.alignSkillsAndSpecializations();
 		}

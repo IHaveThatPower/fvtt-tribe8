@@ -144,6 +144,12 @@ export class Tribe8CharacterSheet extends Tribe8Application(ActorSheetV2) {
 					item.cost = CONFIG.Tribe8.costs[item.type];
 					context.magic[collectionName].push(item);
 					break
+				case 'gear':
+				case 'armor':
+					collectionName = item.type; // Already plural
+					context.ensureHas(collectionName, []);
+					context[collectionName].push(item);
+					break;
 				default:
 					context.ensureHas(collectionName, []);
 					context[collectionName].push(item);
@@ -184,6 +190,7 @@ export class Tribe8CharacterSheet extends Tribe8Application(ActorSheetV2) {
 	 * @param  {string} partId     The name of the tab/part that's active
 	 * @param  {object} context    The supplied context, which we could potentially augment per-part if we needed to
 	 * @return {object}            The part's prepared context
+	 * @access public
 	 */
 	async _preparePartContext(partId, context) {
 		context.tab = context.tabs[partId];

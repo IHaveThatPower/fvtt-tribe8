@@ -18,14 +18,7 @@
   ],
   "socket": true,
   "styles": [
-    "styles/tribe8.css",
-    "styles/tribe8-character.css",
-    "styles/tribe8-item.css",
-    "styles/tribe8-item-skill.css",
-    "styles/tribe8-item-pf.css",
-    "styles/tribe8-item-maneuver.css",
-    "styles/tribe8-item-eminence.css",
-    "styles/tribe8-item-aspect.css"
+    "styles/tribe8.css"
   ],
   "packs": [],
   "languages": [

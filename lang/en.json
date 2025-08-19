@@ -1,4 +1,26 @@
 {
+	"TYPES": {
+		"Actor": {
+			"character": "Character"
+		},
+		"Item": {
+			"item": "Generic Item",
+			"skill": "Skill",
+			"specialization": "Specialization",
+			"perk": "Perk",
+			"flaw": "Flaw",
+			"maneuver": "Combat Maneuver",
+			"eminence": "Eminence",
+			"aspect": "Aspect",
+			"totem": "Totem",
+			"gear": "Gear",
+			"armor": "Armor",
+			"weapon": "Weapon",
+			"gear-plural": "Gear",
+			"armor-plural": "Armor",
+			"weapon-plural": "Weapons"
+		}
+	},
 	"tribe8": {
 		"actor": {
 			"character": {
@@ -87,6 +109,47 @@
 					"main": "Traits",
 					"equipment": "Gear",
 					"combat": "Combat"
+				}
+			},
+			"gear": {
+				"system.qty.short": "Qty",
+				"system.qty.full": "Quantity",
+				"system.weight.short": "Wt. (kg)",
+				"system.weight.full": "Weight (kg)",
+				"system.complexity.short": "Cpx",
+				"system.complexity.full": "Complexity",
+				"system.value.short": "Val",
+				"system.value.full": "Value"
+			}
+		},
+		"item": {
+			"gear": {
+				"title": {
+					"owned": "{ownerName}'s {itemName}",
+					"unowned": "Item: {itemName}"
+				},
+				"qty": {
+					"hint": "The quantity of this Gear possessed"
+				},
+				"weight": {
+					"hint": "The Weight for one unit of this Gear"
+				},
+				"value": {
+					"vlow": "Very Low",
+					"low": "Low",
+					"average": "Average",
+					"high": "High",
+					"vhigh": "Very High",
+					"hint": "The Value of one unit of this Gear"
+				},
+				"complexity": {
+					"hint": "The Complexity requirement to use, or fully use, this Gear"
+				},
+				"storage": {
+					"hint": "Another piece of Gear on or in which this Gear belongs"
+				},
+				"carried": {
+					"hint": "Whether or not this Gear is carried by/worn on the Character who possesses it"
 				}
 			}
 		}

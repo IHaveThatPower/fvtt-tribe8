@@ -76,48 +76,9 @@ export class Tribe8CharacterModel extends foundry.abstract.TypeDataModel {
 	 * @access public
 	 */
 	static migrateData(data) {
-		// Ensure we get a proper static reference
-		const that = ((this.name ?? '').toLowerCase() !== 'function' ? this : this.constructor);
-
 		// Use the "general" property instead of the "character" property
 		foundry.abstract.Document._addDataFieldMigration(data, "system.points.cp.character", "system.points.cp.general");
-
-		const schemaData = that.defineSchema();
-		data = that.#recursivelyFixLabelsAndNames(data, schemaData);
-
 		return super.migrateData(data);
-	}
-
-	/**
-	 * Loop through the source data to fix certain schema properties
-	 * that may have drifted, but aren't meant to be user-changeable.
-	 * If an object is encountered, recursively evaluate it.
-	 *
-	 * @param  {object} data      The source data
-	 * @param  {object} schema    The schema or subset thereof specific to this key "depth"
-	 * @return {object}           The transformed data
-	 * @access private
-	 */
-	static #recursivelyFixLabelsAndNames(data, schema) {
-		const that = ((this.name ?? '').toLowerCase() !== 'function' ? this : this.constructor);
-		for (let key of Object.keys(schema)) {
-			if (data[key]) {
-				if (data[key].constructor.name === 'Object' || schema[key].fields) {
-					data[key] = that.#recursivelyFixLabelsAndNames(data[key], schema[key].fields);
-					continue;
-				}
-				if (data[key].constructor.name === 'Array') {
-					continue;
-				}
-				// Only change these
-				if (key == 'hint' || key == 'label' || key == 'name') {
-					if (schema[key].initial && data[key] != schema[key].initial) {
-						data[key] = schema[key].initial;
-					}
-				}
-			}
-		}
-		return data;
 	}
 
 	/**
