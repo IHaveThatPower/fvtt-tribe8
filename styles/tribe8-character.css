@@ -1,9 +1,31 @@
 .tribe8.sheet.actor.character, .tribe8.tribe8app.attributes {
-	overflow: hidden;
+	height: 100%;
+
+nav {
+	font-family: var(--font-header);
+	position: absolute;
+	top: 0;
+	height: 2.5rem;
+	align-items: center;
+	justify-content: center;
+	margin-inline: auto;
+	left: 0;
+	right: 0;
+	width: fit-content;
+	border-width: 1px;
+	border-radius: 0 0 2.5rem 2.5rem;
+	border-top: 0;
+	padding: 0 2rem;
+	background: none;
+}
+
+.tab[data-tab]:not(.active) {
+	display: none; /* !important; */
+}
 
 div.character-sheet {
 	display: flex;
-	flex-direction: row;
+	flex-flow: row;
 	gap: 0.8rem;
 	height: 100%;
 }
@@ -62,14 +84,14 @@ div.character-sheet div.right-column {
 	flex-flow: column;
 	height: 100%;
 	overflow-y: auto;
-	overflow-x: hidden;
+	overflow-x: auto;
 	gap: 0.5rem;
 }
 div.character-sheet div.middle-column {
-	flex-grow: 2;
+	flex: 2 2 auto;
 	overflow-y: hidden; /* Handled by the skills container itself */
-	min-width: min-content;
 	gap: 1rem;
+	margin-top: 1.5rem; /* To steer clear of the navbar */
 }
 div.character-sheet div.middle-column h2 {
 	margin-top: 0;
@@ -127,8 +149,7 @@ div.portrait div.content {
 
 div.primary-attributes, div.secondary-attributes {
 	display: flex;
-	flex-direction: row;
-	flex-wrap: wrap;
+	flex-flow: row wrap;
 }
 div.primary-attributes {
 	cursor: pointer
@@ -141,10 +162,11 @@ div.secondary-attributes {
 	margin-bottom: 0.4rem;
 }
 
+--attribute-block-top-corners: 0.5rem;
+--attribute-block-bottom-corners: 0.75rem;
 div.attribute-block {
 	display: flex;
-	flex-direction: column;
-	flex-wrap: nowrap;
+	flex-flow: column nowrap;
 	flex: 1 0 0;
 
 	div.name {
@@ -154,6 +176,9 @@ div.attribute-block {
 		font-weight: bold;
 		display: block;
 		text-transform: uppercase;
+		border-top: 1px solid;
+		border-right: 1px solid #888;
+		border-radius: var(--attribute-block-top-corners) var(--attribute-block-top-corners) 0 0;
 	}
 	div.value {
 		min-width: unset;
@@ -165,6 +190,17 @@ div.attribute-block {
 		min-width: 3ch;
 		width: 100%;
 	}
+}
+h2+div.attribute-block div.value,
+h3+div.attribute-block div.value,
+hr+div.attribute-block div.value,
+div.attribute-block:first-child div.value {
+	border-radius: 0 0 0 var(--attribute-block-bottom-corners);
+}
+div.attribute-block:has(+hr) div.value,
+div.attribute-block:last-child div.value,
+div.attribute-block:has(+h3) div.value {
+	border-radius: 0 0 var(--attribute-block-bottom-corners) 0;
 }
 div.move-rates {
 	display: grid;
@@ -184,7 +220,7 @@ div.attribute-block.move-rate div.value {
 	text-overflow: ellipsis;
 	font-size: 0.9rem;
 }
-div.primary-attributes div.attribute-block:hover div.name {
+div.primary-attributes:hover div.attribute-block div.name {
 	background: var(--color-label-background-alt);
 }
 div.primary-attributes div.attribute-block:hover div.value {
@@ -350,10 +386,6 @@ div.magic {
 div.points-summary dl {
 	display: grid;
 	grid-template-columns: 2.5rem 1fr;
-	/*
-	flex-direction: row;
-	flex-wrap: wrap;
-	*/
 }
 div.points-summary dt,
 div.points-summary dd {
@@ -429,10 +461,6 @@ div.skills {
 	/* height: 100%; */ /* Must not be set to make columns flow properly */
 
 	div.skill {
-		/*
-		display: flex;
-		flex-direction: row;
-		*/
 		display: grid;
 		grid-template-columns: 1fr repeat(3, min-content);
 		min-width: fit-content;
@@ -614,7 +642,7 @@ div.skills {
 	div.buttons {
 		position: absolute;
 		display: flex;
-		flex-direction: row;
+		flex-flow: row;
 		height: 1.7rem;
 		padding: 0.2rem;
 		top: 2.6rem;
@@ -688,8 +716,7 @@ div.pf.flaw.granted:nth-child(odd) {
 }
 div.pf div.buttons {
 	display: flex;
-	flex-direction: row;
-	flex-wrap: nowrap;
+	flex-flow: row nowrap;
 }
 
 }
@@ -913,4 +940,9 @@ div.shock i.wounded {
 		font-weight: bold;
 	}
 
+	div.attribute-editor div.attribute-block div.value,
+	div.attribute-editor div.attribute-block:first-child div.value,
+	div.attribute-editor div.attribute-block:last-child div.value {
+		border-radius: 0 0 0 0;
+	}
 }

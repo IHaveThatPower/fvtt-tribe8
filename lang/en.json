@@ -80,6 +80,15 @@
 			"cp.short": "CP",
 			"xp.name": "Experience Points",
 			"xp.short": "XP"
+		},
+		"sheets": {
+			"character": {
+				"tabs": {
+					"main": "Traits",
+					"equipment": "Gear",
+					"combat": "Combat"
+				}
+			}
 		}
 	}
 }

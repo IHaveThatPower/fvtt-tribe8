@@ -6,7 +6,7 @@
 	 * maintain theme consistency
 	 **/
 	--color-label-text: var(--color-text-emphatic);
-	--color-label-background: var(--color-cool-5-50);
+	--color-label-background: var(--color-cool-5);
 	--color-points-over-text: var(--color-level-error);
 	--color-edie-low: var(--color-level-error);
 	--color-points-over-background: var(--color-level-error-bg); /* color-mix(in srgb, var(--color-level-error-bg), transparent); */
@@ -32,7 +32,7 @@
 	/* Alt rows */
 	--color-background-alt: color-mix(in srgb, var(--color-text-emphatic), transparent 95%);
 	--color-points-over-background-alt: color-mix(in srgb, var(--color-level-error), transparent 95%);
-	--color-label-background-alt: #80808086;
+	--color-label-background-alt: color-mix(in srgb, var(--color-cool-5-50), var(--color-background-alt));
 	--color-perk-granted-alt: rgba(13, 109, 255, 0.45);
 	--color-flaw-granted-alt: rgba(141, 61, 13, 0.45);
 	--color-maneuer-granted-alt: var(--color-perk-granted-alt);
@@ -86,8 +86,7 @@ div.item-sheet h3 {
 
 div.points-block {
 	display: flex;
-	flex-direction: column;
-	flex-wrap: nowrap;
+	flex-flow: column nowrap;
 	flex-grow: 0;
 	flex-shrink: 0;
 }
@@ -127,13 +126,11 @@ div.value {
 }
 div.points {
 	display: flex;
-	flex-direction: row;
-	flex-wrap: nowrap;
+	flex-flow: row nowrap;
 }
 div.points>div {
 	display: flex;
-	flex-direction: column;
-	flex-wrap: nowrap;
+	flex-flow: column nowrap;
 }
 div.points input {
 	padding: 0;

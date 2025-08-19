@@ -27,10 +27,35 @@ export class Tribe8CharacterSheet extends Tribe8Application(ActorSheetV2) {
 	}
 
 	static PARTS = {
-		form: {
+		tabs: {
+			template: 'templates/generic/tab-navigation.hbs'
+		},
+		main: {
 			template: 'systems/tribe8/templates/sheets/actors/character_main.html'
+		},
+		equipment: {
+			template: 'systems/tribe8/templates/sheets/actors/character_equipment.html'
 		}
 	}
+
+	static TABS = {
+		character: {
+			tabs: [
+				{
+					id: "main",
+					icon: "",
+				},
+				{
+					id: "equipment",
+				},
+				{
+					id: "combat",
+				}
+			],
+			labelPrefix: "tribe8.sheets.character.tabs",
+			initial: "main"
+		}
+	};
 
 	/**
 	 * Basic character name, no prefix.
@@ -146,6 +171,22 @@ export class Tribe8CharacterSheet extends Tribe8Application(ActorSheetV2) {
 				}
 			}
 		}
+
+		// Add the tabs
+		const contextWithTabs = {...context, tabs: this._prepareTabs("character")};
+		return contextWithTabs;
+	}
+
+	/**
+	 * We don't need to do anything fancy here, just tell the context
+	 * that the current tab is the defined by the given part ID
+	 *
+	 * @param  {string} partId     The name of the tab/part that's active
+	 * @param  {object} context    The supplied context, which we could potentially augment per-part if we needed to
+	 * @return {object}            The part's prepared context
+	 */
+	async _preparePartContext(partId, context) {
+		context.tab = context.tabs[partId];
 		return context;
 	}
 
