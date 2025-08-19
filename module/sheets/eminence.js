@@ -7,7 +7,7 @@ export class Tribe8EminenceSheet extends Tribe8ItemSheet {
 	}
 
 	static PARTS = {
-		form: { template: 'systems/tribe8/templates/sheet_eminence.html' }
+		form: { template: 'systems/tribe8/templates/sheets/items/eminence.html' }
 	}
 
 	/**

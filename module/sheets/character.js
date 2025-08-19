@@ -28,7 +28,7 @@ export class Tribe8CharacterSheet extends Tribe8Application(ActorSheetV2) {
 
 	static PARTS = {
 		form: {
-			template: 'systems/tribe8/templates/sheet_character.html'
+			template: 'systems/tribe8/templates/sheets/actors/character_main.html'
 		}
 	}
 

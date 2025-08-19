@@ -110,20 +110,20 @@ Handlebars.registerHelper('repeat',
 foundry.applications.handlebars.loadTemplates(
 	[
 		// Character sheet parts
-		"sheet_character-attributes.html",
-		"sheet_character-basic.html",
-		"sheet_character-injuries.html",
-		"sheet_character-magic.html",
-		"sheet_character-magic-aspects.html",
-		"sheet_character-maneuvers.html",
-		"sheet_character-pf.html",
-		"sheet_character-points.html",
-		"sheet_character-portrait.html",
-		"sheet_character-skills.html",
+		"sheets/actors/partials/attributes.html",
+		"sheets/actors/partials/basic_info.html",
+		"sheets/actors/partials/injuries.html",
+		"sheets/actors/partials/magic.html",
+		"sheets/actors/partials/magic_aspects.html",
+		"sheets/actors/partials/maneuvers.html",
+		"sheets/actors/partials/pf.html",
+		"sheets/actors/partials/points.html",
+		"sheets/actors/partials/portrait.html",
+		"sheets/actors/partials/skills.html",
 
 		// Shared Item sheet parts
-		"sheet_item-buttons.html",
-		"sheet_item-description.html"
+		"sheets/items/partials/buttons.html",
+		"sheets/items/partials/description.html"
 	]
 	.map((t) => `systems/tribe8/templates/${t}`)
 );
