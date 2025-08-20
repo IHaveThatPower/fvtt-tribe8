@@ -87,15 +87,17 @@ Handlebars.registerHelper('repeat',
 	 *
 	 * @param  {int}    times                  Repetition count
 	 * @param  {bool}   [includeZero=false]    Whether we start at 0 or 1
-	 * @param  {object} [options={}]           Additional Handlebars-supplied options
+	 * @param  {object} [options={}]           Additional configuration for how this helper performs.
+	 *                                         This is supplied autoamtically.
 	 * @return {string}                        The supplied block, repeated
 	 * @throws {Error}                         If insufficient arguments are supplied
 	 */
 	function(times, includeZero=false, options={}) {
+		// includeZero might be omitted
+		if (typeof includeZero !== 'boolean' && Object.keys(options).length === 0) options = includeZero;
 		times = Number(times) || 0;
 		if (!times) throw new Error("Must supply at least a number of times to repeat");
 		const data = options.data ? Handlebars.createFrame(options.data) : {};
-
 		const content = [];
 		for (let i = (includeZero ? 0 : 1); i <= times; i++) {
 			if (data) data.index = i;
