@@ -7,12 +7,14 @@
 		<div class="cost points-type">Cost</div>
 		<div></div>
 	</div>
+	{{else}}
+	<em>None</em>
 	{{/if}}
 	{{#each sortedManeuvers}}
 	<div class="maneuver{{#if (and (not this.usesPoints) this.system.fromCpx)}} from-cpx{{/if}}{{#if this.system.granted}} granted{{/if}} draggable" data-item-id="{{this.id}}">
 		<div class="identity" data-action="editItem">
 			<div class="name">{{this.name}}</div>
-			<div class="specific">({{this.system.forSkill}})</div>
+			<div class="specific">({{this.system.category}})</div>
 		</div>
 		<div class="complexity">{{#if (eq this.system.complexity 0)}}1*{{else}}{{this.system.complexity}}{{/if}}</div>
 		<div class="cost">

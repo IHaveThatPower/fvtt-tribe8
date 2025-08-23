@@ -94,6 +94,11 @@
 				"injuries": {
 					"penalty.full": "Action Penalty",
 					"penalty.short": "AP"
+				},
+				"tabs": {
+					"main": "Traits",
+					"equipment": "Gear",
+					"combat": "Combat"
 				}
 			}
 		},
@@ -103,38 +108,50 @@
 			"xp.name": "Experience Points",
 			"xp.short": "XP"
 		},
-		"sheets": {
-			"character": {
-				"tabs": {
-					"main": "Traits",
-					"equipment": "Gear",
-					"combat": "Combat"
+		"item": {
+			"aspect": {
+				"title": {
+					"synthesis": "Synthesis Aspect: {aspect}",
+					"synthesis-tribe": "Synthesis Aspect: {aspect} ({tribe})",
+					"ritual": "Ritual Aspect: {aspect}",
+					"ritual-tribe": "Ritual Aspect: {aspect} ({tribe})"
 				}
 			},
-			"gear": {
-				"system.qty.short": "Qty",
-				"system.qty.full": "Quantity",
-				"system.weight.short": "Wt. (kg)",
-				"system.weight.full": "Weight (kg)",
-				"system.complexity.short": "Cpx",
-				"system.complexity.full": "Complexity",
-				"system.value.short": "Val",
-				"system.value.full": "Value"
-			}
-		},
-		"item": {
+			"eminence": {
+				"title": "Eminence: {eminence}",
+				"title-tribe": "Eminence: {eminence} ({tribe})"
+			},
+			"maneuver": {
+				"title": "Maneuver: {maneuver}",
+				"title-skill": "Maneuver: {maneuver} ({category})"
+			},
+			"perk": {
+				"title": "Perk: {pfName}"
+			},
+			"flaw": {
+				"title": "Flaw: {pfName}"
+			},
+			"skill": {
+				"title": "Skill: {skill}"
+			},
 			"gear": {
 				"title": {
-					"owned": "{ownerName}'s {itemName}",
-					"unowned": "Item: {itemName}"
+					"owned": "{owner}'s {item}",
+					"unowned": "Item: {item}"
 				},
-				"qty": {
+				"system.qty": {
+					"full": "Quantity",
+					"short": "Qty",
 					"hint": "The quantity of this Gear possessed"
 				},
-				"weight": {
+				"system.weight": {
+					"full": "Weight (kg)",
+					"short": "Wt. (kg)",
 					"hint": "The Weight for one unit of this Gear"
 				},
-				"value": {
+				"system.value": {
+					"full": "Value",
+					"short": "Val",
 					"vlow": "Very Low",
 					"low": "Low",
 					"average": "Average",
@@ -142,16 +159,28 @@
 					"vhigh": "Very High",
 					"hint": "The Value of one unit of this Gear"
 				},
-				"complexity": {
+				"system.complexity": {
+					"full": "Complexity",
+					"short": "Cpx",
 					"hint": "The Complexity requirement to use, or fully use, this Gear"
 				},
-				"storage": {
+				"system.storage": {
+					"full": "Container/Carrier",
+					"short": "On/In",
 					"hint": "Another piece of Gear on or in which this Gear belongs"
 				},
-				"carried": {
+				"system.carried": {
+					"full": "Carried/Worn",
+					"short": "C?",
 					"hint": "Whether or not this Gear is carried by/worn on the Character who possesses it"
 				}
 			}
+		},
+		"errors": {
+			"circular-container": "An Item cannot be made its own container",
+			"quantity-on-container": "A container Item cannot have a quantity other than 1",
+			"unowned-specialization": "Specializations cannot be created outside of a Skill that belongs to a character.",
+			"existing-skill-specialization": "A Specialization with that name already exists for this Skill"
 		}
 	}
 }

@@ -1,5 +1,99 @@
 export const Tribe8 = {};
 
+/**
+ * Uniform utility to convert a provided string into an alphanumeric-
+ * only, lowercase string.
+ *
+ * @param  {string} string    The string to transform
+ * @return {string}           The sanitized slug-style string
+ */
+Tribe8.slugify = function(string) {
+	return string.trim().toLowerCase().replace(/[^a-zA-Z0-9]/g, '');
+};
+
+/**
+ * Identify array-style form elements in a submit package and return
+ * their names.
+ *
+ * @param  {FormData} formData    A FormData object
+ * @return {Array}                An array of form field names that have array notation
+ */
+Tribe8.checkFormArrayElements = function(formData) {
+	const checkKeys = [];
+	Object.keys(formData.object).forEach((f) => {
+		if (f.match(/\[/)) {
+			checkKeys.push(f);
+		}
+	});
+	return checkKeys;
+};
+
+/**
+ * Given a single-character identifier and an array of skill items,
+ * find the one that matches the combat skill indicated by the
+ * indentifier
+ *
+ * @param  {string}        key       The one-letter combat skill category designator
+ * @param  {Array}         skills    The list of skills to be filtered
+ * @return {Array|boolean}           The matching list of combat skill slug names, or false if none found
+ */
+Tribe8.findCombatSkill = function(key, skills) {
+	if (!Object.keys(Tribe8.COMBAT_SKILLS).includes(key)) return false;
+	if (!(skills instanceof Array) || !skills.length) return false;
+	if (typeof key != 'string' || key.length != 1) return false;
+	return skills.find((s) => {
+		const skillNameOptions = ((key) => {
+			if (key == 'H')
+				return [Tribe8.COMBAT_SKILLS['H'], ...Tribe8.HAND_TO_HAND_VARIATIONS];
+			if (key == 'R')
+				return [...Tribe8.RANGED_COMBAT_SKILL_REFERENCE];
+			return [Tribe8.COMBAT_SKILLS[key]];
+		})(key);
+		for (let opt of skillNameOptions) {
+			if (Tribe8.slugify(s.name) == Tribe8.slugify(opt))
+				return s;
+		}
+		return false;
+	});
+}
+
+/**
+ * Register sheets of the indicated type using the supplied sheet
+ * collection.
+ *
+ * @param  {string}          sheetType    The type of sheet we're going to register (Actor or Item)
+ * @param  {WorldCollection} docs         The existing document collection for the entity type
+ * @throws {Error}                        If we don't have the expected global game namespace.
+ */
+Tribe8.registerSheets = function(sheetType, docs) {
+	if (!game.tribe8 || !game.tribe8.applications) {
+		throw new Error('Cannot register sheets without the Tribe 8 game namespace');
+	}
+	const { sheets } = foundry.applications;
+
+	// Unregister core sheets
+	for (let suffix of ['Sheet', 'SheetV2']) {
+		const sheetName =`${sheetType}${suffix}`;
+		if (sheets[sheetName]) {
+			docs.unregisterSheet('core', sheets[sheetName]);
+		}
+	}
+
+	// Register our sheets
+	for (let modelType in CONFIG[sheetType].dataModels) {
+		if (Tribe8.slugify(modelType) == 'specialization') // Doesn't have its own sheet
+			continue;
+		const sheetName = `Tribe8${modelType[0].toUpperCase() + modelType.slice(1)}Sheet`;
+		const sheet = game.tribe8.applications[sheetName];
+		if (!sheet) {
+			console.warn(`No defined sheet found for ${modelType}`);
+			continue;
+		}
+		const makeDefault = ((sheetType == 'Actor' && modelType == 'character') || (sheetType == 'Item' && modelType == 'item'));
+		docs.registerSheet('tribe8', sheet, { types: [modelType], makeDefault: makeDefault });
+	}
+}
+
 Tribe8.attributes = {
 	primary: {
 		'agi': 'Agility',
@@ -15,6 +109,7 @@ Tribe8.attributes = {
 	}
 };
 Tribe8.attributeBasis = -1; // Where attributes starts;
+Tribe8.maxComplexity = 5;
 
 /**
  * The combat meta-skills used to categorize valid uses of Combat
@@ -49,6 +144,29 @@ Tribe8.HAND_TO_HAND_VARIATIONS = [
 	'hth',
 	'htoh',
 	'hand2hand'
+];
+
+Tribe8.ALL_COMBAT_VARIATIONS = Object.fromEntries(Object.entries(Tribe8.COMBAT_SKILLS).map(([c, skills]) => [c, [skills].map((s) => Tribe8.slugify(s))]));
+Tribe8.ALL_COMBAT_VARIATIONS['R'] = Tribe8.ALL_COMBAT_VARIATIONS['R'].concat(Tribe8.RANGED_COMBAT_SKILL_REFERENCE);
+Tribe8.ALL_COMBAT_VARIATIONS['H'] = Tribe8.ALL_COMBAT_VARIATIONS['H'].concat(Tribe8.HAND_TO_HAND_VARIATIONS);
+
+/**
+ * The skill slugs that might be used for magic skills
+ */
+Tribe8.MAGIC_SKILLS = [
+	"synthesis",
+	"ritual",
+	"technosmithing",
+	"sundering"
+];
+
+/**
+ * The item types that collectively represent physical items
+ */
+Tribe8.PHYSICAL_ITEMS = [
+	"gear",
+	"weapon",
+	"armor"
 ];
 
 /**
@@ -119,100 +237,3 @@ Tribe8.movementInjuryMultipliers = {
  * How precise our rounding is for movement display.
  */
 Tribe8.movementPrecision = 1;
-
-/**
- * Uniform utility to convert a provided string into an alphanumeric-
- * only, lowercase string.
- *
- * @param  {string} string    The string to transform
- * @return {string}           The sanitized slug-style string
- */
-Tribe8.slugify = function(string) {
-	return string.trim().toLowerCase().replace(/[^a-zA-Z0-9]/g, '');
-};
-
-/**
- * Identify array-style form elements in a submit package and return
- * their names.
- *
- * @param  {FormData} formData    A FormData object
- * @return {Array}                An array of form field names that have array notation
- */
-Tribe8.checkFormArrayElements = function(formData) {
-	const checkKeys = [];
-	Object.keys(formData.object).forEach((f) => {
-		if (f.match(/\[/)) {
-			checkKeys.push(f);
-		}
-	});
-	return checkKeys;
-};
-
-/**
- * Given a single-character identifier and an array of skill items,
- * find the one that matches the combat skill indicated by the
- * indentifier
- *
- * @param  {string}        key       The one-letter combat skill category designator
- * @param  {Array}         skills    The list of skills to be filtered
- * @return {Array|boolean}           The matching list of combat skill slug names, or false if none found
- */
-Tribe8.findCombatSkill = function(key, skills) {
-	if (Object.keys(Tribe8.COMBAT_SKILLS).indexOf(key) < 0)
-		return false;
-	if (!(skills instanceof Array) || !skills.length)
-		return false;
-	if (typeof key != 'string' || key.length != 1)
-		return false;
-	return skills.find((s) => {
-		const skillNameOptions = ((key) => {
-			if (key == 'H')
-				return [Tribe8.COMBAT_SKILLS['H'], ...Tribe8.HAND_TO_HAND_VARIATIONS];
-			if (key == 'R')
-				return [...Tribe8.RANGED_COMBAT_SKILL_REFERENCE];
-			return [Tribe8.COMBAT_SKILLS[key]];
-		})(key);
-		for (let opt of skillNameOptions) {
-			if (Tribe8.slugify(s.name) == Tribe8.slugify(opt))
-				return s;
-		}
-		return false;
-	});
-}
-
-/**
- * Register sheets of the indicated type using the supplied sheet
- * collection.
- *
- * @param  {string}          sheetType    The type of sheet we're going to register (Actor or Item)
- * @param  {WorldCollection} docs         The existing document collection for the entity type
- * @throws {Error}                        If we don't have the expected global game namespace.
- */
-Tribe8.registerSheets = function(sheetType, docs) {
-	if (!game.tribe8 || !game.tribe8.applications) {
-		throw new Error('Cannot register sheets without the Tribe 8 game namespace');
-	}
-	const { sheets } = foundry.applications;
-
-	// Unregister core sheets
-	for (let suffix of ['Sheet', 'SheetV2']) {
-		const sheetName =`${sheetType}${suffix}`;
-		if (sheets[sheetName]) {
-			docs.unregisterSheet('core', sheets[sheetName]);
-		}
-	}
-
-	// Register our sheets
-	for (let modelType in CONFIG[sheetType].dataModels) {
-		if (Tribe8.slugify(modelType) == 'specialization') // Doesn't have its own sheet
-			continue;
-		const sheetName = `Tribe8${modelType[0].toUpperCase() + modelType.slice(1)}Sheet`;
-		const sheet = game.tribe8.applications[sheetName];
-		if (!sheet) {
-			console.warn(`No defined sheet found for ${modelType}`);
-			continue;
-		}
-		const makeDefault = ((sheetType == 'Actor' && modelType == 'character') || (sheetType == 'Item' && modelType == 'item'));
-		docs.registerSheet('tribe8', sheet, { types: [modelType], makeDefault: makeDefault });
-	}
-}

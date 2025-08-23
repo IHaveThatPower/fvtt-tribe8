@@ -31,4 +31,15 @@ export class Tribe8AspectModel extends Tribe8ItemModel {
 			ritual: new fields.BooleanField({hint: "Whether or not this is a Ritual based on an Aspect.", required: true, initial: false})
 		};
 	}
+
+	/**
+	 * Return the configured "intrinsic" cost of this Aspect, in CP or XP.
+	 *
+	 * @return {int} The intrinsic cost of the Aspect
+	 * @access private
+	 */
+	get intrinsicCost() {
+		if (this.granted) return 0;
+		return super.intrinsicCost();
+	}
 }

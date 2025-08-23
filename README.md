@@ -40,13 +40,21 @@ This is a rough, ever-changing list that depicts in approximate priority order w
 
 ### Short Term
 - Equipment tab
+  - Includes Gear-type Items
 - Combat tab
+  - Includes Weapon- and Armor-type Items
 - Character artwork editing support
+- Item artwork editing support
+- Finalize character sheet layout
+- Implement basic SilCORE dice mechanics
 
 ### Longer Term
 - Fully localize!
-- Make starting CP a system setting for the GM, and then make the initial CP boxes something GM users can edit
+- Convert flat config values to system settings
+  - e.g. Make starting CP a system setting for the GM
+- Allow GMs to edit a character's initial CP
 - Some way to trade attribute points (i.e. PSY for other attributes)
 - Sundering?
 - Technosmithig?
 - Item Compendium packs
+- Vehicle system...?

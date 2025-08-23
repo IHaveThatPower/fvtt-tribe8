@@ -3,16 +3,263 @@ import { Tribe8Actor } from './actor.js';
 
 export class Tribe8Item extends Item {
 	/**
-	 * Get the actor owner of this item, if there is one.
+	 * Identify whether or not this item is a physical item (i.e. a
+	 * weapon, piece of armor, piece of gear) or is a modular element
+	 * of an Actor.
 	 *
-	 * @return {Actor|bool} Either the parent Tribe8Actor or false if none is found
+	 * @return {bool} Whether or not the Item is a physical item
 	 * @access public
 	 */
-	getActorOwner() {
-		if (this.isEmbedded) {
-			return this.parent;
+	get isPhysicalItem() {
+		if (CONFIG.Tribe8.PHYSICAL_ITEMS.indexOf(this.type) < 0)
+			return false;
+		return true;
+	}
+
+	/**
+	 * Return the number of "steps" it takes to get from this Item,
+	 * through any Item-type-specific "parents", to the Actor on which
+	 * it's actually embedded. Applies to things like Gear in
+	 * containers or Specializations on Skills.
+	 *
+	 * @return {int} Steps to reach the Actor from the Item; 0 if not embedded
+	 * @access public
+	 */
+	get depth() {
+		if (!this.isEmbedded) return 0;
+		if (this.type == 'specialization')
+			return 2; // If embedded, will always belong to a Skill
+		if (this.isPhysicalItem) {
+			return (Tribe8Item.#pathToActor(this).length - 1); // The first item is always the item itself, which we won't count
 		}
-		return false;
+		return 1; // The Actor
+	}
+
+	/**
+	 * Get the weight of a physical Item's contents (i.e. everything
+	 * that includes it in the "path" from Item to Actor).
+	 *
+	 * @return {float} The weight in kg of all the Item's contents.
+	 *                 Does not include the Item itself.
+	 * @access public
+	 */
+	get contentWeight() {
+		if (!this.isEmbedded) return 0;
+		if (!this.isPhysicalItem) return 0;
+
+		// Find all Items that list this item as their storage Item
+		const contentItems = this.parent.getGear().filter((g) => g.system.storage == this.id);
+		if (!contentItems.length) return 0;
+
+		return contentItems.reduce((weight, item) => (item.weight * item.qty) + (item.contentWeight), 0);
+	}
+
+	/**
+	 * Pre-process a creation operation for a single Document instance.
+	 * Pre-operation events only occur for the client which requested
+	 * the operation.
+	 *
+	 * Modifications to the pending Document instance must be performed
+	 * using {@link updateSource}.
+	 *
+	 * @param  {object}                data       The initial data object provided to the document creation request
+	 * @param  {object}                options    Additional options which modify the creation request
+	 * @param  {BaseUser}              user       The User requesting the document creation
+	 * @return {Promise<boolean|void>}            Return false to exclude this Document from the creation operation
+	 * @access protected
+	 */
+	async _preCreate(data, options, user) {
+		try {
+			this.#validateNewUpdate('create', data);
+		}
+		catch (error) {
+			foundry.ui.notifications.error(error);
+			return false;
+		}
+		return await super._preUpdate(data, options, user);
+	}
+
+	/**
+	 * Pre-process an update operation for a single Document instance.
+	 * Pre-operation events only occur for the client which requested
+	 * the operation.
+	 *
+	 * @param  {object}                changes    The candidate changes to the Document
+	 * @param  {object}                options    Additional options which modify the update request
+	 * @param  {BaseUser}              user       The User requesting the document update
+	 * @return {Promise<boolean|void>}            A return value of false indicates the update operation should be canceled.
+	 * @access protected
+	 */
+	async _preUpdate(changes, options, user) {
+		try {
+			this.#validateNewUpdate('update', changes);
+		}
+		catch (error) {
+			foundry.ui.notifications.error(error);
+			return false;
+		}
+		return await super._preUpdate(changes, options, user);
+	}
+
+	/**
+	 * Validate create/update requests.
+	 *
+	 * @param  {string}         request    The request being made (create or update)
+	 * @param  {object}         data       The changes object passed along by _preCreate or _preUpdate
+	 * @return {void}
+	 * @throws {RangeError}                When Gear updates or Specialization creation has invalid parameters
+	 * @throws {ReferenceError}            When Specialization creation has invalid parameters
+	 * @access private
+	 */
+	#validateNewUpdate(request, data) {
+		// A lot of these will want to know about the parent Actor, or
+		// if one isn't (yet) assigned.
+		const actor = this.parent;
+
+		// Intercept dumb Gear inputs
+		if (request == 'update' && this.isPhysicalItem) {
+			if (Object.hasOwn(data.system, 'storage')) {
+				if (data.system.storage == this.id) {
+					throw new RangeError("tribe8.errors.circular-container");
+				}
+			}
+			if (Object.hasOwn(data.system, 'qty')) {
+				if (data.system.qty != 1 && this.system.isContainer) {
+					throw new RangeError("tribe8.errors.quantity-on-container");
+				}
+			}
+		}
+		if (request == 'create' && data.type === 'specialization') {
+			if (!actor) {
+				throw new ReferenceError("tribe8.errors.unowned-specialization");
+			}
+			// Does this Specialization already exist?
+			const targetSkill = actor.getEmbeddedDocument("Item", data.system.skill);
+			if (!targetSkill) {
+				throw new ReferenceError("tribe8.errors.skill-not-exist");
+			}
+			if (
+				targetSkill.system.specializations
+				.map((s) => actor.getEmbeddedDocument("Item", s))
+				.filter((s) => s.type == 'specialization')
+				.some((s) => s.name == data.name)
+			) {
+				throw new RangeError("tribe8.errors.existing-skill-specialization");
+			}
+		}
+	}
+
+	/**
+	 * Post-process a creation operation for a single Document instance.
+	 * Post-operation events occur for all connected clients.
+	 *
+	 * @param  {object} data       The initial data object provided to the document creation request
+	 * @param  {object} options    Additional options which modify the creation request
+	 * @param  {string} userId     The id of the User requesting the document update
+	 * @return {void}
+	 * @access protected
+	 */
+	_onCreate(data, options, userId) {
+		this.#processNewUpdate(data, options);
+		super._onCreate(data, options, userId);
+	}
+
+	/**
+	 * Post-process an update operation for a single Document instance.
+	 * Post-operation events occur for all connected clients.
+	 *
+	 * @param  {object} changed    The differential data that was changed relative to the documents prior values
+	 * @param  {object} options    Additional options which modify the update request
+	 * @param  {string} userId     The id of the User requesting the document update
+	 * @return {void}
+	 * @access protected
+	 */
+	_onUpdate(changed, options, userId) {
+		this.#processNewUpdate(changed, options);
+		super._onUpdate(changed, options, userId);
+	}
+
+	/**
+	 * After a create or update successfully transpires, execute any
+	 * post-operation changes that need to be made.
+	 *
+	 * @param  {object}         data       The initial or differential data from the request
+	 * @param  {object}         options    Additional options modifying the request
+	 * @return {void}
+	 * @throws {ReferenceError}            When the Skill doesn't exist on the Actor
+	 * @access private
+	 */
+	#processNewUpdate(data, options) {
+		// A lot of these will want to know about the parent Actor, or
+		// if one isn't (yet) assigned.
+		const actor = this.parent;
+
+		// When a specialization is created, associate it with its skill
+		if (options.action == 'create' && data.type == 'specialization') {
+			const skill = game.actors.get(actor.id).getEmbeddedDocument("Item", data.system.skill);
+			if (!skill) {
+				throw new ReferenceError("tribe8.errors.skill-not-exist");
+			}
+			skill.update({'system.specializations': [...skill.system.specializations, this.id]});
+		}
+		// When a skill is updated, audit its specializations
+		if (options.action == 'update' && data.type == 'skill') {
+			const skillSpecs = this.system.specializations;
+			const actorSpecs = actor.getItems({type: 'specialization'});
+			for (let s = 0; s < skillSpecs.length; s++) {
+				const spec = skillSpecs[s];
+
+				// Actor has *no* specializations?
+				if (actorSpecs.length == 0) {
+					skillSpecs.splice(spec, 1);
+				}
+
+				// Actor doesn't have *this* specialization?
+				if (!actorSpecs.some(c => c.id == spec.id)) {
+					skillSpecs.splice(spec, 1);
+				}
+			}
+			// Fire off another update with the updated specializations
+			this.update({'system.==specializations': [...skillSpecs]});
+		}
+	}
+
+	/**
+	 * Post-process a deletion operation for a single Document instance.
+	 * Post-operation events occur for all connected clients.
+	 *
+	 * @param  {object} options    Additional options which modify the deletion request
+	 * @param  {string} userId     The id of the User requesting the document update
+	 * @return {void}
+	 * @access protected
+	 */
+	_onDelete(options, userId) {
+		super._onDelete(options, userId);
+
+		// A lot of these will want to know about the parent Actor, or
+		// if one isn't (yet) assigned.
+		const actor = this.parent;
+
+		// When a specializations is deleted from an actor, also delete
+		// it from the skill listing it.
+		if (actor && this.type == 'specialization') {
+			const skill = actor.getEmbeddedDocument("Item", this.system.skill);
+			if (!skill) return;
+			const skillSpecializations = [...skill.system.specializations];
+			const specIdx = skillSpecializations.indexOf(this.id);
+			if (specIdx < 0) return;
+			skillSpecializations.splice(specIdx, 1);
+			skill.update({'system.==specializations': skillSpecializations});
+		}
+
+		// When a Skill is deleted, check to see if there are any
+		// attached Specializations that should also be deleted
+		if (actor && this.type == 'skill') {
+			const specs = actor.getItems({type: 'specialization'}).filter((s) => s.system.skill == this.id);
+			if (specs.length) {
+				this.actor.deleteEmbeddedDocuments("Item", specs.map((s) => s.id));
+			}
+		}
 	}
 
 	/**
@@ -56,6 +303,14 @@ export class Tribe8Item extends Item {
 			return Tribe8Item.#cmpEminence(a, b);
 		if (a.type === 'totem')
 			return Tribe8Item.#cmpTotem(a, b);
+		if (a.type === 'weapon' && b.type === 'weapon')
+			return Tribe8Item.#cmpWeapon(a, b);
+		if (a.type === 'armor' && b.type === 'armor')
+			return Tribe8Item.#cmpArmor(a, b);
+		// Special case for all physical item types, which can sort
+		const canSortGear = (a.isPhysicalItem && b.isPhysicalItem);
+		if (canSortGear) return Tribe8Item.#cmpGear(a, b);
+		// General-purpose fallback
 		return Tribe8Item.#cmpFallback(a, b);
 	}
 
@@ -143,13 +398,15 @@ export class Tribe8Item extends Item {
 			throw new Error("Cannot use Maneuver comparison function to sort non-Maneuver items");
 
 		// If the skills don't match, we need to first consult their sorting algorithm
-		if (a.system.forSkill != b.system.forSkill)
+		if (a.system.category != b.system.category)
 		{
 			const combatSkills = a.parent?.getSkills({combat: true}) || {};
 
 			// Identify the relevant skills to our a and b
-			const aSkill = (combatSkills[a.system.forSkill] || [])[0];
-			const bSkill = (combatSkills[b.system.forSkill] || [])[0];
+			// TODO: (Future) Right now, this only uses the first matching Skill from each category.
+			// In most cases, there *is* only one, but Ranged throws a monkey wrench in that.
+			const aSkill = (combatSkills[a.system.category] || [])[0];
+			const bSkill = (combatSkills[b.system.category] || [])[0];
 			if (aSkill && !bSkill) return -1;
 			if (!aSkill && bSkill) return 1;
 			if (aSkill && bSkill) {
@@ -235,6 +492,121 @@ export class Tribe8Item extends Item {
 			if (!aFromCpx && bFromCpx) return 1;
 		}
 		return Tribe8Item.#cmpFallback(a, b);
+	}
+
+	/**
+	 * Sort for Gear
+	 *
+	 * @param  {Tribe8Item} a    The first comparison item
+	 * @param  {Tribe8Item} b    The second comparison item
+	 * @return {int}             The result of the comparison
+	 * @throws {Error}           When the Item types mismatch
+	 * @access private
+	 */
+	static #cmpGear(a, b) {
+		const validGearTypes = ['gear', 'weapon', 'armor'];
+		if (validGearTypes.indexOf(a.type) < 0 || validGearTypes.indexOf(b.type) < 0)
+			throw new Error("Cannot use Gear comparison function to sort non-Gear items");
+
+		// Is one of these items the container for the other?
+		if (a.system.storage == b.id) return 1;
+		if (a.id == b.system.storage) return -1;
+
+		// Make sure we're dealing with matching types
+		a.system.storage = a.system.storage ? a.system.storage : undefined;
+		b.system.storage = b.system.storage ? b.system.storage : undefined;
+		// Do these items have different storage?
+		if (a.system.storage != b.system.storage) {
+			// Trace the path to the parent actor through each item, then
+			// Flip it around so it's actor-first
+			const aPath = this.#pathToActor(a).reverse();
+			const bPath = this.#pathToActor(b).reverse();
+
+			// Find the common ancestor
+			let spliceCount = 1;
+			for (let i = 0; i < aPath.length && i < bPath.length; i++) {
+				if (aPath[i] != bPath[i]) {
+					spliceCount = i;
+					break;
+				}
+			}
+
+			// Chop out the path elements up to the common step.
+			const actor = a.parent;
+			aPath.splice(0, spliceCount);
+			bPath.splice(0, spliceCount);
+			const aCmp = (aPath[0] == a.id ? a : actor.getEmbeddedDocument("Item", aPath[0]));
+			const bCmp = (bPath[0] == b.id ? b : actor.getEmbeddedDocument("Item", bPath[0]));
+			return this.#cmpGear(aCmp, bCmp);
+		}
+
+		// Same storage, so just sort within tier
+		return Tribe8Item.#cmpFallback(a, b);
+	}
+
+	/**
+	 * Trace a path back to the parent Actor for the given Item
+	 *
+	 * @param  {Tribe8Item}     item    The Item we're tracing back to the Actor
+	 * @return {Array<string>}          List of Item IDs going back to the Actor.
+	 *                                  The final entry is always the Actor id
+	 * @throws {TypeError}              If the provided Item is not a physical item type.
+	 * @throws {ReferenceError}         If the provided Item is not in the Actor's embedded documents
+	 * @access private
+	 */
+	static #pathToActor(item) {
+		if (!item.isPhysicalItem) {
+			throw new TypeError("Cannot trace path to Actor for non-physical Item types");
+		}
+		if (item.system.storage == item.id) { // Break this, if something goofy happened
+			if (!item.fixingStorageRecursion) {
+				item.fixingStorageRecursion = true;
+				item.update({'system.==storage': null}, {diff: false});
+				console.error(`Item.${item.id} listed itself as storage, which would lead to infinite recursion. This link has been broken.`);
+			}
+			return [item.id, item.parent.id];
+		}
+		let path = [item.id];
+		if (item.system.storage) {
+			const storageItem = item.parent.getEmbeddedDocument("Item", item.system.storage);
+			if (!storageItem) {
+				throw new ReferenceError("Indicated storage Item did not exist on the Actor!");
+			}
+			return path.concat(this.#pathToActor(storageItem));
+		}
+		// No storage item, so return the actor
+		path.push(item.parent.id);
+		return path;
+	}
+
+	/**
+	 * Sort for IWeapons, which just wraps the Gear sort
+	 *
+	 * @param  {Tribe8Item} a    The first comparison item
+	 * @param  {Tribe8Item} b    The second comparison item
+	 * @return {int}             The result of the comparison
+	 * @throws {Error}           When the Item types mismatch
+	 * @access private
+	 */
+	static #cmpWeapon(a, b) {
+		if (a.type != 'weapon' || b.type != 'weapon')
+			throw new Error("Cannot use Weapon comparison function to sort non-Weapon items");
+		return this.#cmpGear(a, b);
+	}
+
+	/**
+	 * Sort for Armor, which just wraps the Gear sort
+	 *
+	 * @param  {Tribe8Item} a    The first comparison item
+	 * @param  {Tribe8Item} b    The second comparison item
+	 * @return {int}             The result of the comparison
+	 * @throws {Error}           When the Item types mismatch
+	 * @access private
+	 */
+	static #cmpArmor(a, b) {
+		if (a.type != 'armor' || b.type != 'armor')
+			throw new Error("Cannot use Armor comparison function to sort non-Armor items");
+		return this.#cmpGear(a, b);
 	}
 
 	/**
@@ -394,7 +766,7 @@ export class Tribe8Item extends Item {
 	 *
 	 * @access public
 	 */
-	async createSpecializationsFromLegacy() {
+	async zShimCreateSpecializationsFromLegacy() {
 		const source = this.getFlag('tribe8', 'legacy-specializations');
 		// Probably nothing to do
 		if (!source || !Object.keys(source).length)

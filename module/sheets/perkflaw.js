@@ -15,6 +15,19 @@ class Tribe8PerkFlawSheet extends Tribe8ItemSheet {
 		form: { template: 'systems/tribe8/templates/sheets/items/perkflaw.html' }
 	}
 
+	static DEFAULT_ICON = () => `systems/tribe8/icons/${this.document.type}.svg`;
+
+	/**
+	 * Unified Item sheet title getter that chooses with localization
+	 * string to use based on Item type.
+	 *
+	 * @return {string} The formatted, localized title string
+	 * @access public
+	 */
+	get title() {
+		return game.i18n.format(`tribe8.item.${this.document.type}.title`, {pfName: this.document.name});
+	}
+
 	/**
 	 * Prepare the context object supplied to the application
 	 *
@@ -103,29 +116,11 @@ class Tribe8PerkFlawSheet extends Tribe8ItemSheet {
 	}
 }
 
-export class Tribe8PerkSheet extends Tribe8PerkFlawSheet {
-	static DEFAULT_ICON = "systems/tribe8/icons/perk.svg";
-
-	/**
-	 * Modified title, with Perk prefix
-	 *
-	 * @return {string} The document name, prefixed with "Perk"
-	 * @access public
-	 */
-	get title() {
-		return `Perk: ${this.document.name}`;
-	}
-}
-export class Tribe8FlawSheet extends Tribe8PerkFlawSheet {
-	static DEFAULT_ICON = "systems/tribe8/icons/flaw.svg";
-
-	/**
-	 * Modified title, with Flaw prefix
-	 *
-	 * @return {string} The document name, prefixed with "Flaw"
-	 * @access public
-	 */
-	get title() {
-		return `Flaw: ${this.document.name}`;
-	}
-}
+/**
+ * These are the actual stub classes the game uses, extending from the
+ * parent class above. They're separated out, rather than just using
+ * a single one, in the event that type-specific logic becomes
+ * necessary.
+ */
+export class Tribe8PerkSheet extends Tribe8PerkFlawSheet {}
+export class Tribe8FlawSheet extends Tribe8PerkFlawSheet {}

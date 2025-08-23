@@ -31,7 +31,7 @@
 	{{#with document.system.attributes.secondary.physical.shock as | shock |}}
 	{{#repeat shock.value false}}
 		<div class="shock-state">
-			{{~#if (gt this (sub shock.value shock.current))~}}
+			{{~#if (gt this (sub shock.value @root.document.system.shock))~}}
 			<i class="fa fa-solid fa-skull wounded"></i>
 			{{~else~}}
 			<i class="fa fa-solid fa-heart healthy"></i>

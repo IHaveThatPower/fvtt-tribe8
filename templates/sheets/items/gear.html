@@ -4,55 +4,60 @@
 		{{#if document.isEmbedded}}
 		<div class="carried">
 			<input type="checkbox" name="system.carried" value="true"{{#if document.system.carried}} checked{{/if}} />
-			<label for="system.carried" title="{{localize "tribe8.item.gear.carried.hint"}}">{{localize "tribe8.sheets.gear.system.carried.short"}}</label>
+			<label for="system.carried" title="{{localize "tribe8.item.gear.system.carried.hint"}}">{{localize "tribe8.item.gear.system.carried.short"}}</label>
 		</div>
 		{{/if}}
 	</div>
-	{{!--
-	storage: new fields.ForeignDocumentField(
-		CONFIG.Item.documentClass,
-		{
-			hint: "tribe8.item.gear.storage.hint",
-			blank: true,
-			nullable: true,
-			idOnly: true
-		}
-	),
-	--}}
 	<div class="properties">
 		<div class="property">
-			<div class="property-name"><label for="system.complexity">{{localize "tribe8.sheets.gear.system.complexity.short"}}</label></div>
+			<div class="property-name"><label for="system.complexity">{{localize "tribe8.item.gear.system.complexity.short"}}</label></div>
 			<div class="property-input">
 				<span class="input-size" data-value="{{document.system.complexity}}">
-					<input type="number" name="system.complexity" value="{{ document.system.complexity }}" placeholder="1" min="1" max="10" />
+					<input type="number" name="system.complexity" value="{{ document.system.complexity }}" placeholder="1" min="1" max="5" />{{!-- Note that these limits aren't enforced by the form, they're just for sizing --}}
 				</span>
 			</div>
 		</div>
 		{{!-- TODO: Make this a slider that shows the string representation of the value above/below it --}}
 		<div class="property">
-			<div class="property-name"><label for="system.value">{{localize "tribe8.sheets.gear.system.value.short"}}</label></div>
+			<div class="property-name"><label for="system.value">{{localize "tribe8.item.gear.system.value.short"}}</label></div>
 			<div class="property-input">
 				<span class="input-size" data-value="{{document.system.value}}">
-					<input type="number" name="system.value" value="{{ document.system.value }}" placeholder="5" min="0" max="99" />
+					<input type="number" name="system.value" value="{{ document.system.value }}" placeholder="5" min="0" max="10" />{{!-- Note that these limits aren't enforced by the form, they're just for sizing --}}
 				</span>
 			</div>
 		</div>
 		<div class="property">
-			<div class="property-name"><label for="system.weight">{{localize "tribe8.sheets.gear.system.weight.short"}}</label></div>
+			<div class="property-name"><label for="system.weight">{{localize "tribe8.item.gear.system.weight.short"}}</label></div>
 			<div class="property-input">
 				<span class="input-size" data-value="{{document.system.weight}}">
-					<input type="number" name="system.weight" value="{{ document.system.weight }}" placeholder="0" min="0" max="9999" />
+					<input type="number" name="system.weight" value="{{ document.system.weight }}" placeholder="0" min="0" max="99" />{{!-- Note that these limits aren't enforced by the form, they're just for sizing --}}
 				</span>
 			</div>
 		</div>
 		<div class="property">
-			<div class="property-name"><label for="system.qty">{{localize "tribe8.sheets.gear.system.qty.short"}}</label></div>
+			<div class="property-name"><label for="system.qty">{{localize "tribe8.item.gear.system.qty.short"}}</label></div>
 			<div class="property-input">
 				<span class="input-size" data-value="{{document.system.qty}}">
-					<input type="number" name="system.qty" value="{{ document.system.qty }}" placeholder="0" min="0" max="9999" />
+					<input type="number" name="system.qty" value="{{ document.system.qty }}" placeholder="0" min="0" max="99" />{{!-- Note that these limits aren't enforced by the form, they're just for sizing --}}
 				</span>
 			</div>
 		</div>
+		{{#if otherGear.length}}
+		<div class="property storage">
+			<div class="property-name"><label for="system.storage" title="{{localize "tribe8.item.gear.system.storage.short"}}"><i class="fa fa-solid fa-box-archive"></i></label></div>
+			<div class="property-input">
+				<select name="system.storage">
+					<option value=""></option>
+					{{#each otherGear}}
+					<option value="{{this.id}}"{{#if (eq this.id ../document.system.storage)}} selected{{/if}}>
+						{{~#repeat (sub this.depth 1)}}&nbsp;&nbsp;&nbsp;&nbsp;{{/repeat~}}
+						{{~this.name}}{{#if this.system.isContainer}}*{{/if~}}
+					</option>
+					{{/each}}
+				</select>
+			</div>
+		</div>
+		{{/if}}
 	</div>
 	{{> "systems/tribe8/templates/sheets/items/partials/description.html"}}
 	{{> "systems/tribe8/templates/sheets/items/partials/buttons.html"}}

@@ -60,13 +60,10 @@ Hooks.once('init', function() {
 	CONFIG.Tribe8 = Tribe8;
 
 	// Define initiative for the system.
-	// TODO: Setup initiative stuff
-	/*
 	CONFIG.Combat.initiative = {
-		formula: '@disciplines.security.value',
+		formula: null, // TODO: (Later) Initiative is a ranked Combat Sense roll, but that requires actually implementing dice mechanics
 		decimals: 0
 	};
-	*/
 
 	// Define custom Entity classes
 	CONFIG.Actor.documentClass = Tribe8Actor;
@@ -126,9 +123,8 @@ Hooks.once('init', function() {
 Hooks.on('setup', function() {
 	(async () => {
 		for (let a of game.actors) {
-			await a.migrateSystemData(); // Assumes a.migrateData(data) was called previous, but Foundry itself
-			await a.createSpecializationsFromLegacy();
-			a.alignSkillsAndSpecializations();
+			await a.migrateSystemData(); // Assumes a.migrateData(data) was called previous, by Foundry itself
+			await a.zShimCreateSpecializationsFromLegacy();
 		}
 	})();
 });

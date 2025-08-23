@@ -44,6 +44,36 @@ export class Tribe8PerkFlawModel extends Tribe8ItemModel {
 	}
 
 	/**
+	 * Determine the total amount of CP spent on this Perk or Flaw.
+	 *
+	 * @return {int} The total CP spent on the Perk or Flaw
+	 * @access public
+	 */
+	get totalCP() {
+		if (!this.points.length) return 0;
+		return this.points.reduce((cp, pointTypeForRank, rank) => {
+			if (pointTypeForRank !== "CP") return cp;
+			if (rank === 0) return cp + this.baseCost;
+			return cp + this.perRank;
+		}, 0);
+	}
+
+	/**
+	 * Determine the total amount of XP spent on this Perk or Flaw.
+	 *
+	 * @return {int} The total XP spent on the Perk or Flaw
+	 * @access public
+	 */
+	get totalXP() {
+		if (!this.points.length) return 0;
+		return this.points.reduce((xp, pointTypeForRank, rank) => {
+			if (pointTypeForRank !== "XP") return xp;
+			if (rank === 0) return xp + this.baseCost;
+			return xp + this.perRank;
+		}, 0);
+	}
+
+	/**
 	 * Ensure any source data using the legacy "cost" field switches to
 	 * "baseCost", and ensure any source data with lowercase points
 	 * values is switched to uppercase

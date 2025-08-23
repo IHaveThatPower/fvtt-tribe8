@@ -41,18 +41,20 @@
 	--color-aspect-granted-alt: var(--color-perk-granted-alt);
 
 	/* Faded Header Borders */
-	--border-header-right: linear-gradient(
-		to right,
-		transparent,
-		var(--color-text-emphatic) 5%,
-		transparent
-	) 1;
 	--border-header-left: linear-gradient(
 		to left,
 		transparent,
 		var(--color-text-emphatic) 5%,
 		transparent
 	) 1;
+	--border-header-right-shorttail: linear-gradient(
+		to right,
+		transparent,
+		var(--color-text-emphatic) 2%,
+		var(--color-text-emphatic) 90%,
+		transparent
+	) 1;
+
 }
 
 div.character-sheet h2,
@@ -226,37 +228,17 @@ div.item-sheet h3 {
 		height: 100%;
 	}
 	div.character-sheet.equipment {
-		display: flex;
-		flex-flow: row wrap;
 		gap: 0.8rem;
-		height: 100%;
 		width: 100%;
 		overflow: hidden;
+		display: grid;
+		grid-template-columns: 1fr 1fr;
 	}
-
 	h2 {
 		display: grid;
 		grid-template-columns: 1fr min-content;
 		align-items: center;
 		margin-bottom: 0.2rem;
-	}
-	.equipment h2 {
-		grid-template-columns: min-content min-content;
-		gap: 0.5rem;
-	}
-	.equipment div.weapons h2,
-	.equipment div.armor h2 {
-		width: 70%;
-		border-image: var(--border-header-right);
-	}
-	.equipment div.armor h2 {
-		justify-content: end;
-		border-image: var(--border-header-left);
-		justify-self: end;
-
-	}
-	.equipment div.gear h2 {
-		grid-template-columns: 1fr min-content;
 	}
 	h2 span:first-child {
 		overflow: hidden;
@@ -319,12 +301,6 @@ div.item-sheet h3 {
 	div.character-sheet div.middle-column h2 {
 		margin-top: 0;
 		margin-bottom: 0;
-	}
-	div.character-sheet.equipment>div {
-		flex: 1 1 40%;
-	}
-	div.character-sheet.equipment>div:last-child {
-		flex: 1 1 100%;
 	}
 
 	div.character-basics {
@@ -1123,6 +1099,48 @@ div.item-sheet h3 {
 			color: var(--color-system-shock-wounded);
 		}
 	}
+
+	/**
+	 * Character Sheet Equipment
+	 */
+	.equipment h2 {
+		grid-template-columns: min-content min-content;
+		gap: 0.5rem;
+	}
+	.equipment div.weapons h2,
+	.equipment div.armor h2 {
+		width: 70%;
+		border-image: var(--border-header-right);
+	}
+	.equipment div.armor h2 {
+		justify-content: end;
+		border-image: var(--border-header-left);
+		justify-self: end;
+	}
+	.equipment div.gear-list h2 {
+		border-image: var(--border-header-right-shorttail);
+		column-span: all;
+	}
+	div.character-sheet.equipment>div {
+		min-height: 5rem;
+	}
+	div.character-sheet.equipment>div:last-child {
+		grid-column: 1 / span 2;
+		column-count: 2;
+		column-fill: auto; /* Down, then across */
+	}
+	.equipment div.gear-list summary div.gear {
+		display: inline-block; /* Needed to get the marker to behave */
+	}
+	.equipment div.gear-list blockquote {
+		font-style: unset;
+		font-family: var(--font-body);
+		padding: 0 0 0 1rem;
+	}
+	.equipment div.gear-list>div.gear, /* Non-contained items */
+	.equipment div.gear-list blockquote>div.gear { /* Contained items that are not themselves containers */
+		padding: 0 0 0 1rem;
+	}
 }
 
 /**
@@ -1220,6 +1238,9 @@ div.item-sheet h3 {
 		margin: 0.2rem 0;
 		background: var(--color-background-alt);
 	}
+	div.skill div.costs {
+		align-items: start;
+	}
 	div.cost-field {
 		flex: 0 0 min-content;
 		display: grid;
@@ -1304,32 +1325,49 @@ div.item-sheet h3 {
 		vertical-align: revert;
 		bottom: revert;
 	}
-	div.effects {
+	div.properties {
 		display: flex;
 		flex-flow: row wrap;
-		gap: 0.4rem;
+		column-gap: 0.4rem;
+		row-gap: 0.8rem;
 		justify-content: center;
 		margin: 0.2rem 0;
 	}
-	div.effect {
+	div.identity+div.properties {
+		margin-top: 0.4rem; /* Give this one a little more space, since it won't have div.costs to buffer it */
+	}
+	div.property {
 		display: block;
 		gap: 0.4rem;
 		align-items: center;
 		break-inside: avoid;
 		justify-content: end;
 	}
-	div.effect div.effect-property {
+	div.property.storage {
+		width: 100%;
+		display: grid;
+		grid-template-columns: min-content 1fr;
+	}
+	div.property div.property-name {
 		text-align: center;
+	}
+	div.property.storage div.property-name {
+		text-align: left;
+	}
+	div.property:not(.storage) div.property-name {
 		order: 2;
 	}
-	div.effect div.effect-input {
+	div.property:not(.storage) div.property-input {
 		order: 1;
 	}
-	div.effect input {
+	div.property input {
 		min-width: 4ch;
 		width: auto;
 		text-align: center;
 		grid-area: 1/1;
+	}
+	div.property select {
+		padding: 0;
 	}
 	span.input-sizer::after {
 		padding: 0 0.5rem;

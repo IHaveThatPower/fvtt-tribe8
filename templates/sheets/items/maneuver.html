@@ -2,9 +2,9 @@
 	<div class="identity">
 		<div class="name"><input type="text" name="name" value="{{document.name}}" size=12></div>
 		<div class="specific">
-			<select name="system.forSkill">
+			<select name="system.category">
 				{{#each allowedTypes as |name key|}}
-				<option value="{{key}}"{{#if (eq @root.document.system.forSkill key)}} selected{{/if}}>{{name}}</option>
+				<option value="{{key}}"{{#if (eq @root.document.system.category key)}} selected{{/if}}>{{name}}</option>
 				{{/each}}
 			</select>
 		</div>
@@ -40,50 +40,50 @@
 			<label for="system.granted" title="Check if the Weaver granted this for free">F?</label>
 		</div>
 	</div>
-	<div class="effects">
-		<div class="effect">
-			<div class="effect-property">Cpx</div>
-			<div class="effect-input">
+	<div class="properties">
+		<div class="property">
+			<div class="property-name">Cpx</div>
+			<div class="property-input">
 				<span class="input-size" data-value="{{document.system.complexity}}">
 					<input type="number" name="system.complexity" value="{{ document.system.complexity }}" title="Complexity requirement for this Maneuver. Use 0 for Free Maneuvers." placeholder="0" min="0" max="10" />
 				</span>
 			</div>
 		</div>
-		<div class="effect">
-			<div class="effect-property">Acc.</div>
-			<div class="effect-input">
+		<div class="property">
+			<div class="property-name">Acc.</div>
+			<div class="property-input">
 				<span class="input-sizer" data-value="{{document.system.accuracy}}">
 					<input type="text" name="system.accuracy" value="{{document.system.accuracy}}" placeholder="N/A" size=2 />
 				</span>
 			</div>
 		</div>
-		<div class="effect">
-			<div class="effect-property">Init.</div>
-			<div class="effect-input">
+		<div class="property">
+			<div class="property-name">Init.</div>
+			<div class="property-input">
 				<span class="input-sizer" data-value="{{document.system.initiative}}">
 					<input type="text" name="system.initiative" value="{{document.system.initiative}}" placeholder="N/A" size=2 />
 				</span>
 			</div>
 		</div>
-		<div class="effect">
-			<div class="effect-property">Def.</div>
-			<div class="effect-input">
+		<div class="property">
+			<div class="property-name">Def.</div>
+			<div class="property-input">
 				<span class="input-sizer" data-value="{{document.system.defense}}">
 					<input type="text" name="system.defense" value="{{document.system.defense}}" placeholder="N/A" size=2 />
 				</span>
 			</div>
 		</div>
-		<div class="effect">
-			<div class="effect-property">Parry</div>
-			<div class="effect-input">
+		<div class="property">
+			<div class="property-name">Parry</div>
+			<div class="property-input">
 				<span class="input-sizer" data-value="{{document.system.parry}}">
 					<input type="text" name="system.parry" value="{{document.system.parry}}" placeholder="N/A" size=2 />
 				</span>
 			</div>
 		</div>
-		<div class="effect">
-			<div class="effect-property">Dmg.</div>
-			<div class="effect-input">
+		<div class="property">
+			<div class="property-name">Dmg.</div>
+			<div class="property-input">
 				<span class="input-sizer" data-value="{{document.system.damage}}">
 					<input type="text" name="system.damage" value="{{document.system.damage}}" placeholder="N/A" size=4 />
 				</span>

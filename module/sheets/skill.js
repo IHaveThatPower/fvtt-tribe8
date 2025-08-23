@@ -6,10 +6,10 @@ export class Tribe8SkillSheet extends Tribe8ItemSheet {
 		window: { contentClasses: ["tribe8", "skill", "sheet", "item"] },
 		position: { width: 300 },
 		actions: {
-			incrementEdie: Tribe8SkillSheet.incrementEdie,
-			decrementEdie: Tribe8SkillSheet.decrementEdie,
-			addSpecialization:  Tribe8SkillSheet.addSpecialization,
-			removeSpecialization:  Tribe8SkillSheet.removeSpecialization
+			incrementEdie:         Tribe8SkillSheet.action_incrementEdie,
+			decrementEdie:         Tribe8SkillSheet.action_decrementEdie,
+			addSpecialization:     Tribe8SkillSheet.action_addSpecialization,
+			removeSpecialization:  Tribe8SkillSheet.action_removeSpecialization
 		}
 	}
 
@@ -26,7 +26,7 @@ export class Tribe8SkillSheet extends Tribe8ItemSheet {
 	 * @access public
 	 */
 	get title() {
-		return `Skill: ${this.document.name}`;
+		return game.i18n.format(`tribe8.item.skill.title`, {skill: this.document.name});
 	}
 
 	/**
@@ -49,11 +49,10 @@ export class Tribe8SkillSheet extends Tribe8ItemSheet {
 
 	/**
 	 * Handle the submit data. In particular:
-	 * ```
+	 *
 	 * - Extract Specialization-related form fields and stash them for
-	 * separate processing
+	 *   separate processing
 	 * - Compute any eDie delta and handle that separately
-	 * ```
 	 *
 	 * @param  {Event}            event              The triggering event
 	 * @param  {HTMLFormElement}  form               The top-level form element
@@ -98,11 +97,11 @@ export class Tribe8SkillSheet extends Tribe8ItemSheet {
 	/**
 	 * Process the submitted data, or rather don't if the instigator
 	 * of the submission was a form input the name of which starts with
-	 * `newSpecialization`. Prior to actually submitting:
-	 * ```
+	 * `newSpecialization`.
+	 *
+	 * Prior to actually submitting:
 	 * - Process the eDie
 	 * - Update Specializations
-	 * ```
 	 *
 	 * @param {Event}           event           The event that triggered submission
 	 * @param {HTMLFormElement} form            The form element doing the submitting
@@ -121,9 +120,6 @@ export class Tribe8SkillSheet extends Tribe8ItemSheet {
 		if (eDieDelta) {
 			await this.document.system.alterEdie(eDieDelta);
 		}
-
-		// Now, update any specializations
-		await this.#updateSpecializations();
 
 		// Finally, process the submission
 		await super._processSubmitData(event, form, submitData, options);
@@ -152,38 +148,12 @@ export class Tribe8SkillSheet extends Tribe8ItemSheet {
 	}
 
 	/**
-	 * Update Specialization Items attached to this Skill
-	 *
-	 * @access private
-	 */
-	async #updateSpecializations() {
-		if (this.specializations) {
-			const sheet = this;
-			const actor = this.document.parent;
-			for (let specId of Object.keys(sheet.specializations)) {
-				const specItem = actor.getEmbeddedDocument("Item", specId);
-				if (!specItem) {
-					console.warn(`No Specialization item matching id ${specId} found on actor '${actor.name}'`);
-					continue;
-				}
-				const srcData = sheet.specializations[specId];
-				const updateData = {};
-				for (let f of Object.keys(srcData)) {
-					let targetProp = (f != 'name' ? `system.${f}` : f);
-					updateData[targetProp] = srcData[f];
-				}
-				await specItem.update(updateData);
-			}
-		}
-	}
-
-	/**
 	 * Increment edie "other" amount
 	 *
 	 * @param {Event} event    The event triggered by interaction with the form element
 	 * @access public
 	 */
-	static incrementEdie(event) {
+	static action_incrementEdie(event) {
 		// Don't _also_ submit the form
 		event.preventDefault();
 		event.stopPropagation();
@@ -196,7 +166,7 @@ export class Tribe8SkillSheet extends Tribe8ItemSheet {
 	 * @param {Event} event    The event triggered by interaction with the form element
 	 * @access public
 	 */
-	static decrementEdie(event) {
+	static action_decrementEdie(event) {
 		// Don't _also_ submit the form
 		event.preventDefault();
 		event.stopPropagation();
@@ -207,70 +177,74 @@ export class Tribe8SkillSheet extends Tribe8ItemSheet {
 	 * Add a Specialization to an Actor, and then tie it to a Skill.
 	 * Once done, re-render the form.
 	 *
-	 * TODO: Move a lot of this code to the Skill Model, which already
-	 * does a version of it for the inline editing.
-	 *
 	 * @param {Event}           event     The event triggered by interaction with the form element
 	 * @param {HTMLFormElement} target    The element that triggered the event
 	 * @access public
 	 */
-	static addSpecialization(event, target) {
+	static action_addSpecialization(event, target) {
 		event.stopPropagation();
 		event.preventDefault();
+		if (!this.document.parent) {
+			foundry.ui.notifications.error("tribe8.error.specializations-on-unowned");
+			return;
+		}
 
 		// Gather up some info.
 		const specNode = target.parentNode;
-		const nameNode = specNode.querySelector("input[name='newSpecialization.name']");
-		const pointsNode = specNode.querySelector("input[name='newSpecialization.pointSource']:checked");
-		const grantedNode = specNode.querySelector("input[name='newSpecialization.granted']");
 		const specDef = {
-			'name': nameNode?.value,
-			'system.points': pointsNode?.value,
-			'system.granted': grantedNode?.checked,
-			'system.skill': this.document.id
+			'name':           specNode.querySelector("input[name='newSpecialization.name']")?.value || "",
+			'type':           "specialization",
+			'system.points':  specNode.querySelector("input[name='newSpecialization.pointSource']:checked")?.value || "",
+			'system.granted': specNode.querySelector("input[name='newSpecialization.granted']")?.checked || false,
+			'system.skill':   this.document.id
 		};
 		specDef.name = specDef.name.trim();
 		specDef['system.points'] = specDef['system.points'].toUpperCase();
 
-		// Hand off to the model's method
-		this.document.system.addSpecialization(specDef);
-
-		// Now clear out the existing form fields and re-render
-		if (nameNode)
-			nameNode.value = "";
-		if (pointsNode)
-			pointsNode.checked = false;
-		if (grantedNode)
-			grantedNode.checked = false;
-		this.render();
+		// Hand off to the actor, which will handle the rest of the process
+		this.document.parent.createEmbeddedDocuments("Item", [specDef]).then(() => {
+			// Reset the form and render
+			specNode.querySelectorAll('input[name^="newSpecialization."]').forEach((i) => {
+				if (i.type.toLowerCase() == 'text') i.value = "";
+				if (i.type.toLowerCase() == 'radio') i.checked = false;
+				if (i.type.toLowerCase() == 'checkbox') i.checked = false;
+			});
+			this.render();
+		});
 	}
 
 	/**
 	 * Remove an existing specialization
 	 *
-	 * TODO: Move a lot of this code to the Skill Model, which already
-	 * does a version of it for the inline editing.
-	 *
 	 * @param {Event}           event     The event triggered by interaction with the form element
 	 * @param {HTMLFormElement} target    The element that triggered the event
 	 * @access public
 	 */
-	static removeSpecialization(event, target) {
+	static action_removeSpecialization(event, target) {
 		event.stopPropagation();
 		event.preventDefault();
-		const specUUID = target?.parentNode?.dataset?.uuid;
-		if (!specUUID)
-			return;
+
+		// Can we find a specialization ID?
+		const specId = target?.parentNode?.dataset?.editId;
+		if (!specId) return; // Let this fail silently
+
+		// Can we find the specialization among the Skill's list?
 		const currentSpecializations = this.document.system.specializations;
-		if (!currentSpecializations[specUUID])
+		console.log("Current Specializations", currentSpecializations);
+		if (!currentSpecializations.includes(specId)) {
+			foundry.ui.notifications.error(`Could not find Specialization.${specId} among those of Skill '${this.document.name}'`);
 			return;
+		}
+
+		const spec = this.document.parent.getEmbeddedDocument("Item", specId);
 		const that = this;
 		DialogV2.confirm({
-			content: `Are you sure you want to delete the Specialization '${currentSpecializations[specUUID].name}'?`,
+			content: `Are you sure you want to delete the Specialization '${spec.name}'?`,
 			modal: true
 		}).then((result) => {
 			if (result) {
-				this.document.update({[`system.specializations.-=${specUUID}`]: null}).then(() => {
+				// Delete the Specialization Item off the Actor, which will take care of the rest
+				this.document.parent.deleteEmbeddedDocuments("Item", [specId]).then(() => {
 					that.render();
 				});
 			}

@@ -2,62 +2,145 @@ const { Actor } = foundry.documents;
 
 export class Tribe8Actor extends Actor {
 	/**
-	 * Align Specialization and Skill items
+	 * Pre-process an update operation for a single Document instance.
+	 * Pre-operation events only occur for the client which requested
+	 * the operation.
 	 *
-	 * @access public
+	 * @param  {object}                changes    The candidate changes to the Document
+	 * @param  {object}                options    Additional options which modify the update request
+	 * @param  {BaseUser}              user       The User requesting the document update
+	 * @return {Promise<boolean|void>}            A return value of false indicates the update operation should be canceled.
+	 * @access protected
 	 */
-	async alignSkillsAndSpecializations() {
-		const items = Array.from(this.getEmbeddedCollection("Item"));
-		const skills = items.filter((s) => s.type == 'skill');
-		const specializations = items.filter((s) => s.type == 'specialization');
+	async _preUpdate(changes, options, user) {
+		// Intercept impossible edie inputs
+		if (typeof changes.system?.edie !== 'undefined') {
+			if (changes.system.edie < 0) {
+				foundry.ui.notifications.error("tribe8.errors.negative-edie");
+				return false;
+			}
+		}
+		// Intercept negative wounds
+		if (typeof changes.system?.wounds !== 'undefined') {
+			if (changes.system.wounds.flesh < 0 || changes.system.wounds.deep < 0) {
+				foundry.ui.notifications.error("tribe8.errors.negative-wounds");
+				return false;
+			}
+		}
+		return await super._preUpdate(changes, options, user);
+	}
 
-		// Specializations first
-		const removeSpecs = [];
-		for (let spec of specializations) {
-			// Make sure the Specialization's Skill exists on the Actor
-			const skillItems = skills.filter((s) => s.id == spec.system.skill);
-			if (!skillItems.length) {
-				console.warn(`Actor.${this.id}.Specialization.${spec.id} lists Skill.${spec.system.skill}, but no matching Skill was found on the Actor`);
-				removeSpecs.push(spec.id);
+
+	/**
+	 * Post-process an update operation for a single Document instance.
+	 * Post-operation events occur for all connected clients.
+	 *
+	 * @param  {object} changed    The differential data that was changed relative to the documents prior values
+	 * @param  {object} options    Additional options which modify the update request
+	 * @param  {string} userId     The id of the User requesting the document update
+	 * @return {void}
+	 * @access protected
+	 */
+	_onUpdate(changed, options, userId) {
+		this.#processNewUpdate(changed, options);
+		super._onUpdate(changed, options, userId);
+	}
+
+	/**
+	 * After a create or update successfully transpires, execute any
+	 * post-operation changes that need to be made.
+	 *
+	 * @param  {object} data       The initial or differential data from the request
+	 * @param  {object} options    Additional options modifying the request
+	 * @return {void}
+	 * @access private
+	 */
+	#processNewUpdate(data, options) {
+		if (options.action == 'update') {
+			this.#auditSkillsAndSpecs();
+		}
+	}
+
+	/**
+	 * Audit the Actor's Skill and Specialization Items to ensure they
+	 * agree with one another's relationships.
+	 *
+	 * @return {void}
+	 * @access private
+	 */
+	#auditSkillsAndSpecs() {
+		console.log(`Actor.${this.id} auditing Skill and Specializations`);
+		const skills = this.getItems({type: 'skill'});
+		const specs = this.getItems({type: 'specialization'});
+
+		// Process Specializations first
+		const deleteSpecs = []; //
+		const addSpecsToSkills = {};
+		const removeSpecsFromSkills = {};
+		for (let spec of specs) {
+			// Make sure the Skill exists on the Actor
+			const candidateSkills = skills.filter((s) => s.id == spec.system.skill);
+			if (!candidateSkills.length) {
+				console.warn(`Actor.${this.id}.Specialization.${spec.id} lists Skill.${spec.system.skill}, but no matching Skill was found on the Actor.`);
+				deleteSpecs.push(spec.id);
 				continue;
 			}
 			// Make sure the Skill lists the Specialization
-			const specSkill = skillItems[0];
+			const specSkill = candidateSkills[0];
 			if (specSkill.system.specializations.indexOf(spec.id) < 0) {
-				console.warn(`Actor.${this.id}.Skill.${specSkill.id} does not list Specialization.${spec.id}, but the Specialization lists Skill.${spec.system.skill}. Updating.`);
-				await specSkill.update({'system.specializations': [...specSkill.system.specializations, spec.id]});
+				console.warn(`Actor.${this.id}.Skill.${specSkill.id} does not list Specialization.${spec.id}, but the Specialization lists Skill.${spec.system.skill}.`);
+				if (!addSpecsToSkills[specSkill.id]) addSpecsToSkills[specSkill.id] = [];
+				addSpecsToSkills[specSkill.id].push(spec.id);
 			}
 		}
 
-		// Skills second
+		// Now process Skills
 		for (let skill of skills) {
 			if (skill.system.specializations.length) {
 				for (let specId of skill.system.specializations) {
 					// Make sure the listed Specialization exists on the Actor
-					const specItems = specializations.filter((s) => s.id == specId);
+					const specItems = specs.filter((s) => s.id == specId);
 					if (!specItems.length) {
-						console.warn(`Specialization.${specId} not found on Actor.${skill.parent.id}.Skill${skill.id}. Removing from list.`);
-						const removeIndex = skill.system.specializations.indexOf(specId);
-						if (removeIndex >= 0) {
-							await skill.update({'system.specializations': skill.system.specializations.splice(removeIndex, 1)});
-						}
+						console.warn(`Specializations.${specId} not found on Actor.${this.id}.Skills.${skill.id}. Removing from list.`);
+						if (!removeSpecsFromSkills[skill.id]) removeSpecsFromSkills[skill.id] = [];
+						removeSpecsFromSkills[skill.id].push(specId);
 						continue;
 					}
 
-					// Make sure the Specialization's Skill matches the currently-evaluated Skill
-					const expectedSkill = specItems[0].system['skill'];
-					if (expectedSkill != skill.id) {
-						console.warn(`Actor.${this.id}.Skill.${skill.id} lists Specialization.${specId}, but the Specialization lists Skill.${expectedSkill}. Updating the Specialization.`);
-						await specItems[0].update({'system.skill': skill.id});
+					// Make sure the Specialization's linked Skill actually matches this Skill
+					const expectedSkillId = specItems[0].system?.skill;
+					if (expectedSkillId != skill.id) {
+						console.warn(`Actor.${this.id}.Skill.${skill.id} lists Specialization.${specId}, but the Specialization lists Skill.${expectedSkillId}.`);
+						if (!removeSpecsFromSkills[skill.id]) removeSpecsFromSkills[skill.id] = [];
+						removeSpecsFromSkills[skill.id].push(specId);
 					}
 				}
 			}
 		}
 
-		// Nuke the errant Specializations
-		if (removeSpecs.length) {
-			// console.log(`Should remove the following specs from Actor ${this.id}'s ${skill.name} skill`, removeSpecs);
-			await this.deleteEmbeddedDocuments("Item", removeSpecs);
+		// Delete orphaned Specializations
+		if (deleteSpecs.length) {
+			console.log(`Deleting orphaned Specializations from Actor.${this.id}.`);
+			this.deleteEmbeddedDocuments("Item", [deleteSpecs]);
+		}
+
+		// Adjust Skill specialization lists
+		const adjustSkillIds = [...Object.keys(addSpecsToSkills), ...Object.keys(removeSpecsFromSkills)];
+		if (adjustSkillIds.length) {
+			for (let skillId of adjustSkillIds) {
+				const skill = (skills.filter((s) => s.id == skillId) ?? [])[0];
+				// Get the current list.
+				let skillSpecs = [...skill.system.specializations];
+				// Add new spec IDs
+				if (addSpecsToSkills[skillId]) {
+					skillSpecs = skillSpecs.concat(addSpecsToSkills[skillId]);
+				}
+				// Remove bad spec IDs
+				if (removeSpecsFromSkills[skillId]) {
+					skillSpecs = skillSpecs.filter((s) => !removeSpecsFromSkills[skillId].includes(s));
+				}
+				skill.update({'system.==specializations': skillSpecs}, {diff: false});
+			}
 		}
 	}
 
@@ -68,7 +151,7 @@ export class Tribe8Actor extends Actor {
 	 * @return {string|bool} A matching User ID, or false if no player owner was found
 	 * @access public
 	 */
-	getPlayerOwner() {
+	get playerOwner() {
 		if (!this.hasPlayerOwner)
 			return false;
 
@@ -89,82 +172,186 @@ export class Tribe8Actor extends Actor {
 			return false;
 
 		// Return the top-sorted owner found
-		return game.users.get(possibleOwners[0]);
+		return possibleOwners[0];
+		// return game.users.get(possibleOwners[0]);
 	}
 
 	/**
-	 * Get a list of this character's Skills. Several options can be
-	 * supplied to adjust the output and filter the Skill list.
+	 * Search through a list of items for ones that match the supplied
+	 * search strings when both are slugified.
 	 *
-	 * When searching for a specific Skill, an array will be returned,
-	 * even if it only has one Skill in it. When searching for types of
-	 * Skills (e.g. those for combat), an object with properties
-	 * corresponding to the Combat Skill groups will be returned.
+	 * @param  {Array<Tribe8Item>} searchIn     List of items to search in.
+	 * @param  {Array<string>}     searchFor    List of terms to search for.
+	 * @return {Array<Tribe8Item>}              The matching set of items, if any
+	 * @access private
+	 */
+	#searchForItems(searchIn, searchFor) {
+		let returnItems = [];
+		for (let searchTerm of searchFor) {
+			searchTerm = CONFIG.Tribe8.slugify(searchTerm);
+			const foundItems = searchIn.filter(s => CONFIG.Tribe8.slugify(s.system?.name || '') == searchTerm || CONFIG.Tribe8.slugify(s.name || '') == searchTerm);
+			if (foundItems.length) {
+				returnItems = returnItems.concat(foundItems);
+			}
+		}
+		return returnItems;
+	}
+
+	/**
+	 * Validate that the requested getItem() search types are valid.
 	 *
-	 * Options include:
-	 * ```
-	 * - {bool} combat           return only combat skills)
-	 * - {Array<string>} search  return skills matching a provided name or set of names
-	 * ```
+	 * @param  {Array<string>} typesRequested    The search types requested
+	 * @param  {string}        [type='']         The item type being searched
+	 * @return {bool}                            Whether or not the search type is valid
+	 * @access private
+	 */
+	#areValidSearchTypes(typesRequested, type = '') {
+		if (typesRequested.constructor.name !== 'Array') {
+			console.error(`Invalid type filter syntax; supply an array of strings`);
+			return false;
+		}
+
+		let validTypes = [];
+		if (type == 'skill') {
+			validTypes = ['combat', 'magic'];
+		}
+		// If the categories include any of the physical Item types...
+		if (typesRequested.some(t => CONFIG.Tribe8.PHYSICAL_ITEMS.includes(t))) {
+			// If we also specified a type, return just that one type
+			if (type) validTypes = [type];
+			// Otherwise, all types are considered valid
+			else validTypes = CONFIG.Tribe8.PHYSICAL_ITEMS;
+		}
+		if (!validTypes.length) {
+			console.error(`No search types are valid for ${type}`);
+			return false;
+		}
+
+		for (let reqType of typesRequested) {
+			if (!validTypes.includes(reqType) < 0) {
+				console.error(`Invalid category filter '${type}' requested`);
+				return false;
+			}
+		}
+		return true;
+	}
+
+	/**
+	 * Get a list of this character's Items, optionally filtered by
+	 * type or other options. In its most basic form, this is just an
+	 * alias of Actor.getEmbeddedDocuments("Item").
 	 *
-	 * If no options are provided, all Skills are returned
-	 *
-	 * @param  {object}                   [options]    Options that can be used to adjust search parameters and output
-	 * @return {Array<Tribe8Item>|object}              Exact return type depends on options chosen
+	 * @param  {object}                   [options={}]            Filtering options
+	 * @param  {bool}                     [options.count]         Return just a count of the Items found
+	 * @param  {Array<string>}            [options.search]        Return Items matching a provided set of one or more names
+	 * @param  {Array<string>}            [options.categories]    Return Items belonging to a specific, supported category
+	 *                                                            (e.g. combat or magic for Skills, weapons or armor for Gear)
+	 * @return {Array<Tribe8Item>|object}                         The resulting item list, or reference object for combat skills
 	 * @access public
 	 */
-	getSkills(options = {}) {
-		const allSkills = Array.from(this.getEmbeddedCollection("Item")).filter(i => i.type == 'skill');
-		if (Object.keys(options).length == 0)
-			return allSkills;
+	getItems(options = {}) {
+		const allItems = Array.from(this.getEmbeddedCollection("Item"));
+		if (allItems.length == 0 || Object.keys(options).length == 0)
+			return allItems;
 
-		// Otherwise, subset
-		let returnSkills = [];
+		let returnItems = allItems;
+		// Type filter
+		if (options.type) {
+			returnItems = returnItems.filter((i) => i.type === options.type);
+		}
 
 		// Search?
-		if (options.search && options.search instanceof Array) {
-			for (let searchTerm of options.search) {
-				searchTerm = CONFIG.Tribe8.slugify(searchTerm);
-				const foundSkills = allSkills.filter(s => CONFIG.Tribe8.slugify(s.system.name) == searchTerm || CONFIG.Tribe8.slugify(s.name) == searchTerm);
-				if (foundSkills.length) {
-					returnSkills = returnSkills.concat(foundSkills);
+		if (options.search && options.search instanceof Array)
+			returnItems = this.#searchForItems(returnItems, options.search);
+
+		// Categories?
+		if (options.categories && !this.#areValidSearchTypes(options.categories, options.type))
+			return;
+		const itemCategories = [...(options.categories ?? [])];
+
+		if (itemCategories.length > 0) {
+			const returnItemsByCategory = {};
+			for (let cat of itemCategories) {
+				if (cat === 'combat')
+					returnItemsByCategory[cat] = this.#getCombatSkills(returnItems);
+				else if (cat === 'magic')
+					returnItemsByCategory[cat] = this.#getMagicSkills(returnItems);
+				else
+					returnItemsByCategory[cat] = returnItems.filter(i => i.type === cat);
+			}
+
+			// If we only requested one type, just use it
+			if (itemCategories.length == 1) {
+				returnItems = returnItemsByCategory[itemCategories[0]]
+			}
+			else {
+				// If we requested multiple types, we may need to spread out
+				// types that return objects instead of arrays
+				returnItems = []; // Reset the returnItems array, since we filtered by type
+				for (let cat in returnItemsByCategory) {
+					if (returnItemsByCategory[cat].constructor.name === 'Object') {
+						for (let key in returnItemsByCategory[cat]) {
+							returnItems = returnItems.concat(returnItemsByCategory[cat][key]);
+						}
+						continue;
+					}
+					returnItems = returnItems.concat(returnItemsByCategory[cat]);
 				}
 			}
 		}
 
-		// Combat?
-		if (options.combat) {
-			returnSkills = this.#getCombatSkills(returnSkills.length ? returnSkills : allSkills);
+		// Just a count?
+		if (options.count) {
+			// If we asked specifically for combat skills, which are
+			// keyed objects, and combat skills ONLY, we need to reduce
+			// them to provide a count
+			if (
+				options.categories?.indexOf('combat') >= 0 &&
+				itemCategories.length === 1 &&
+				returnItems.constructor.name === 'Object'
+			) {
+				return Object.entries(returnItems).reduce((sum, entry) => { return sum + entry.length; }, 0);
+			}
+			// Otherwise, just return the count of the filtered returnItems list
+			return returnItems.length;
 		}
 
-		return returnSkills;
+		return returnItems;
 	}
 
 	/**
-	 * Get a list of this character's Skills that can be used to make
-	 * attacks in combat.
+	 * Wrapper for getItems that specifically targets Skills.
 	 *
-	 * @param  {Array<Tribe8Item>} skills    This Actor's full Skill list
+	 * When Skills are returned, they are returned as an array, except
+	 * when specifically searching exclusively for combat Skills.
+	 *
+	 * For combat Skills, an Object is returned instead. The Object's
+	 * keys are  the single-letter combat Skill category identifiers,
+	 * and its values are arrays of Skills found that belong to those
+	 * categories.
+	 *
+	 * @param  {object}                            [options]    Options that can be used to adjust search parameters and output
+	 * @return {Array<Tribe8Item>|object|int|void}              Exact return type depends on options chosen
+	 * @access public
+	 */
+	getSkills(options = {}) {
+		if (!options.type || options.type != 'skill')
+			options.type = 'skill';
+		return this.getItems(options);
+	}
+
+	/**
+	 * Filter a supplied list of Skills down to those that can be used
+	 * to make attacks in combat.
+	 *
+	 * @param  {Array<Tribe8Item>} skills    The skill list to be filtered
 	 * @return {object}                      An object containing all of the valid combat skills possessed by this Actor
 	 * @access private
+	 * @see    {@link getItems}
 	 */
 	#getCombatSkills(skills) {
-		// Define the default names of the combat Skills, based on config
-		const combatSkillNames = Object.values(CONFIG.Tribe8.COMBAT_SKILLS).map((s) => CONFIG.Tribe8.slugify(s));
-
 		// Filter the skill list to just those that qualify
-		skills = skills.filter((i) => {
-			if (i.type != 'skill') return false;
-			let lookupName = CONFIG.Tribe8.slugify(i.system.name);
-			// Special case Hand to Hand checks
-			if (CONFIG.Tribe8.HAND_TO_HAND_VARIATIONS.indexOf(lookupName) >= 0)
-				lookupName = 'handtohand';
-			// Special case Ranged checks
-			else if (CONFIG.Tribe8.RANGED_COMBAT_SKILL_REFERENCE.indexOf(lookupName) >= 0)
-				lookupName = 'ranged';
-			if (combatSkillNames.indexOf(lookupName) < 0) return false;
-			return true;
-		});
+		skills = skills.filter((s) => s.system.isCombat);
 
 		/**
 		 * Reduce that list down to an object that's keyed with the
@@ -193,6 +380,52 @@ export class Tribe8Actor extends Actor {
 	}
 
 	/**
+	 * Get a list of this character's Magic skills
+	 *
+	 * @param  {Array<Tribe8Item>} skills    This skill list to be filtered
+	 * @return {Array<Tribe8Item>}           An array containing all of the skills identified as magic-related
+	 * @access private
+	 * @see    {@link getItems}
+	 */
+	#getMagicSkills(skills) {
+		// Define the default names of the combat Skills, based on config
+		const magicSkillNames = CONFIG.Tribe8.MAGIC_SKILLS;
+
+		// Filter the skill list to just those that qualify
+		return skills.filter((i) => {
+			if (i.type != 'skill') return false;
+			let lookupName = CONFIG.Tribe8.slugify(i.system.name);
+			if (magicSkillNames.indexOf(lookupName) < 0) return false;
+			return true;
+		});
+	}
+
+	/**
+	 * Wrapper for getItems that specifically targets physical items.
+	 *
+	 * @param  {object}                   [options]    Options that can be used to adjust search parameters and output
+	 * @return {Array<Tribe8Item>|object}              Exact return type depends on options chosen
+	 * @throws {TypeError}                             If the supplied categories field is not an array
+	 * @throws {RangeError}                            If any of the categories do not match the physical items set
+	 * @access public
+	 */
+	getGear(options = {}) {
+		// Do some pre-validation
+		if (options.categories) {
+			if (options.categories.constructor.name !== 'Array')
+				throw new TypeError("'categories' option must be an array");
+			for (let cat of options.categories) {
+				if (!CONFIG.Tribe8.PHYSICAL_ITEMS.includes(cat))
+					throw new RangeError(`'${cat}' is not a valid category`);
+			}
+		}
+		else {
+			options.categories = [...CONFIG.Tribe8.PHYSICAL_ITEMS];
+		}
+		return this.getItems(options);
+	}
+
+	/**
 	 * Compute a differential model of system data used to initialize
 	 * this Actor, that data after the Character model has run
 	 * migrateData() on it, then store it as flag data to be used for
@@ -208,11 +441,20 @@ export class Tribe8Actor extends Actor {
 			const ourModel = (CONFIG.Actor?.dataModels || {})[data.type];
 			if (ourModel) {
 				const migratedSystem = ourModel.migrateData(data.system);
+				let needsMigration = false;
+				for (let key of Object.keys(migratedSystem)) {
+					if (migratedSystem[key] != data.system[key]) {
+						needsMigration = true;
+						break;
+					}
+				}
 
-				if (!data.flags) data.flags = {};
-				if (!data.flags.tribe8) data.flags.tribe8 = {};
-				console.log(`Migration required for Actor.${data._id}`);
-				data.flags.tribe8.migrateSystemData = foundry.utils.deepClone(migratedSystem);
+				if (needsMigration) {
+					if (!data.flags) data.flags = {};
+					if (!data.flags.tribe8) data.flags.tribe8 = {};
+					console.log(`Migration required for Actor.${data._id}`);
+					data.flags.tribe8.migrateSystemData = foundry.utils.deepClone(migratedSystem);
+				}
 			}
 		}
 		return super.migrateData(data);
@@ -256,10 +498,10 @@ export class Tribe8Actor extends Actor {
 	 *
 	 * @access public
 	 */
-	async createSpecializationsFromLegacy() {
+	async zShimCreateSpecializationsFromLegacy() {
 		const skills = this.getSkills().filter(s => s.getFlag('tribe8', 'legacy-specializations'));
 		for (let skill of skills) {
-			await skill.createSpecializationsFromLegacy();
+			await skill.zShimCreateSpecializationsFromLegacy();
 		}
 	}
 }

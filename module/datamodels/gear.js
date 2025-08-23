@@ -20,11 +20,28 @@ export class Tribe8GearModel extends Tribe8ItemModel {
 				{
 					hint: "tribe8.item.gear.storage.hint",
 					blank: true,
-					nullable: true,
+					nullable: false,
+					required: true,
 					idOnly: true
 				}
 			),
 			carried: new fields.BooleanField({ hint: "tribe8.item.gear.carried.hint", required: true, initial: false })
 		};
+	}
+
+	/**
+	 * Getter that returns a bool if any other Gear in the parent
+	 * Actor's Item list lists this Item
+	 *
+	 * @return {bool}           Whether or not this item is a container
+	 * @throws {ReferenceError}
+	 * @access public
+	 */
+	get isContainer() {
+		if (!this.parent) throw new ReferenceError("Attempted to get properties of an Item's data model before the Item was initialized");
+		if (!this.parent?.parent)
+			return false;
+		const parent = this.parent.parent;
+		return parent.getGear().some(g => g.system.storage == this.parent.id);
 	}
 }

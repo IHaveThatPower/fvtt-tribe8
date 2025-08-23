@@ -20,7 +20,15 @@ export class Tribe8ManeuverSheet extends Tribe8ItemSheet {
 	 * @access public
 	 */
 	get title() {
-		return `Maneuver: ${this.document.name}` + (this.document.system.forSkill ? ` (${CONFIG.Tribe8.COMBAT_SKILLS[this.document.system.forSkill]})` : '');
+		let localizationKey = 'maneuver.title';
+		localizationKey += (this.document.system?.category ? '-skill' : '');
+		return game.i18n.format(
+			`tribe8.item.${localizationKey}`,
+			{
+				maneuver: this.document.name,
+				category: CONFIG.Tribe8.COMBAT_SKILLS[this.document.system?.category]
+			}
+		);
 	}
 
 	/**
@@ -113,12 +121,12 @@ export class Tribe8ManeuverSheet extends Tribe8ItemSheet {
 		}
 		// Reset forSkill if the chosen value is no longer valid
 		if (!Object.keys(allowedTypes).length) {
-			formData.object['system.forSkill'] = null;
+			formData.object['system.category'] = null;
 			formData.object['system.==allowedTypes'] = null;
 		}
 
 		// Handle blanks, N/As, and plus-prefixed numbers
-		for (let field of this.constructor.COMBAT_MODIFIER_FIELDS.map((f) => `system.${f}`).concat(['system.forSkill'])) {
+		for (let field of this.constructor.COMBAT_MODIFIER_FIELDS.map((f) => `system.${f}`).concat(['system.category'])) {
 			if (Object.hasOwn(formData.object, field)) {
 				const submittedValue = (formData.object[field] ?? "").trim();
 				// If the user submitted some variation of N/A or empty, null out the field

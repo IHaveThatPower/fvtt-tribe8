@@ -18,6 +18,9 @@ export class Tribe8AspectSheet extends Tribe8ItemSheet {
 	 * @access public
 	 */
 	get title() {
-		return `Aspect: ${this.document.name}` + (this.document.system.tribe ? ` (${this.document.system.tribe})` : '');
+		let localizationKey = 'aspect.title';
+		localizationKey += (this.document.system.ritual ? '.ritual' : '.synthesis');
+		localizationKey += (this.document.system.tribe ? '-tribe' : '');
+		return game.i18n.format(`tribe8.item.${localizationKey}`, {aspect: this.document.name, tribe: this.document.system?.tribe});
 	}
 }

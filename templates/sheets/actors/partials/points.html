@@ -4,10 +4,10 @@
 		<dt class="points-type cp">CP</dt>
 		<dd class="points-value cp">
 			<dl class="points">
-				<dt class="attribute-points points-type{{#if (gt document.system.points.cp.attributesSpent document.system.points.cp.attributes)}} over{{/if}}">Att</dt>
-				<dd class="attribute-points point-value{{#if (gt document.system.points.cp.attributesSpent document.system.points.cp.attributes)}} over{{/if}}"><span class="points-spent">{{document.system.points.cp.attributesSpent}}</span> / <span class="points-total">{{document.system.points.cp.attributes}}</span></dd>
-				<dt class="general-points points-type{{#if (gt document.system.points.cp.generalSpent document.system.points.cp.general)}} over{{/if}}">General</dt>
-				<dd class="general-points point-value{{#if (gt document.system.points.cp.generalSpent document.system.points.cp.general)}} over{{/if}}"><span class="points-spent">{{document.system.points.cp.generalSpent}}</span> / <span class="points-total">{{document.system.points.cp.general}}</span></dd>
+				<dt class="attribute-points points-type{{#if (gt document.system.cpSpentAttributes document.system.points.cp.attributes)}} over{{/if}}">Att</dt>
+				<dd class="attribute-points point-value{{#if (gt document.system.cpSpentAttributes document.system.points.cp.attributes)}} over{{/if}}"><span class="points-spent">{{document.system.cpSpentAttributes}}</span> / <span class="points-total">{{document.system.points.cp.attributes}}</span></dd>
+				<dt class="general-points points-type{{#if (gt document.system.cpSpentGeneral document.system.points.cp.general)}} over{{/if}}">General</dt>
+				<dd class="general-points point-value{{#if (gt document.system.cpSpentGeneral document.system.points.cp.general)}} over{{/if}}"><span class="points-spent">{{document.system.cpSpentGeneral}}</span> / <span class="points-total">{{document.system.points.cp.general}}</span></dd>
 			</dl>
 		</dd>
 		<dt class="points-type xp">XP</dt>
@@ -25,7 +25,7 @@
 				<dt class="points-type edie-xp{{#if (lt document.system.edie.fromXP 0)}} over{{/if}}">From XP</dt>
 				<dd class="points-value edie-xp{{#if (lt document.system.edie.fromXP 0)}} over{{/if}}">{{document.system.edie.fromXP}}</dd>
 				<dt class="points-type edie-other">Other</dt>
-				<dd class="points-value edie-other"><button name="edie.dec" data-action="decrementEdie">-</button><input type="number" name="system.edie.other" value="{{document.system.edie.other}}" /><button name="edie.inc" data-action="incrementEdie">+</button></dd>
+				<dd class="points-value edie-other"><button name="edie.dec" data-action="decrementEdie">-</button><input type="number" name="system.edie" value="{{document.system.edie}}" /><button name="edie.inc" data-action="incrementEdie">+</button></dd>
 			</dl>
 		</dd>
 	</dl>

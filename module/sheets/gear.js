@@ -18,8 +18,28 @@ export class Tribe8GearSheet extends Tribe8ItemSheet {
 	 * @access public
 	 */
 	get title() {
-		if (this.document.parent)
-			return game.i18n.format("tribe8.item.gear.title.owned", {ownerName: this.document.parent.name, itemName: this.document.name});
-		return game.i18n.format("tribe8.item.gear.title.unowned", {itemName: this.document.name});
+		let key = 'title';
+		key += (this.document.parent ? '.owned' : '.unowned');
+		return game.i18n.format(`tribe8.item.gear.${key}`, {item: this.document.name, owner: this.document.parent?.name});
+	}
+
+	/**
+	 * Prepare the context to inform what the Gear sheet renders.
+	 *
+	 * @param  {object} options    The set of options provided for rendering the sheet
+	 * @return {object}            The computed context object for Handlebars to use in populating the sheet
+	 * @access protected
+	 */
+	async _prepareContext(options) {
+		const context = await super._prepareContext(options);
+
+		// If this item is owned, get a list of all the other items that
+		// the owner has, which might be listed as eligible storage for
+		// this one.
+		if (this.document.parent) {
+			context.otherGear = this.document.parent.getGear().filter(g => g.id != this.id);
+			context.otherGear.sort(context.otherGear[0].constructor.cmp);
+		}
+		return context;
 	}
 }

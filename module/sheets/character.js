@@ -5,54 +5,35 @@ import { Tribe8AttributeEditor } from '../apps/attribute-editor.js';
 
 export class Tribe8CharacterSheet extends Tribe8Application(ActorSheetV2) {
 	static DEFAULT_OPTIONS = {
-		form: {
-			closeOnSubmit: false,
-			submitOnChange: true
-		},
-		position: {
-			width: 1024,
-			height: 768
-		},
+		form: { closeOnSubmit: false, submitOnChange: true },
+		position: { width: 1024, height: 768 },
 		window: {
 			resizable: true,
 			contentClasses: ["tribe8", "character", "sheet", "actor"]
 		},
 		actions: {
-			incrementEdie: Tribe8CharacterSheet.incrementEdie,
-			decrementEdie: Tribe8CharacterSheet.decrementEdie,
-			editItem: Tribe8CharacterSheet.editItem,
-			addNewItem: Tribe8CharacterSheet.addNewItem,
-			useEminence: Tribe8CharacterSheet.useEminence,
+			incrementEdie: Tribe8CharacterSheet.action_incrementEdie,
+			decrementEdie: Tribe8CharacterSheet.action_decrementEdie,
+			editItem:      Tribe8CharacterSheet.action_editItem,
+			addNewItem:    Tribe8CharacterSheet.action_addNewItem,
+			useEminence:   Tribe8CharacterSheet.action_useEminence,
 		}
 	}
 
 	static PARTS = {
-		tabs: {
-			template: 'templates/generic/tab-navigation.hbs'
-		},
-		main: {
-			template: 'systems/tribe8/templates/sheets/actors/character_main.html'
-		},
-		equipment: {
-			template: 'systems/tribe8/templates/sheets/actors/character_equipment.html'
-		}
+		tabs: { template: 'templates/generic/tab-navigation.hbs' },
+		main: { template: 'systems/tribe8/templates/sheets/actors/character_main.html' },
+		equipment: { template: 'systems/tribe8/templates/sheets/actors/character_equipment.html' }
 	}
 
 	static TABS = {
 		character: {
 			tabs: [
-				{
-					id: "main",
-					icon: "",
-				},
-				{
-					id: "equipment",
-				},
-				{
-					id: "combat",
-				}
+				{ id: "main", },
+				{ id: "equipment", },
+				{ id: "combat", }
 			],
-			labelPrefix: "tribe8.sheets.character.tabs",
+			labelPrefix: "tribe8.actor.character.tabs",
 			initial: "main"
 		}
 	};
@@ -78,11 +59,6 @@ export class Tribe8CharacterSheet extends Tribe8Application(ActorSheetV2) {
 	async _prepareContext(options) {
 		const context = await super._prepareContext(options);
 
-		// Who's the player for this?
-		const playerOwner = this.document.getPlayerOwner();
-		if (playerOwner)
-			context.playerName = playerOwner.name;
-
 		// Define a little helper function on our context to handle all
 		// the various things we need to ensure exist along the way
 		context.ensureHas = function(name, empty) {
@@ -94,18 +70,41 @@ export class Tribe8CharacterSheet extends Tribe8Application(ActorSheetV2) {
 		context.ensureHas('magic', {});
 		context.magic.ensureHas = context.ensureHas;
 
-		// Differentiate items
+		// Who's the player for this?
+		if (this.document.playerOwner)
+			context.playerName = game.users.get(this.document.playerOwner)?.name;
+
+		// Prepare specific Skill categories
+		context.hasCombatSkills = this.document.getSkills({categories: ['combat'], count: true})
+		context.hasMagicSkills = this.document.getSkills({categories: ['magic'], count: true});
+
+		this.#prepareContext_collectItems(context);
+		this.#prepareContext_sortCollections(context);
+
+		// Add the tabs
+		const contextWithTabs = {...context, tabs: this._prepareTabs("character")};
+		return contextWithTabs;
+	}
+
+	/**
+	 * Prepare collections of Items for the render context
+	 *
+	 * @param  {object} context    The render context as thus far assembled
+	 * @return {void}
+	 * @access private
+	 */
+	#prepareContext_collectItems(context) {
 		for (let item of this.document.items) {
 			let collectionName = `${item.type}s`; // Default context collection name we add items of this type to
 			switch (item.type) {
 				case 'specialization':
-					// Handled by skills
+					// Handled in Skills, below
 					break;
 				case 'skill':
 					context.ensureHas(collectionName, []);
 					item.specializations = ""; // Transient property for display
 					if (item.system.specializations.length)
-						item.specializations = item.system.specializations.map((s) => { return item.parent.getEmbeddedDocument("Item", s).name; }).join(', ');
+						item.specializations = item.system.specializations.map((s) => { return item.parent.getEmbeddedDocument("Item", s)?.name; }).filter((s) => s == s).join(', ');
 					context[collectionName].push(item);
 
 					// Track Synthesis and Ritual, specifically
@@ -156,9 +155,23 @@ export class Tribe8CharacterSheet extends Tribe8Application(ActorSheetV2) {
 					break;
 			}
 		}
+	}
 
-		// Sort various items for display
-		for (let itemGroup of ['skills', 'perksAndFlaws', 'sortedManeuvers', 'magic.eminences', 'magic.synthesisAspects', 'magic.totems', 'magic.ritualAspects']) {
+	/**
+	 * Sort the Item collections added to the context
+	 *
+	 * @param  {object} context    The render context as thus far assembled
+	 * @return {void}
+	 * @access private
+	 */
+	#prepareContext_sortCollections(context) {
+		const itemSortGroups = [
+			'skills', 'perksAndFlaws', 'sortedManeuvers',
+			'magic.eminences', 'magic.totems',
+			'magic.synthesisAspects', 'magic.ritualAspects',
+			'weapons', 'armor', 'gear'
+		];
+		for (let itemGroup of itemSortGroups) {
 			let contextTarget = context[itemGroup];
 			const itemGroupParts = itemGroup.split('.');
 			if (itemGroupParts.length > 1) {
@@ -177,10 +190,7 @@ export class Tribe8CharacterSheet extends Tribe8Application(ActorSheetV2) {
 				}
 			}
 		}
-
-		// Add the tabs
-		const contextWithTabs = {...context, tabs: this._prepareTabs("character")};
-		return contextWithTabs;
+		// TODO: Support different user-driven sort methods for gear
 	}
 
 	/**
@@ -198,50 +208,6 @@ export class Tribe8CharacterSheet extends Tribe8Application(ActorSheetV2) {
 	}
 
 	/**
-	 * Transform/manipulate the form submission data
-	 *
-	 * @param  {Event}            event              The triggering event
-	 * @param  {HTMLFormElement}  form               The top-level form element
-	 * @param  {FormDataExtended} formData           The actual data payload
-	 * @param  {object}           [updateData={}]    Any supplemental data
-	 * @return {object}                              Prepared submission data as an object
-	 * @access protected
-	 */
-	_prepareSubmitData(event, form, formData, updateData) {
-		// Identify array-based form elements
-		const checkKeys = CONFIG.Tribe8.checkFormArrayElements(formData);
-
-		// Extract identified array-based elements
-		this.#interpretSystemShock(formData.object, checkKeys);
-
-		return super._prepareSubmitData(event, form, formData, updateData);
-	}
-
-	/**
-	 * Reinterpret the system shock data
-	 *
-	 * @param {FormData}      formDataObject    The inner FormData object from the submitted FormDataExtended
-	 * @param {Array<string>} checkKeys         Array-style form field names to be parsed
-	 * @access private
-	 */
-	#interpretSystemShock(formDataObject, checkKeys) {
-		let systemShockChecked = 0;
-		for (const key of checkKeys) {
-			let propertyPath = key.split(/[[.]/);
-			if (propertyPath[0] == 'systemShock') {
-				if (formDataObject[key]) {
-					systemShockChecked++;
-				}
-				delete formDataObject[key];
-			}
-		}
-
-		// Having counted up the number of system shock checkboxes that
-		// were checked, re-build the array
-		formDataObject['system.attributes.secondary.physical.shock.current'] = systemShockChecked;
-	}
-
-	/**
 	 * Handle any special _onRender events, including event listeners
 	 * that we need to ensure re-register with their elements on each
 	 * re-render.
@@ -251,42 +217,9 @@ export class Tribe8CharacterSheet extends Tribe8Application(ActorSheetV2) {
 	 * @access protected
 	 */
 	async _onRender(context, options) {
-		// Artwork editing
-		this.element.querySelector('div.portrait')?.addEventListener('click', () => {
-			new foundry.applications.apps.ImagePopout({
-				src: this.document.img,
-				uuid: this.document.uuid,
-				window: { title: this.document.name }
-			}).render({ force: true });
-		});
-
-		// Rig up manual input on eDie fields
-		this.element.querySelectorAll('div.edie-block div.value input[type=number]').forEach((i) => {
-			i.addEventListener('keyup', (e) => {
-				if (!e.target) return;
-
-				// Find the skill
-				const skillId = (e.target.closest('div.skill') || {}).dataset?.itemId;
-				if (!skillId) return;
-				const skill = this.document.getEmbeddedDocument("Item", skillId);
-				if (!skill) return;
-				skill.system.eDieKeyInputEventHandler(e);
-			});
-		});
-
-		// Spawn Attribute Editor when Attributes are clicked
-		this.element.querySelector('div.primary-attributes').addEventListener('click', (e) => {
-			if (e.target.nodeName == 'H2') return;
-			// Do we already have an open attribute editor for this character? If so, just focus it
-			const attEditorId = `Tribe8AttributeEditor-Actor-${this.document.id}`;
-			const attEditor = foundry.applications.instances[attEditorId];
-			if (attEditor) {
-				attEditor.render({force: true});
-				return;
-			}
-			// Okay, make one!
-			new Tribe8AttributeEditor({id: attEditorId, document: this.document}).render({force: true});
-		});
+		this.#listeners_artwork();
+		this.#listeners_edie();
+		this.#listeners_attEditor();
 
 		// Scale System Shock icon font size based on container
 		const shockIcons = this.element.querySelectorAll('div.shock-state i');
@@ -301,6 +234,105 @@ export class Tribe8CharacterSheet extends Tribe8Application(ActorSheetV2) {
 		super._onRender(context, options);
 	}
 
+
+	/**
+	 * Setup event listeners related to the display and editing of
+	 * character artwork.
+	 *
+	 * @return {void}
+	 * @access private
+	 */
+	#listeners_artwork() {
+		this.element.querySelector('div.portrait')?.addEventListener('click', () => {
+			new foundry.applications.apps.ImagePopout({
+				src: this.document.img,
+				uuid: this.document.uuid,
+				window: { title: this.document.name }
+			}).render({ force: true });
+		});
+	}
+
+	/**
+	 * Setup event listeners related to handling interaction with EDie
+	 * fields.
+	 *
+	 * @return {void}
+	 * @access private
+	 */
+	#listeners_edie() {
+		this.element.querySelectorAll('div.edie-block div.value input[type=number]').forEach((i) => {
+			i.addEventListener('keyup', (e) => {
+				if (!e.target) return;
+
+				// Find the skill
+				const skillId = (e.target.closest('div.skill') || {}).dataset?.itemId;
+				if (!skillId) return;
+				const skill = this.document.getEmbeddedDocument("Item", skillId);
+				if (!skill) return;
+				skill.system.eDieKeyInputEventHandler(e);
+			});
+		});
+	}
+
+	/**
+	 * Spawn the Attribute Editor when any primary Attribute is clicked
+	 *
+	 * @return {void}
+	 * @access private
+	 */
+	#listeners_attEditor() {
+		this.element.querySelector('div.primary-attributes').addEventListener('click', (e) => {
+			if (e.target.nodeName == 'H2') return;
+			// Do we already have an open attribute editor for this character? If so, just focus it
+			const attEditorId = `Tribe8AttributeEditor-Actor-${this.document.id}`;
+			const attEditor = foundry.applications.instances[attEditorId];
+			if (attEditor) {
+				attEditor.render({force: true});
+				return;
+			}
+			// Okay, make one!
+			new Tribe8AttributeEditor({id: attEditorId, document: this.document}).render({force: true});
+		});
+	}
+
+	/**
+	 * When we first render, create context menus.
+	 *
+	 * @param {object} context    The rendering context
+	 * @param {object} options    Supplemental rendering options
+	 * @access protected
+	 */
+	async _onFirstRender(context, options) {
+		// TODO: Create context menus
+		// Invocation of createContextMenu.
+		// First arg is the handler that should hand back an array of
+		// objects that have all the data needed for a menu item
+		// this._createContextMenu(() => ['Option 1', 'Option 2', 'Option 3'], 'div.portrait');
+
+		// Structure for a handler's response
+		/*
+		return [{
+			name: "SIDEBAR.CharArt",
+			icon: '<i class="fa-solid fa-image"></i>',
+			condition: li => {
+				const actor = this.collection.get(li.dataset.entryId);
+				const { img } = actor.constructor.getDefaultArtwork(actor._source);
+				return actor.img !== img;
+			},
+			callback: li => {
+				const actor = this.collection.get(li.dataset.entryId);
+				new foundry.applications.apps.ImagePopout({
+					src: actor.img,
+					uuid: actor.uuid,
+					window: { title: actor.name }
+				}).render({ force: true });
+			}
+		},
+		...
+		*/
+		super._onFirstRender(context, options);
+	}
+
 	/**
 	 * Increment edie "other" amount
 	 *
@@ -308,14 +340,14 @@ export class Tribe8CharacterSheet extends Tribe8Application(ActorSheetV2) {
 	 * @param {HTMLFormElement} target    The element that triggered the event
 	 * @access public
 	 */
-	static incrementEdie(event, target) {
+	static action_incrementEdie(event, target) {
 		event.preventDefault();
 		event.stopPropagation();
 		const skillRow = target.closest('div.skill');
 		if (!skillRow) {
 			// Wasn't the skill row; probably the general parent
-			let currentAmount = this.document.system.edie.other;
-			this.document.update({'system.edie.other': ++currentAmount});
+			let currentAmount = this.document.system.edie;
+			this.document.update({'system.edie': ++currentAmount});
 			return;
 		}
 		const skillItem = this.document.getEmbeddedDocument("Item", skillRow.dataset?.id);
@@ -333,14 +365,14 @@ export class Tribe8CharacterSheet extends Tribe8Application(ActorSheetV2) {
 	 * @param {HTMLFormElement} target    The element that triggered the event
 	 * @access public
 	 */
-	static decrementEdie(event, target) {
+	static action_decrementEdie(event, target) {
 		event.preventDefault();
 		event.stopPropagation();
 		const skillRow = target.closest('div.skill');
 		if (!skillRow) {
 			// Wasn't the skill row; probably the general parent
-			let currentAmount = parseInt(this.document?.system?.edie?.other) || 0;
-			this.document.update({'system.edie.other': --currentAmount});
+			let currentAmount = parseInt(this.document?.system?.edie) || 0;
+			this.document.update({'system.edie': --currentAmount});
 			return;
 		}
 		const skillItem = this.document.getEmbeddedDocument("Item", skillRow.dataset?.id);
@@ -352,42 +384,80 @@ export class Tribe8CharacterSheet extends Tribe8Application(ActorSheetV2) {
 	}
 
 	/**
-	 * Add a new Item
+	 * Add a new Item to this character
 	 *
 	 * @param {Event}           event     The event triggered by interaction with the form element
 	 * @param {HTMLFormElement} target    The element that triggered the event
 	 * @access public
 	 */
-	static addNewItem(event, target) {
+	static action_addNewItem(event, target) {
 		event.preventDefault();
 		event.stopPropagation();
 		const actionParts = (target.name?.split('-') || []).slice(1);
 		const addItemType = actionParts.shift();
-		if (!addItemType || (Object.keys(CONFIG.Item.dataModels).push('pf').indexOf(addItemType) < 0)) {
+		if (!addItemType || ([...Object.keys(CONFIG.Item.dataModels), 'pf'].indexOf(addItemType) < 0)) {
 			foundry.ui.notifications.warn("Requested creation of unrecognized item type");
 			return;
 		}
 		// Present special dialog for Perks/Flaws
-		if (addItemType == 'pf') {
-			const that = this;
-			DialogV2.wait({
-				window: {title: "Choose Perk or Flaw"},
-				content: "Do you wish to create a Perk or a Flaw?",
-				buttons: [
-					{label: "Perk", action: "perk"},
-					{label: "Flaw", action: "flaw"},
-					{label: "Cancel", action: "cancel"}
-				],
-				modal: true
-			}).then((result) => {
-				if (result == 'perk' || result == 'flaw') {
-					that.#addNewItem(result, actionParts);
-				}
-			});
-		}
-		else {
+		if (addItemType == 'pf')
+			this.#presentPerkFlawPrompt(actionParts);
+		else
 			this.#addNewItem(addItemType, actionParts);
-		}
+	}
+
+	/**
+	 * If the User requested creation of a Perk or Flaw, we need to ask
+	 * them which type they want.
+	 *
+	 * @param {Array<string>} actionParts    The component strings that made up the form request
+	 * @access private
+	 */
+	#presentPerkFlawPrompt(actionParts) {
+		const that = this;
+		DialogV2.wait({
+			window: {title: "Choose Perk or Flaw"},
+			content: "Do you wish to create a Perk or a Flaw?",
+			buttons: [
+				{label: "Perk", action: "perk"},
+				{label: "Flaw", action: "flaw"},
+				{label: "Cancel", action: "cancel"}
+			],
+			modal: true
+		}).then((result) => {
+			if (result == 'perk' || result == 'flaw') {
+				that.#addNewItem(result, actionParts);
+			}
+		});
+	}
+
+	/**
+	 * Open the editing dialog for an existing item
+	 *
+	 * @param {Event}           event     The event triggered by interaction with the form element
+	 * @param {HTMLFormElement} target    The element that triggered the event
+	 * @access public
+	 */
+	static action_editItem(event, target) {
+		event.preventDefault();
+		event.stopPropagation();
+		const item = this.#getItemFromTarget(target);
+		if (!item) return;
+		item.sheet.render(true);
+	}
+
+	/**
+	 * Mark an Eminence as used or not
+	 *
+	 * @param {Event}           event     The event triggered by interaction with the form element
+	 * @param {HTMLFormElement} target    The element that triggered the event
+	 * @access public
+	 */
+	static action_useEminence(event, target) {
+		event.stopPropagation();
+		const item = this.#getItemFromTarget(target);
+		if (!item) return;
+		item.update({'system.used': target.checked});
 	}
 
 	/**
@@ -403,25 +473,11 @@ export class Tribe8CharacterSheet extends Tribe8Application(ActorSheetV2) {
 		if (itemType == 'aspect' && actionParts.length)
 			newItemPayload.ritual = (actionParts[0] == 'ritual');
 		this.document.createEmbeddedDocuments('Item', [newItemPayload]).then((resolve) => {
+			console.log("resolve", resolve);
 			const newItem = resolve[0];
 			// Open the editing window for it
 			newItem.sheet.render(true);
 		});
-	}
-
-	/**
-	 * Open the editing dialog for an existing item
-	 *
-	 * @param {Event}           event     The event triggered by interaction with the form element
-	 * @param {HTMLFormElement} target    The element that triggered the event
-	 * @access public
-	 */
-	static editItem(event, target) {
-		event.preventDefault();
-		event.stopPropagation();
-		const item = this.#getItemFromTarget(target);
-		if (!item) return;
-		item.sheet.render(true);
 	}
 
 	/**
@@ -447,19 +503,5 @@ export class Tribe8CharacterSheet extends Tribe8Application(ActorSheetV2) {
 			return false;
 		}
 		return item;
-	}
-
-	/**
-	 * Mark an Eminence as used or not
-	 *
-	 * @param {Event}           event     The event triggered by interaction with the form element
-	 * @param {HTMLFormElement} target    The element that triggered the event
-	 * @access public
-	 */
-	static useEminence(event, target) {
-		event.stopPropagation();
-		const item = this.#getItemFromTarget(target);
-		if (!item) return;
-		item.update({'system.used': target.checked});
 	}
 }

@@ -18,6 +18,8 @@ export class Tribe8EminenceSheet extends Tribe8ItemSheet {
 	 * @access public
 	 */
 	get title() {
-		return `Eminence: ${this.document.name}` + (this.document.system.tribe ? ` (${this.document.system.tribe})` : '');
+		let localizationKey = 'eminence.title';
+		localizationKey += (this.document.system.tribe ? '-tribe' : '');
+		return game.i18n.format(`tribe8.item.${localizationKey}`, {eminence: this.document.name, tribe: this.document.system?.tribe});
 	}
 }

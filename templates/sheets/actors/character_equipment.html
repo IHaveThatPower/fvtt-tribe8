@@ -1,14 +1,62 @@
 <div class="character-sheet tab equipment {{tab.cssClass}}" data-group="character" data-tab="equipment">
-	<div class="weapons">
-		<h2><span>{{localize "TYPES.Item.weapon-plural"}}</span><button name="add-skill" data-action="addNewItem"><i class="fa fa-solid fa-plus"></i></button></h2>
-	</div>
-	<div class="armor">
-		<h2><span>{{localize "TYPES.Item.armor-plural"}}</span><button name="add-skill" data-action="addNewItem"><i class="fa fa-solid fa-plus"></i></button></h2>
-	</div>
-	<div class="gear">
-		<h2><span>{{localize "TYPES.Item.gear-plural"}}</span><button name="add-skill" data-action="addNewItem"><i class="fa fa-solid fa-plus"></i></button></h2>
-		{{#each gear}}
-		{{this.name}}<br />
+	<div class="weapons-list">
+		<h2><span>{{localize "TYPES.Item.weapon-plural"}}</span><button name="add-weapon" data-action="addNewItem"><i class="fa fa-solid fa-plus"></i></button></h2>
+		{{#each weapons}}
 		{{/each}}
+		{{#if (not weapons.length)}}
+		<em>None</em>
+		{{/if}}
+	</div>
+	<div class="armor-list">
+		<h2><span>{{localize "TYPES.Item.armor-plural"}}</span><button name="add-armor" data-action="addNewItem"><i class="fa fa-solid fa-plus"></i></button></h2>
+		{{#each armor}}
+		{{/each}}
+		{{#if (not armor.length)}}
+		<em>None</em>
+		{{/if}}
+	</div>
+	<div class="gear-list">
+		<h2><span>{{localize "TYPES.Item.gear-plural"}}</span><button name="add-gear" data-action="addNewItem"><i class="fa fa-solid fa-plus"></i></button></h2>
+		{{#each gear}}
+			{{#if system.isContainer}}
+		<details class="collapsible-gear-container" open>
+			<summary class="container">
+			{{/if}}
+				{{> "systems/tribe8/templates/sheets/actors/partials/gear.html"}}
+			{{#if system.isContainer}}
+			</summary>
+			<blockquote class="contained">
+			{{else}}
+				{{!-- See if there's a next item in the list --}}
+				{{#if (lookup ../gear (add @index 1))}}
+					{{!-- There is a next item --}}
+					{{#with (lookup ../gear (add @index 1)) as | nextGear |}}
+					{{#if (ne nextGear.system.storage ../system.storage)}}
+						{{!-- Next item has different storage, may need to do something --}}
+						{{#if (lt nextGear.depth ../depth)}}
+							{{!-- Next item has less depth close blockquotes and details to difference --}}
+							{{#repeat (sub ../depth nextGear.depth)}}
+			</blockquote>
+		</details>
+							{{/repeat}}
+						{{else}}
+							{{!-- Next item has greater depth, so we just let the loop do its thing --}}
+						{{/if}}
+					{{else}}
+						{{!-- Next item has the same storage, so we let the loop do its thing --}}
+					{{/if}}
+					{{/with}}
+				{{else}}
+					{{!-- There is no next item, so close blockquote and details to current depth --}}
+					{{#repeat depth}}
+			</blockquote>
+		</details>
+					{{/repeat}}
+				{{/if}}
+			{{/if}}
+		{{/each}}
+		{{#if (not gear.length)}}
+		<em>None</em>
+		{{/if}}
 	</div>
 </div>
