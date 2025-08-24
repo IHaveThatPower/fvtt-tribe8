@@ -65,6 +65,26 @@ Handlebars.registerHelper('mult',
 	}
 );
 
+Handlebars.registerHelper('mod',
+	/**
+	 * Return the modulus of two numbers
+	 *
+	 * @param  {int}   a    dividend
+	 * @param  {int}   b    divisor
+	 * @return {int}        modulus
+	 * @throws {Error}      If any required conditions are not met
+	 */
+	function (a, b) {
+		a = Number(a);
+		if (typeof a !== "number")
+			throw new TypeError("The dividend must be a number");
+		b = Number(b);
+		if (typeof b !== "number")
+			throw new TypeError("The divisor must be a number");
+		return a % b;
+	}
+);
+
 Handlebars.registerHelper('roman',
 	/**
 	 * Convert a number to Roman numerals

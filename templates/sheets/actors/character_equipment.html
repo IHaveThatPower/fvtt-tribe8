@@ -17,6 +17,17 @@
 	</div>
 	<div class="gear-list">
 		<h2><span>{{localize "TYPES.Item.gear-plural"}}</span><button name="add-gear" data-action="addNewItem"><i class="fa fa-solid fa-plus"></i></button></h2>
+		<div class="gear-item-row gear-list-header">
+			<div class="identity">{{!-- TODO: Add sorting controls to all of these --}}
+				<div class="name">{{localize "tribe8.item.name"}}</div>
+			</div>
+			<div class="qty"><span title="{{localize "tribe8.item.gear.system.qty.full"}}">{{localize "tribe8.item.gear.system.qty.short"}}</span></div>
+			<div class="weight"><span title="{{localize "tribe8.item.gear.system.weight.full"}}"><i class="fa fa-solid fa-weight-hanging"></i></span></div>
+			<div class="total-weight"><span title="{{localize "tribe8.item.gear.totalWeight.full"}}">&Sigma;<i class="fa fa-solid fa-weight-hanging"></i></span></div>
+			<div class="value"><span title="{{localize "tribe8.item.gear.system.value.full"}}">{{localize "tribe8.item.gear.system.value.short"}}</span></div>
+			<div class="complexity"><span title="{{localize "tribe8.item.gear.system.complexity.full"}}">{{localize "tribe8.item.gear.system.complexity.short"}}</span></div>
+			<div class="carried"><span title="{{localize "tribe8.item.gear.system.carried.full"}}"><i class="fa fa-solid fa-suitcase"></i></span></div><!-- TODO: Carried toggle -->
+		</div>
 		{{#each gear}}
 			{{#if system.isContainer}}
 		<details class="collapsible-gear-container" open>

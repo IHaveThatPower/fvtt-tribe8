@@ -1,15 +1,15 @@
-<div class="gear draggable" data-item-id="{{id}}">
-	<div class="identity" data-action="editItem">
-		<div class="name">
-			{{~name~}}
+<div class="gear draggable{{#if (mod @index 2)}} gear-alt{{/if}}" data-item-id="{{id}}" data-container-depth="{{depth}}" data-index="{{@index}}">
+	<div class="gear-item-row" data-item-id="{{id}}">
+		<div class="identity" data-action="editItem">
+			<div class="name">
+				{{~name~}}
+			</div>
 		</div>
+		<div class="qty" data-action="editItem">{{#if system.qty}}{{system.qty}}{{else}}1{{/if}}</div>
+		<div class="weight" data-action="editItem">{{#if system.weight}}{{system.weight}}{{else}}&mdash;{{/if}}</div>
+		<div class="total-weight" data-action="editItem">{{totalWeight}}</div>
+		<div class="value" data-action="editItem">{{#if system.value}}<span title="{{localize (concat "tribe8.item.gear.value." system.value)}}">{{system.value}}</span>{{else}}&mdash;{{/if}}</div>
+		<div class="complexity" data-action="editItem">{{system.complexity}}</div>
+		<div class="carried" data-action="toggleCarried">{{#if system.carried}}C{{/if}}</div><!-- TODO: Carried toggle -->
 	</div>
-	<!--
-	<div class="qty">{{system.qty}}</div>
-	<div class="weight">{{system.weight}}</div>
-	<div class="total-weight">{{mult system.qty system.weight}}</div>
-	<div class="value">{{system.value}}</div>
-	<div class="complexity">{{system.complexity}}</div>
-	<div class="carried">{{system.carried}}</div>
-	-->
 </div>

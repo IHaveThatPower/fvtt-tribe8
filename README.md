@@ -40,9 +40,11 @@ This is a rough, ever-changing list that depicts in approximate priority order w
 
 ### Short Term
 - Equipment tab
-  - Includes Gear-type Items
+  - Includes DataModel for Gear-type Items
 - Combat tab
-  - Includes Weapon- and Armor-type Items
+  - Includes DataModels for Weapon- and Armor-type Items
+- Fix logic in Combat Maneuvers to make them per-Skill, instead of per
+  combat Skill category (oops!)
 - Character artwork editing support
 - Item artwork editing support
 - Finalize character sheet layout

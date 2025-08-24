@@ -51,7 +51,25 @@ export class Tribe8Item extends Item {
 		const contentItems = this.parent.getGear().filter((g) => g.system.storage == this.id);
 		if (!contentItems.length) return 0;
 
-		return contentItems.reduce((weight, item) => (item.weight * item.qty) + (item.contentWeight), 0);
+		return contentItems.reduce((weight, item) => {
+			return (item.system.weight ?? 0) * (item.system.qty ?? 0) + (item.contentWeight ?? 0);
+		}, 0);
+	}
+
+	/**
+	 * Get the total weight of this Item as configured, accounting for
+	 * individual weight, quantity, and the weight of any items it may
+	 * contain.
+	 *
+	 * @return {float} The weight in kg of the Item(s) and all of its contents.
+	 * @access public
+	 */
+	get totalWeight() {
+		if (!this.isPhysicalItem) return 0;
+
+		const contentWeight = this.contentWeight;
+		const ourWeight = (this.system.qty ?? 1) * (this.system.weight ?? 0);
+		return ourWeight + contentWeight;
 	}
 
 	/**

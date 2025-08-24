@@ -18,6 +18,7 @@
 	 * The following colors are unique to this system, and have not
 	 * been vetted outside of dark mode
 	 */
+	--color-medium-gray: #887878;
 	--color-perk-granted: rgba(0, 96, 255, 0.5);
 	--color-flaw-granted: rgba(128, 48, 0, 0.5);
 	--color-maneuer-granted: var(--color-perk-granted);
@@ -26,11 +27,12 @@
 	--color-aspect-granted: var(--color-perk-granted);
 	--color-system-shock-healthy: rgb(114 170 205);
 	--color-system-shock-wounded: rgb(59 43 43);
-	--color-trauma-inactive: #887878;
+	--color-trauma-inactive: var(--color-medium-gray);
 	--color-trauma-active: var(--color-text-emphatic);
 
 	/* Alt rows */
 	--color-background-alt: color-mix(in srgb, var(--color-text-emphatic), transparent 95%);
+	--color-background-alt-bright: color-mix(in srgb, var(--color-text-emphatic), transparent 85%);
 	--color-points-over-background-alt: color-mix(in srgb, var(--color-level-error), transparent 95%);
 	--color-label-background-alt: color-mix(in srgb, var(--color-cool-5-50), var(--color-background-alt));
 	--color-perk-granted-alt: rgba(13, 109, 255, 0.45);
@@ -40,9 +42,99 @@
 	--color-eminence-used-alt: var(--color-flaw-granted-alt);
 	--color-aspect-granted-alt: var(--color-perk-granted-alt);
 
-	/* Faded Header Borders */
+	/* Gradient Backgruonds */
+	--background-eminence-used: linear-gradient(
+		to right,
+		transparent,
+		var(--color-eminence-used) 2ch,
+		transparent
+	);
+	--background-eminence-checked: radial-gradient(
+		circle,
+		var(--color-text-primary),
+		var(--color-text-primary) 50%,
+		transparent 60%
+	);
+	--background-aspect-granted: linear-gradient(
+		to right,
+		transparent,
+		var(--color-aspect-granted) 2ch,
+		transparent
+	);
+	--background-aspect-granted-alt: linear-gradient(
+		to right,
+		transparent,
+		var(--color-aspect-granted-alt) 2ch,
+		transparent
+	);
+	--background-perk-granted: linear-gradient(
+		to right,
+		transparent,
+		var(--color-perk-granted) 2ch,
+		transparent
+	);
+	--background-perk-granted-alt: linear-gradient(
+		to right,
+		transparent,
+		var(--color-perk-granted-alt) 2ch,
+		transparent
+	);
+	--background-flaw-granted: linear-gradient(
+		to right,
+		transparent,
+		var(--color-flaw-granted) 2ch,
+		transparent
+	);
+	--background-flaw-granted-alt: linear-gradient(
+		to right,
+		transparent,
+		var(--color-flaw-granted-alt) 2ch,
+		transparent
+	);
+	--background-maneuver-granted: linear-gradient(
+		to right,
+		transparent,
+		var(--color-maneuver-granted) 0.5ch,
+		transparent
+	);
+	--background-maneuver-granted-alt: linear-gradient(
+		to right,
+		transparent,
+		var(--color-maneuver-granted-alt) 0.5ch,
+		transparent
+	);
+	--background-maneuver-bonus: linear-gradient(
+		to right,
+		transparent,
+		var(--color-maneuver-bonus) 0.5ch,
+		transparent
+	);
+	--background-maneuver-bonus-alt: linear-gradient(
+		to right,
+		transparent,
+		var(--color-maneuver-bonus-alt) 0.5ch,
+		transparent
+	);
+	--background-gear-list: linear-gradient(
+		to right,
+		transparent,
+		var(--color-background-alt)
+	);
+	--background-gear-list-alt: linear-gradient(
+		to right,
+		transparent,
+		var(--color-background-alt-bright)
+	);
+
+	/* Gradient Borders */
 	--border-header-left: linear-gradient(
 		to left,
+		transparent,
+		var(--color-text-emphatic) 5%,
+		transparent
+	) 1;
+	--border-header-right: linear-gradient(
+		to right,
 		transparent,
 		var(--color-text-emphatic) 5%,
 		transparent
@@ -54,7 +146,14 @@
 		var(--color-text-emphatic) 90%,
 		transparent
 	) 1;
-
+	--border-header-broken: linear-gradient(
+		to right,
+		transparent,
+		var(--color-text-emphatic) 5%,
+		transparent 66%,
+		var(--color-text-emphatic) 95%,
+		transparent
+	) 1;
 }
 
 div.character-sheet h2,
@@ -266,13 +365,7 @@ div.item-sheet h3 {
 	}
 
 	h3 {
-		border-image:
-			linear-gradient(
-				to right,
-				transparent,
-				var(--color-text-emphatic) 5%,
-				transparent
-			) 1;
+		border-image: var(--border-gradient-right);
 		margin-top: 0.25rem;
 		padding-left: 0.25rem;
 	}
@@ -437,15 +530,7 @@ div.item-sheet h3 {
 			display: grid;
 			grid-template-columns: 1fr min-content;
 			align-items: end;
-			border-image:
-				linear-gradient(
-					to right,
-					transparent,
-					var(--color-text-emphatic) 5%,
-					transparent 66%,
-					var(--color-text-emphatic) 95%,
-					transparent
-				) 1;
+			border-image: var(--border-header-broken);
 		}
 		h3.has-skill {
 			cursor: pointer;
@@ -500,12 +585,7 @@ div.item-sheet h3 {
 		}
 		div.eminence.used {
 			background: none;
-			background-image: linear-gradient(
-				to right,
-				transparent,
-				var(--color-eminence-used) 2ch,
-				transparent
-			);
+			background-image: var(--background-eminence-used);
 		}
 		div.eminence div.used {
 			display: flex;
@@ -529,12 +609,7 @@ div.item-sheet h3 {
 		}
 		div.eminence div.used input[type="checkbox"]:checked {
 			background: none;
-			background-image: radial-gradient(
-				circle,
-				var(--color-text-primary),
-				var(--color-text-primary) 50%,
-				transparent 60%
-			);
+			background-image: var(--background-eminence-checked);
 		}
 		div.eminence div.used input[type="checkbox"]::before {
 			display: none;
@@ -555,20 +630,10 @@ div.item-sheet h3 {
 		}
 		dd>div.granted {
 			background: none;
-			background-image: linear-gradient(
-				to right,
-				transparent,
-				var(--color-aspect-granted) 2ch,
-				transparent
-			);
+			background-image: var(--background-aspect-granted);
 		}
 		dd>div.granted:nth-child(odd) {
-			background-image: linear-gradient(
-				to right,
-				transparent,
-				var(--color-aspect-granted-alt) 2ch,
-				transparent
-			);
+			background-image: var(--background-aspect-granted-alt);
 		}
 		dd>div div.cost,
 		dd>div div.complexity {
@@ -885,36 +950,16 @@ div.item-sheet h3 {
 			background: var(--color-background-alt);
 		}
 		div.pf.perk.granted {
-			background-image: linear-gradient(
-				to right,
-				transparent,
-				var(--color-perk-granted) 2ch,
-				transparent
-			);
+			background-image: var(--background-perk-granted);
 		}
 		div.pf.flaw.granted {
-			background-image: linear-gradient(
-				to right,
-				transparent,
-				var(--color-flaw-granted) 2ch,
-				transparent
-			);
+			background-image: var(--background-flaw-granted);
 		}
 		div.pf.perk.granted:nth-child(odd) {
-			background-image: linear-gradient(
-				to right,
-				transparent,
-				var(--color-perk-granted-alt) 2ch,
-				transparent
-			);
+			background-image: var(--background-perk-granted-alt);
 		}
 		div.pf.flaw.granted:nth-child(odd) {
-			background-image: linear-gradient(
-				to right,
-				transparent,
-				var(--color-flaw-granted-alt) 2ch,
-				transparent
-			);
+			background-image: var(--background-flaw-granted-alt);
 		}
 		div.pf div.buttons {
 			display: flex;
@@ -931,20 +976,11 @@ div.item-sheet h3 {
 			background: var(--color-background-alt);
 		}
 		div.maneuver.granted {
-			background-image: linear-gradient(
-				to right,
-				transparent,
-				var(--color-maneuver-granted) 0.5ch,
-				transparent
-			);
+			background-image: var(--background-maneuver-granted);
+
 		}
 		div.maneuver.from-cpx {
-			background-image: linear-gradient(
-				to right,
-				transparent,
-				var(--color-maneuver-bonus) 0.5ch,
-				transparent
-			);
+			background-image: var(--background--maneuver-bonus);
 		}
 		div.maneuver.granted:nth-child(odd) {
 			background-image: linear-gradient(
@@ -955,12 +991,7 @@ div.item-sheet h3 {
 			);
 		}
 		div.maneuver.from-cpx:nth-child(odd) {
-			background-image: linear-gradient(
-				to right,
-				transparent,
-				var(--color-maneuver-bonus-alt) 0.5ch,
-				transparent
-			);
+			background-image: var(--background-maneuver-bonus-alt)
 		}
 		div.maneuver>div {
 			white-space: nowrap;
@@ -1009,15 +1040,7 @@ div.item-sheet h3 {
 			display: grid;
 			grid-template-columns: 1fr min-content;
 			align-items: end;
-			border-image:
-				linear-gradient(
-					to right,
-					transparent,
-					var(--color-text-emphatic) 5%,
-					transparent 66%,
-					var(--color-text-emphatic) 95%,
-					transparent
-				) 1;
+			border-image: var(--border-header-broken);
 		}
 		div.injury-block {
 			flex: 1 0 fit-content;
@@ -1129,8 +1152,13 @@ div.item-sheet h3 {
 		column-count: 2;
 		column-fill: auto; /* Down, then across */
 	}
+	.equipment div.gear-list summary {
+		list-style-position: outside;
+		margin-left: 1rem;
+	}
 	.equipment div.gear-list summary div.gear {
 		display: inline-block; /* Needed to get the marker to behave */
+		width: 100%; /* Expand the div back out so it's the same size as the others */
 	}
 	.equipment div.gear-list blockquote {
 		font-style: unset;
@@ -1140,6 +1168,47 @@ div.item-sheet h3 {
 	.equipment div.gear-list>div.gear, /* Non-contained items */
 	.equipment div.gear-list blockquote>div.gear { /* Contained items that are not themselves containers */
 		padding: 0 0 0 1rem;
+	}
+	.equipment div.gear-list>div.gear, /* Non-contained items */
+	.equipment div.gear-list summary, /* Containers */
+	.equipment div.gear-list blockquote>div.gear { /* Contained items that are not themselves containers */
+		background-image: var(--background-gear-list);
+	}
+	.equipment div.gear-list>div.gear.gear-alt,
+	.equipment div.gear-list summary:has(div.gear.gear-alt),
+	.equipment div.gear-list blockquote>div.gear.gear-alt {
+		background-image: var(--background-gear-list-alt);
+	}
+	.equipment div.gear-list div.gear-item-row div.value {
+		min-width: unset;
+		font-size: revert;
+		border: none;
+	}
+	.equipment div.gear-list div.gear-item-row {
+		display: grid;
+		grid-template-columns: 1fr 3rem 4rem 5rem 2.5rem 2rem 1.5rem;
+	}
+	.equipment div.gear-list div.gear-item-row>div {
+		overflow: hidden;
+		text-align: center;
+		/* Alternative to border-left: 1px dotted, with spacing control */
+        background-image: linear-gradient(to bottom, var(--color-medium-gray) 35%, transparent 0%);
+        background-position: left;
+        background-size: 1px 3px;
+        background-repeat: repeat-y;
+	}
+	.equipment div.gear-list div.gear-item-row>div:first-child {
+		background: none;
+		text-align: left;
+	}
+	.equipment div.gear-list div.gear-item-row.gear-list-header {
+		color: var(--color-medium-gray);
+		background: var(--color-label-background);
+	}
+	.equipment div.gear-list div.gear-item-row.gear-list-header>div:hover {
+		font-weight: bold;
+		/* cursor: pointer; */
+		cursor: not-allowed;
 	}
 }
 

@@ -109,6 +109,7 @@
 			"xp.short": "XP"
 		},
 		"item": {
+			"name": "Name",
 			"aspect": {
 				"title": {
 					"synthesis": "Synthesis Aspect: {aspect}",
@@ -173,6 +174,10 @@
 					"full": "Carried/Worn",
 					"short": "C?",
 					"hint": "Whether or not this Gear is carried by/worn on the Character who possesses it"
+				},
+				"totalWeight": {
+					"full": "Total Weight (kg) of this Gear and any contents",
+					"short": "T.W. (kg)"
 				}
 			}
 		},
