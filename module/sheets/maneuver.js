@@ -21,12 +21,12 @@ export class Tribe8ManeuverSheet extends Tribe8ItemSheet {
 	 */
 	get title() {
 		let localizationKey = 'maneuver.title';
-		localizationKey += (this.document.system?.category ? '-skill' : '');
+		localizationKey += (this.document.system?.skill ? '-skill' : '');
 		return game.i18n.format(
 			`tribe8.item.${localizationKey}`,
 			{
 				maneuver: this.document.name,
-				category: CONFIG.Tribe8.COMBAT_SKILLS[this.document.system?.category]
+				skill: this.document?.parent?.getEmbeddedDocument("Item", this.document.system.skill)?.name
 			}
 		);
 	}
@@ -41,32 +41,21 @@ export class Tribe8ManeuverSheet extends Tribe8ItemSheet {
 	 */
 	async _prepareContext(options) {
 		const context = await super._prepareContext(options);
+		const skills = (this.document.parent ? this.document.parent.getSkills({categories: ['combat']}) : {});
 
-		// Given the allowed types, create a human-readable list of skill choices
-		context.allowedTypes = {};
-		if (context.document.system.allowedTypes && Object.keys(context.document.system.allowedTypes).length != 0) {
-			for (let skillShort of Object.keys(context.document.system.allowedTypes)) {
-				switch (skillShort) {
-					case 'C':
-						context.allowedTypes[skillShort] = "Cavalry";
-						break;
-					case 'D':
-						context.allowedTypes[skillShort] = "Defense";
-						break;
-					case 'H':
-						context.allowedTypes[skillShort] = "Hand-to-Hand";
-						break;
-					case 'M':
-						context.allowedTypes[skillShort] = "Melee";
-						break;
-					case 'R':
-						context.allowedTypes[skillShort] = "Ranged";
-						break;
+		// Given the allowed types, create a human-readable list of Skill choices
+		context.skillChoices = {};
+		if (context.document.system.allowedTypes && context.document.system.allowedTypes.length != 0) {
+			for (let allowedType of context.document.system.allowedTypes) {
+				if (skills[allowedType] && skills[allowedType].length) {
+					for (let skill of skills[allowedType])
+						context.skillChoices[skill.id] = skill.name;
 				}
 			}
 		}
-		if (Object.keys(context.allowedTypes).length == 0) {
-			context.allowedTypes["N/A"] = "No Skills Allowed";
+		context.allowedTypes = Object.fromEntries((context.document?.system?.allowedTypes || []).map((t) => [t, true]));
+		if (Object.keys(context.skillChoices).length == 0) {
+			context.skillChoices["N/A"] = "tribe8.item.maneuver.allowedTypes.na";
 		}
 
 		// Add a + prefix to any positive (or 0) values in the various
@@ -94,34 +83,35 @@ export class Tribe8ManeuverSheet extends Tribe8ItemSheet {
 	 * @access protected
 	 */
 	_prepareSubmitData(event, form, formData, updateData) {
+		// TODO: This probably needs to be broken up at this point.
 		// Identify array-based form elements
 		const checkKeys = CONFIG.Tribe8.checkFormArrayElements(formData);
 
+		// If N/A was selected, or the only option, drop it from internal storage
+		if (formData.object['system.skill'] === "N/A") {
+			delete formData.object['system.skill'];
+			formData.object['system.==skill'] = null;
+		}
+
 		// Extract identified array-based elements
-		const allowedTypes = {}; // Object so we can use explicit keys
+		let allowedTypes = {}; // Object so we can use explicit keys
 		for (const key of checkKeys) {
-			const propertyPath = key.split(/[[.]/);
-			let chosenType;
-			if ((propertyPath[0] ?? "") == 'system' && (propertyPath[1] ?? "") == 'allowedTypes' && (chosenType = propertyPath[2].replace(']', '') ?? "").length == 1) {
+			const propertyPath = key.split(/[\][.]/).filter(p => p);
+			if ((propertyPath[0] ?? "") == 'system' && (propertyPath[1] ?? "") == 'allowedTypes' && (propertyPath[2] ?? "").length == 1) {
 				// Found a valid value, so store it and then delete it from the formData
 				if (formData.object[key]) {
-					allowedTypes[chosenType] = formData.object[key];
+					allowedTypes[propertyPath[2]] = formData.object[key];
 				}
 				delete formData.object[key];
 			}
 		}
-		// Bolt them back onto the formData as a proper array
-		for (let type in allowedTypes) {
-			if (Object.hasOwn(allowedTypes, type)) { // Make sure we're only targeting the properties of the specializations object, and not its inherited ones
-				if (!formData.object['system.==allowedTypes']) {
-					formData.object['system.==allowedTypes'] = {};
-				}
-				formData.object['system.==allowedTypes'][type] = allowedTypes[type];
-			}
+		allowedTypes = Object.keys(allowedTypes);
+		if (allowedTypes.length) {
+			formData.object['system.==allowedTypes'] = allowedTypes;
 		}
-		// Reset forSkill if the chosen value is no longer valid
-		if (!Object.keys(allowedTypes).length) {
-			formData.object['system.category'] = null;
+		else {
+			// Reset skill and allowedTypes if the chosen value is no longer valid
+			formData.object['system.skill'] = null;
 			formData.object['system.==allowedTypes'] = null;
 		}
 

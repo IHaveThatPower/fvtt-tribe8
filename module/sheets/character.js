@@ -78,6 +78,7 @@ export class Tribe8CharacterSheet extends Tribe8Application(ActorSheetV2) {
 		context.hasCombatSkills = this.document.getSkills({categories: ['combat'], count: true})
 		context.hasMagicSkills = this.document.getSkills({categories: ['magic'], count: true});
 
+		context.COMBAT_SKILLS = CONFIG.Tribe8.COMBAT_SKILLS;
 		this.#prepareContext_collectItems(context);
 		this.#prepareContext_sortCollections(context);
 
@@ -101,36 +102,36 @@ export class Tribe8CharacterSheet extends Tribe8Application(ActorSheetV2) {
 					// Handled in Skills, below
 					break;
 				case 'skill':
-					context.ensureHas(collectionName, []);
+					context.ensureHas(collectionName, {});
 					item.specializations = ""; // Transient property for display
 					if (item.system.specializations.length)
 						item.specializations = item.system.specializations.map((s) => { return item.parent.getEmbeddedDocument("Item", s)?.name; }).filter((s) => s == s).join(', ');
-					context[collectionName].push(item);
+					context[collectionName][item.id] = item;
 
 					// Track Synthesis and Ritual, specifically
-					if (CONFIG.Tribe8.slugify(item.system.name) == 'synthesis') {
+					if (CONFIG.Tribe8.slugify(item.system.name) == 'synthesis') { // TODO: Use localized slug
 						context.magic.synthesisSkill = item;
 					}
-					if (CONFIG.Tribe8.slugify(item.system.name) == 'ritual') {
+					if (CONFIG.Tribe8.slugify(item.system.name) == 'ritual') { // TODO: Use localized slug
 						context.magic.ritualSkill = item;
 					}
 					break;
 				case 'perk':
 				case 'flaw':
-					context.ensureHas(collectionName = 'perksAndFlaws', []);
-					context[collectionName].push(item);
+					context.ensureHas(collectionName = 'perksAndFlaws', {});
+					context[collectionName][item.id] = item;
 
 					// Track Dreamer and Awakened Dreamer Perks
-					if (CONFIG.Tribe8.slugify(item.name) == 'dreamer') {
+					if (CONFIG.Tribe8.slugify(item.name) == 'dreamer') { // TODO: Use localized slug
 						context.magic.hasDreamerPerk = true;
 					}
-					if (CONFIG.Tribe8.slugify(item.name) == 'awakeneddreamer') {
+					if (CONFIG.Tribe8.slugify(item.name) == 'awakeneddreamer') { // TODO: Use localized slug
 						context.magic.hasAwakenedDreamerPerk = true;
 					}
 					break;
 				case 'maneuver':
-					context.ensureHas(collectionName = 'sortedManeuvers', []);
-					context[collectionName].push(item);
+					context.ensureHas(collectionName = 'sortedManeuvers', {});
+					context[collectionName][item.id] = item;
 					break;
 				case 'eminence':
 				case 'totem':
@@ -139,19 +140,19 @@ export class Tribe8CharacterSheet extends Tribe8Application(ActorSheetV2) {
 						collectionName = `${collectionName[0].toUpperCase()}${collectionName.slice(1)}`;
 						collectionName = item.system.ritual ? `ritual${collectionName}` : `synthesis${collectionName}`;
 					}
-					context.magic.ensureHas(collectionName, []);
+					context.magic.ensureHas(collectionName, {});
 					item.cost = CONFIG.Tribe8.costs[item.type];
-					context.magic[collectionName].push(item);
+					context.magic[collectionName][item.id] = item;
 					break
 				case 'gear':
 				case 'armor':
 					collectionName = item.type; // Already plural
-					context.ensureHas(collectionName, []);
-					context[collectionName].push(item);
+					context.ensureHas(collectionName, {});
+					context[collectionName][item.id] = item;
 					break;
 				default:
-					context.ensureHas(collectionName, []);
-					context[collectionName].push(item);
+					context.ensureHas(collectionName, {});
+					context[collectionName][item.id] = item;
 					break;
 			}
 		}
@@ -184,9 +185,10 @@ export class Tribe8CharacterSheet extends Tribe8Application(ActorSheetV2) {
 					contextTarget = contextTarget[contextProp];
 				}
 			}
-			if (contextTarget && contextTarget.length) {
-				if (contextTarget[0]?.constructor?.cmp) {
-					contextTarget.sort(contextTarget[0].constructor.cmp);
+			if (contextTarget && Object.keys(contextTarget).length) {
+				const firstElement = Object.values(contextTarget)[0];
+				if (firstElement?.constructor?.cmp) {
+					contextTarget.sortedIDs = Object.values(contextTarget).sort(firstElement.constructor.cmp).map((i) => i.id);
 				}
 			}
 		}
@@ -350,9 +352,9 @@ export class Tribe8CharacterSheet extends Tribe8Application(ActorSheetV2) {
 			this.document.update({'system.edie': ++currentAmount});
 			return;
 		}
-		const skillItem = this.document.getEmbeddedDocument("Item", skillRow.dataset?.id);
+		const skillItem = this.document.getEmbeddedDocument("Item", skillRow.dataset?.itemId);
 		if (!skillItem) {
-			foundry.ui.notifications.error(`Could not find a Skill with the id ${skillRow.dataset?.id}`);
+			foundry.ui.notifications.error(`Could not find a Skill with the id ${skillRow.dataset?.itemId}`);
 			return;
 		}
 		skillItem.system.alterEdie();
@@ -375,9 +377,9 @@ export class Tribe8CharacterSheet extends Tribe8Application(ActorSheetV2) {
 			this.document.update({'system.edie': --currentAmount});
 			return;
 		}
-		const skillItem = this.document.getEmbeddedDocument("Item", skillRow.dataset?.id);
+		const skillItem = this.document.getEmbeddedDocument("Item", skillRow.dataset?.itemId);
 		if (!skillItem) {
-			foundry.ui.notifications.error(`Could not find a Skill with the id ${skillRow.dataset?.id}`);
+			foundry.ui.notifications.error(`Could not find a Skill with the id ${skillRow.dataset?.itemId}`);
 			return;
 		}
 		skillItem.system.alterEdie(-1);

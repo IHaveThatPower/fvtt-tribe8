@@ -43,8 +43,6 @@ This is a rough, ever-changing list that depicts in approximate priority order w
   - Includes DataModel for Gear-type Items
 - Combat tab
   - Includes DataModels for Weapon- and Armor-type Items
-- Fix logic in Combat Maneuvers to make them per-Skill, instead of per
-  combat Skill category (oops!)
 - Character artwork editing support
 - Item artwork editing support
 - Finalize character sheet layout

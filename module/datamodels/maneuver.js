@@ -11,17 +11,33 @@ export class Tribe8ManeuverModel extends Tribe8ItemModel {
 	static defineSchema() {
 		return {
 			...super.defineSchema(),
-			accuracy: new fields.StringField({hint: "The effect this Maneuver has on Accuracy for the round.", required: true, nullable: true}),
-			initiative: new fields.StringField({hint: "The effect this Maneuver has on Initiative for the round.", required: true, nullable: true}),
-			defense: new fields.StringField({hint: "The effect this Maneuver has on Defense rolls for the round.", required: true, nullable: true}),
-			parry: new fields.StringField({hint: "The effect this Maneuver has on Parry rolls for the round.", required: true, nullable: true}),
-			damage: new fields.StringField({hint: "The effect this Maneuver has on Damage rolls for the round.", required: true, nullable: true}),
-			complexity: new fields.NumberField({hint: "The Complexity requirement to use this Maneuver", required: true, nullable: false, initial: 0}),
-			allowedTypes: new fields.ObjectField({hint: "The Skills that can be used with this Maneuver", gmOnly: true, required: true, nullable: true}),
-			category: new fields.StringField({hint: "The combat Skill category to which this Maneuver applies", required: true, nullable: true, choices: Object.keys(CONFIG.Tribe8.COMBAT_SKILLS)}),
-			fromCpx: new fields.BooleanField({hint: "Whether this Maneuver is granted due to a Skill's Complexity.", initial: false, required: true, nullable: false}),
-			granted: new fields.BooleanField({hint: "Whether or not this Maneuver was granted for free by the Weaver", initial: false, required: true, nullable: false}),
-			points: new fields.StringField({hint: "The type of points used to pay for the Maneuver.", choices: ["CP", "XP"], initial: "CP", required: true, nullable: false})
+			accuracy: new fields.StringField({hint: "tribe8.item.maneuver.accuracy.hint", required: true, nullable: true}),
+			initiative: new fields.StringField({hint: "tribe8.item.maneuver.initiative.hint", required: true, nullable: true}),
+			defense: new fields.StringField({hint: "tribe8.item.maneuver.defense.hint", required: true, nullable: true}),
+			parry: new fields.StringField({hint: "tribe8.item.maneuver.parry.hint", required: true, nullable: true}),
+			damage: new fields.StringField({hint: "tribe8.item.maneuver.damage.hint", required: true, nullable: true}),
+			complexity: new fields.NumberField({hint: "tribe8.item.maneuver.complexity.hint", required: true, nullable: false, initial: 0}),
+			allowedTypes: new fields.ArrayField(
+				new fields.StringField({
+					required: true,
+					choices: Object.keys(CONFIG.Tribe8.COMBAT_SKILLS)
+				}), {
+					hint: "tribe8.item.maneuver.allowedTypes.hint",
+					require: false,
+					gmOnly: true
+				}
+			),
+			skill: new fields.ForeignDocumentField(
+				CONFIG.Item.documentClass,
+				{
+					hint: "tribe8.item.maneuver.skill.hint",
+					required: false,
+					idOnly: true
+				}
+			),
+			fromCpx: new fields.BooleanField({hint: "tribe8.item.maneuver.fromCpx.hint", initial: false, required: true, nullable: false}),
+			granted: new fields.BooleanField({hint: "tribe8.item.maneuver.granted.hint", initial: false, required: true, nullable: false}),
+			points: new fields.StringField({hint: "tribe8.item.maneuver.points.hint", choices: ["CP", "XP"], initial: "CP", required: true, nullable: false})
 		};
 	}
 
@@ -44,8 +60,19 @@ export class Tribe8ManeuverModel extends Tribe8ItemModel {
 	 * @access public
 	 */
 	static migrateData(data) {
-		if (data.forSkill && !data.category)
-			data.category = data.forSkill;
+		// Very old skill storage
+		if (data.forSkill && !data.skill && !data.category)
+			data.skill = data.forSkill;
+		// Old category style
+		else if (data.category && !data.skill)
+			data.skill = undefined;
+		if (data.skill && data.skill.length === 1) {
+			data.skill = undefined;
+		}
+		// Old key-style allowedTypes storage
+		if (data.allowedTypes && data.allowedTypes.constructor.name === 'Object') {
+			data.allowedTypes = Object.keys(data.allowedTypes);
+		}
 		return super.migrateData(data);
 	}
 }

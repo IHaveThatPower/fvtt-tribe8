@@ -8,18 +8,24 @@
 	</h3>
 	<dl>
 		<dt><span>Eminences</span><button name="add-eminence" data-action="addNewItem"><i class="fa fa-solid fa-plus"></i></button></dt>
-		<dd>{{#if magic.eminences}}{{#each magic.eminences}}
-		<div class="eminence{{#if this.system.used}} used{{/if}} draggable" data-item-id="{{this.id}}">
-			<div class="identity" data-action="editItem">
-				<div class="name">{{this.name}}</div>
-				<div class="specific">({{this.system.tribe}})</div>
+		<dd>
+			{{#if magic.eminences}}
+				{{#each magic.eminences.sortedIDs as |eminenceId|}}
+					{{#with (lookup ../magic.eminences eminenceId)}}
+			<div class="eminence{{#if this.system.used}} used{{/if}} draggable" data-item-id="{{this.id}}">
+				<div class="identity" data-action="editItem">
+					<div class="name">{{this.name}}</div>
+					<div class="specific">({{this.system.tribe}})</div>
+				</div>
+				<div class="used">
+					<input type="checkbox" name="useEminence[{{this.id}}]" data-action="useEminence" data-item-id="{{this.id}}" title="Mark this Eminence as having been used for the day"{{#if this.system.used}} checked{{/if}}>
+				</div>
 			</div>
-			<div class="used">
-				<input type="checkbox" name="useEminence[{{this.id}}]" data-action="useEminence" data-item-id="{{this.id}}" title="Mark this Eminence as having been used for the day"{{#if this.system.used}} checked{{/if}}>
-			</div>
-		</div>
-		{{/each}}{{else}}
-		<em>None</em>{{/if}}
+					{{/with}}
+				{{/each}}
+			{{else}}
+			<em>None</em>
+			{{/if}}
 		</dd>
 		{{#if magic.synthesisSkill}}
 		{{> "systems/tribe8/templates/sheets/actors/partials/magic_aspects.html" aspects=magic.synthesisAspects skill="synthesis"}}

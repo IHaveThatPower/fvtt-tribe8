@@ -13,7 +13,8 @@ export class Tribe8GearModel extends Tribe8ItemModel {
 			...super.defineSchema(),
 			qty: new fields.NumberField({ hint: "tribe8.item.gear.weight.qty", required: false }),
 			weight: new fields.NumberField({ hint: "tribe8.item.gear.weight.hint", required: false }),
-			value: new fields.NumberField({ hint: "tribe8.item.gear.value.hint", required: false }),
+			value: new fields.StringField({ hint: "tribe8.item.gear.value.hint", required: false, choices: CONFIG.Tribe8.gearValueOptions, initial: "avg" }),
+			valueThreshold: new fields.NumberField({ hint: "tribe8.item.gear.valueThreshold.hint", required: false, validate: (t) => t > 0 && t <= 10 }),
 			complexity: new fields.NumberField({ hint: "tribe8.item.gear.complexity.hint", required: true, nullable: false, initial: 1 }),
 			storage: new fields.ForeignDocumentField(
 				CONFIG.Item.documentClass,
@@ -44,4 +45,33 @@ export class Tribe8GearModel extends Tribe8ItemModel {
 		const parent = this.parent.parent;
 		return parent.getGear().some(g => g.system.storage == this.parent.id);
 	}
+
+	/**
+	 * Gear doesn't have an intrinsic cost, in terms of CP/XP.
+	 *
+	 * @return {int} Gear has no intrinsic cost, so returns 0
+	 * @access public
+	 */
+	get intrinsicCost() {
+		return 0;
+	}
+
+	/**
+	 * If the Gear has a value property that's a number, move it to
+	 * valueThreshold instead.
+	 *
+	 * @param  {object} data    The incoming migration data
+	 * @return {object}         The transformed data
+	 * @access public
+	 */
+	static migrateData(data) {
+		if (!isNaN(Number(data.value))) {
+			data.valueThreshold = Math.max(Number(data.value) + 0, 1);
+			data.value = null;
+		}
+		if (isNaN(data.valueThreshold))
+			data.valueThreshold = 1;
+		return super.migrateData(data);
+	}
+
 }

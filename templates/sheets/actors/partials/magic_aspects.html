@@ -1,11 +1,12 @@
 <dt><span>Aspects</span><button name="add-aspect-{{skill}}" data-action="addNewItem"><i class="fa fa-solid fa-plus"></i></button></dt>
 <dd>
 	{{#if aspects}}
-	{{#each aspects}}
+	{{#each aspects.sortedIDs as |aspectId|}}
+	{{#with (lookup ../aspects aspectId)}}
 	<div class="aspect draggable" data-item-id="{{this.id}}">
 		<div class="identity{{# if this.system.granted}} granted{{/if}}" data-action="editItem">
 			<div class="name">{{this.name}}</div>
-			<div class="specific">({{this.system.tribe}})</div>
+			<div class="specific">({{#if this.system.tribe}}{{this.system.tribe}}{{else}}<em>No Tribe Specified</em>{{/if}})</div>
 		</div>
 		<div class="complexity">Cpx {{this.system.complexity}}</div>
 		<div class="cost">
@@ -16,6 +17,7 @@
 			{{/if}}
 		</div>
 	</div>
+	{{/with}}
 	{{/each}}
 	{{else}}
 	<em>None</em>

@@ -11,26 +11,33 @@ export class Tribe8SkillModel extends Tribe8ItemModel {
 	static defineSchema() {
 		return {
 			...super.defineSchema(),
-			name: new fields.StringField({hint: "The top-level name of the Skill, without specifiers", nullable: false, required: true}),
-			specific: new fields.StringField({hint: "The specific area of expertise to which this Skill pertains, if appropriate"}),
-			specify: new fields.BooleanField({hint: "Whether this Skill require an area of expertise to be specified", initial: false}),
+			name: new fields.StringField({hint: "tribe8.item.skill.name.hint", nullable: false, required: true}),
+			specific: new fields.StringField({hint: "tribe8.item.skill.specific.hint"}),
+			specify: new fields.BooleanField({hint: "tribe8.item.skill.specify.hint", initial: false}),
 			specializations: new fields.ArrayField(
-				new fields.ForeignDocumentField(CONFIG.Item.documentClass, {hint: "A Specialization that pertains to this Skill", idOnly: true})
+				new fields.ForeignDocumentField(CONFIG.Item.documentClass, {hint: "tribe8.item.skill.specialization.hint", idOnly: true})
 			),
+			combatCategory: new fields.StringField({
+				hint: "tribe8.item.skill.combatCategory.hint",
+				gmOnly: true,
+				required: false,
+				nullable: true,
+				choices: Object.keys(CONFIG.Tribe8.COMBAT_SKILLS)
+			}),
 			// level: new fields.NumberField({hint: "The current Level of this Skill", initial: 0, required: true, nullable: false, min: 0}),
 			// cpx: new fields.NumberField({hint: "The current Complexity of this Skill", initial: 1, required: true, nullable: false, min: 1}),
 			points: new fields.SchemaField({
 				level: new fields.SchemaField({
-					cp: new fields.NumberField({hint: "The number of CP invested into increasing this Skill's starting Level", initial: 0, nullable: false, validate: (value) => (value >= 0)}),
-					xp: new fields.NumberField({hint: "The number of XP invested into increasing this Skill's Level", initial: 0, nullable: false, validate: (value) => (value >= 0)})
+					cp: new fields.NumberField({hint: "tribe8.item.skill.points.level.cp.hint", initial: 0, nullable: false, validate: (value) => (value >= 0)}),
+					xp: new fields.NumberField({hint: "tribe8.item.skill.points.level.xp.hint", initial: 0, nullable: false, validate: (value) => (value >= 0)})
 				}),
 				cpx: new fields.SchemaField({
-					cp: new fields.NumberField({hint: "The number of CP invested into increasing this Skill's starting Complexity", initial: 0, nullable: false, validate: (value) => (value >= 0)}),
-					xp: new fields.NumberField({hint: "The number of XP invested into increasing this Skill's Complexity", initial: 0, nullable: false, validate: (value) => (value >= 0)})
+					cp: new fields.NumberField({hint: "tribe8.item.skill.points.cpx.cp.hint", initial: 0, nullable: false, validate: (value) => (value >= 0)}),
+					xp: new fields.NumberField({hint: "tribe8.item.skill.points.cpx.xp.hint", initial: 0, nullable: false, validate: (value) => (value >= 0)})
 				}),
 				edie: new fields.SchemaField({
-					fromBonus: new fields.NumberField({hint: "Number of non-XP e-die spent into this Skill's rolls", initial: 0, nullable: false, validate: (value) => (value >= 0)}),
-					fromXP: new fields.NumberField({hint: "Number of XP converted to e-die for this Skill's rolls", initial: 0, nullable: false, validate: (value) => (value >= 0)})
+					fromBonus: new fields.NumberField({hint: "tribe8.item.skill.points.edie.fromBonus.hint", initial: 0, nullable: false, validate: (value) => (value >= 0)}),
+					fromXP: new fields.NumberField({hint: "tribe8.item.skill.points.edie.fromXP.hint", initial: 0, nullable: false, validate: (value) => (value >= 0)})
 				})
 			})
 		};
@@ -90,27 +97,12 @@ export class Tribe8SkillModel extends Tribe8ItemModel {
 	 * @access public
 	 */
 	get bonusManeuvers() {
-		if (!this.isCombat) return {};
+		if (!this.combatCategory) return {};
 		const slots = {};
 		for (let c = this.cpx; c > 0; c--) {
 			slots[c] = [...Array(c)];
 		}
 		return slots;
-	}
-
-	/**
-	 * Is this Skill a Combat Skill?
-	 *
-	 * @return {string|bool} The combat category to which the Skill
-	 *                       belongs. False if it's not a combat Skill.
-	 * @access public
-	 */
-	get isCombat() {
-		for (let [cat, skills] of Object.entries(CONFIG.Tribe8.ALL_COMBAT_VARIATIONS)) {
-			if (skills.includes(CONFIG.Tribe8.slugify(this.name)))
-				return cat;
-		}
-		return false;
 	}
 
 	/**
@@ -175,6 +167,7 @@ export class Tribe8SkillModel extends Tribe8ItemModel {
 		if (!data) return false;
 
 		// Don't do anything if we'd go negative
+		//TODO: Fix/Rethink this. Feels over-complicated as-is.
 		if (this.points.edie.fromBonus + data.spendFromBonus < 0 || this.points.edie.fromXP + data.spendFromXP < 0) {
 			const msg = "Can't decrease spent EDie below 0";
 			if (foundry.ui?.notifications) foundry.ui.notifications.warn(msg);

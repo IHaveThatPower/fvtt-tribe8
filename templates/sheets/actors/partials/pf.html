@@ -5,12 +5,13 @@
 	{{~else~}}
 	<em>None</em>
 	{{~/if}}
-	{{#each perksAndFlaws as |pf|}}
-	{{#with (lookup @root.perksAndFlaws (sub @index 1)) as | prevItem |}}
-	{{#if (and (eq pf.type 'flaw') (eq prevItem.type 'perk'))}}
+	{{~#each perksAndFlaws.sortedIDs as |pfId|~}}
+		{{~#with (lookup @root.perksAndFlaws pfId)~}}
+		{{~#with (lookup @root.perksAndFlaws (lookup @root.perksAndFlaws.sortedIDs (sub @index 1))) as | prevItem |~}}
+			{{~#if (and (eq ../this.type 'flaw') (eq prevItem.type 'perk'))}}
 	<h3>Flaws</h3>
-	{{/if}}
-	{{/with}}
+			{{~/if~}}
+		{{~/with}}
 	<div class="pf {{this.type}}{{#if this.system.granted}} granted{{/if}} draggable" data-item-id="{{this.id}}">
 		<div class="identity" data-action="editItem">
 			<div class="name">{{#if (eq this.type 'perk')}}+{{else}}-{{/if}} {{this.system.name}}{{#if this.system.ranked}} {{roman this.system.points.length}}{{/if}}</div>
@@ -19,5 +20,6 @@
 			{{/if}}
 		</div>
 	</div>
+		{{/with}}
 	{{/each}}
 </div>

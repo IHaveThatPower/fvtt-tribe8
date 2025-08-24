@@ -10,11 +10,12 @@
 	{{else}}
 	<em>None</em>
 	{{/if}}
-	{{#each sortedManeuvers}}
+	{{#each sortedManeuvers.sortedIDs as |maneuverId|}}
+	{{#with (lookup ../sortedManeuvers maneuverId)}}
 	<div class="maneuver{{#if (and (not this.usesPoints) this.system.fromCpx)}} from-cpx{{/if}}{{#if this.system.granted}} granted{{/if}} draggable" data-item-id="{{this.id}}">
 		<div class="identity" data-action="editItem">
 			<div class="name">{{this.name}}</div>
-			<div class="specific">({{this.system.category}})</div>
+			<div class="specific">({{#with (lookup ../../skills this.system.skill)}}{{name}}{{/with}})</div>
 		</div>
 		<div class="complexity">{{#if (eq this.system.complexity 0)}}1*{{else}}{{this.system.complexity}}{{/if}}</div>
 		<div class="cost">
@@ -33,5 +34,6 @@
 			{{/if}}
 		</div>
 	</div>
+	{{/with}}
 	{{/each}}
 </div>

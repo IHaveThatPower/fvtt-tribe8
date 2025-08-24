@@ -40,6 +40,9 @@ export class Tribe8GearSheet extends Tribe8ItemSheet {
 			context.otherGear = this.document.parent.getGear().filter(g => g.id != this.id);
 			context.otherGear.sort(context.otherGear[0].constructor.cmp);
 		}
+
+		// The form needs to know the possible options for values
+		context.valueOptions = Object.fromEntries(CONFIG.Tribe8.gearValueOptions.map((o) => [o, `tribe8.item.gear.system.value.strings.${o}.full`]));
 		return context;
 	}
 }

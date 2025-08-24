@@ -124,7 +124,26 @@
 			},
 			"maneuver": {
 				"title": "Maneuver: {maneuver}",
-				"title-skill": "Maneuver: {maneuver} ({category})"
+				"title-skill": "Maneuver: {maneuver} ({skill})",
+				"accuracy.hint": "The effect this Maneuver has on Accuracy for the round.",
+				"initiative.hint": "The effect this Maneuver has on Initiative for the round.",
+				"defense.hint": "The effect this Maneuver has on Defense rolls for the round.",
+				"parry.hint": "The effect this Maneuver has on Parry rolls for the round.",
+				"damage.hint": "The effect this Maneuver has on Damage rolls for the round.",
+				"complexity.hint": "The Complexity requirement to use this Maneuver",
+				"allowedTypes": {
+					"hint": "The combat Skill categories that can be used with this Maneuver",
+					"cavalry": "Can be used with the Riding Skill",
+					"defense": "Can be used with the Defense Skill",
+					"handtohand": "Can be used with the Hand-to-Hand Skill",
+					"melee": "Can be used with the Melee Skill",
+					"ranged": "Can be used with Skills associated with ranged attacks",
+					"na": "No Skills Allowed"
+				},
+				"skill.hint": "The Skill to which this Maneuver applies",
+				"fromCpx.hint": "Whether this Maneuver is granted due to a Skill's Complexity.",
+				"granted.hint": "Whether or not this Maneuver was granted for free by the Weaver",
+				"points.hint": "The type of points used to pay for the Maneuver."
 			},
 			"perk": {
 				"title": "Perk: {pfName}"
@@ -133,7 +152,33 @@
 				"title": "Flaw: {pfName}"
 			},
 			"skill": {
-				"title": "Skill: {skill}"
+				"title": "Skill: {skill}",
+				"name.hint": "The top-level name of the Skill, without specifiers",
+				"specific.hint": "The specific area of expertise to which this Skill pertains, if appropriate",
+				"specify.hint": "Whether this Skill require an area of expertise to be specified",
+				"specialization.hint": "A Specialization that pertains to this Skill",
+				"combatCategory": {
+					"hint": "The combat categories this Skill applies to",
+					"cavalry": "Riding",
+					"defense": "Defense",
+					"handtohand": "Hand-to-Hand",
+					"melee": "Melee",
+					"ranged": "Ranged"
+				},
+				"points": {
+					"level.cp.hint": "The number of CP invested into increasing this Skill's starting Level",
+					"level.xp.hint": "The number of XP invested into increasing this Skill's Level",
+					"cpx.cp.hint": "The number of CP invested into increasing this Skill's starting Complexity",
+					"cpx.xp.hint": "The number of XP invested into increasing this Skill's Complexity",
+					"edie.fromBonus.hint": "Number of non-XP e-die spent into this Skill's rolls",
+					"edie.fromXP.hint": "Number of XP converted to e-die for this Skill's rolls"
+				},
+				"names": {
+					"synthesis": "Synthesis",
+					"ritual": "Ritual",
+					"technosmithing": "Technosmithing",
+					"sundering": "Sundering"
+				}
 			},
 			"gear": {
 				"title": {
@@ -151,14 +196,26 @@
 					"hint": "The Weight for one unit of this Gear"
 				},
 				"system.value": {
+					"hint": "The Value of one unit of this Gear",
 					"full": "Value",
 					"short": "Val",
-					"vlow": "Very Low",
-					"low": "Low",
-					"average": "Average",
-					"high": "High",
-					"vhigh": "Very High",
-					"hint": "The Value of one unit of this Gear"
+					"strings": {
+						"vlow.short": "V.Low",
+						"vlow.full": "Very Low",
+						"low.short": "Low",
+						"low.full": "Low",
+						"avg.short": "Avg.",
+						"avg.full": "Average",
+						"hi.short": "High",
+						"hi.full": "High",
+						"vhi.short": "V.High",
+						"vhi.full": "Very High"
+					}
+				},
+				"system.valueThreshold": {
+					"full": "Find Threshold",
+					"short": "Find",
+					"hint": "The Threshold required to find this type of Item"
 				},
 				"system.complexity": {
 					"full": "Complexity",

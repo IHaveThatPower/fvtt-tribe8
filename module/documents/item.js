@@ -138,23 +138,26 @@ export class Tribe8Item extends Item {
 		if (request == 'update' && this.isPhysicalItem) {
 			if (Object.hasOwn(data.system, 'storage')) {
 				if (data.system.storage == this.id) {
-					throw new RangeError("tribe8.errors.circular-container");
+					throw new RangeError(game.i18n.localize("tribe8.errors.circular-container"));
 				}
 			}
 			if (Object.hasOwn(data.system, 'qty')) {
-				if (data.system.qty != 1 && this.system.isContainer) {
-					throw new RangeError("tribe8.errors.quantity-on-container");
+				if (data.system.qty > 1 && this.system.isContainer) {
+					if (data.system.qty == 0)
+						data.system.qty = 1;
+					else
+						throw new RangeError(game.i18n.localize("tribe8.errors.quantity-on-container"));
 				}
 			}
 		}
 		if (request == 'create' && data.type === 'specialization') {
 			if (!actor) {
-				throw new ReferenceError("tribe8.errors.unowned-specialization");
+				throw new ReferenceError(game.i18n.localize("tribe8.errors.unowned-specialization"));
 			}
 			// Does this Specialization already exist?
 			const targetSkill = actor.getEmbeddedDocument("Item", data.system.skill);
 			if (!targetSkill) {
-				throw new ReferenceError("tribe8.errors.skill-not-exist");
+				throw new ReferenceError(game.i18n.localize("tribe8.errors.skill-not-exist"));
 			}
 			if (
 				targetSkill.system.specializations
@@ -162,7 +165,7 @@ export class Tribe8Item extends Item {
 				.filter((s) => s.type == 'specialization')
 				.some((s) => s.name == data.name)
 			) {
-				throw new RangeError("tribe8.errors.existing-skill-specialization");
+				throw new RangeError(game.i18n.localize("tribe8.errors.existing-skill-specialization"));
 			}
 		}
 	}
@@ -416,15 +419,11 @@ export class Tribe8Item extends Item {
 			throw new Error("Cannot use Maneuver comparison function to sort non-Maneuver items");
 
 		// If the skills don't match, we need to first consult their sorting algorithm
-		if (a.system.category != b.system.category)
+		if (a.system.skill != b.system.skill)
 		{
-			const combatSkills = a.parent?.getSkills({combat: true}) || {};
-
 			// Identify the relevant skills to our a and b
-			// TODO: (Future) Right now, this only uses the first matching Skill from each category.
-			// In most cases, there *is* only one, but Ranged throws a monkey wrench in that.
-			const aSkill = (combatSkills[a.system.category] || [])[0];
-			const bSkill = (combatSkills[b.system.category] || [])[0];
+			const aSkill = a.parent?.getEmbeddedDocument("Item", a.system.skill);
+			const bSkill = b.parent?.getEmbeddedDocument("Item", b.system.skill);
 			if (aSkill && !bSkill) return -1;
 			if (!aSkill && bSkill) return 1;
 			if (aSkill && bSkill) {

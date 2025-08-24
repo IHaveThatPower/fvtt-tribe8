@@ -50,8 +50,8 @@ export class Tribe8CharacterModel extends foundry.abstract.TypeDataModel {
 			}),
 			points: new fields.SchemaField({
 				cp: new fields.SchemaField({
-					attributes: new fields.NumberField({hint: "Number of initial character points that can be spent on attributes", initial: 30, required: true}),
-					general: new fields.NumberField({hint: "Number of additional character points that can be spent on character features other than attributes", initial: 50, required: true}),
+					attributes: new fields.NumberField({initial: 30, required: true, hint: "Number of initial character points that can be spent on attributes"}),
+					general: new fields.NumberField({initial: 50, required: true, hint: "Number of additional character points that can be spent on character features other than attributes"}),
 				}),
 				xp: new fields.SchemaField({
 					total: new fields.NumberField({hint: "Number of total XP accumulated by the character", initial: 0, required: true})
@@ -101,7 +101,7 @@ export class Tribe8CharacterModel extends foundry.abstract.TypeDataModel {
 	 */
 	get cpSpentGeneral() {
 		if (!this.parent) throw new ReferenceError("Cannot determine CP spent before data model knows what Actor it belongs to");
-		return this.points.cp.generalSpent;
+		return this.points.cp.generalSpent ?? 0; // This is a transient property computed by #preparePoints
 	}
 
 	/**
@@ -124,7 +124,7 @@ export class Tribe8CharacterModel extends foundry.abstract.TypeDataModel {
 	 */
 	get xpSpentGeneral() {
 		if (!this.parent) throw new ReferenceError("Cannot determine XP spent before data model knows what Actor it belongs to");
-		return this.points.xp.spent;
+		return this.points.xp.spent ?? 0; // This is a transient property computed by #preparePoints
 	}
 
 	/**
@@ -160,6 +160,8 @@ export class Tribe8CharacterModel extends foundry.abstract.TypeDataModel {
 			if (data.edie?.fromBonus) data.edie = data.edie.fromBonus;
 			else data.edie = 0;
 		}
+		if (isNaN(data.points.xp.total) || data.points.xp.total === null)
+			data.points.xp.total = 0;
 		return super.migrateData(data);
 	}
 
@@ -272,12 +274,14 @@ export class Tribe8CharacterModel extends foundry.abstract.TypeDataModel {
 	 * @access private
 	 */
 	#preparePoints() {
+		// (Re-)initialize the point expenditures
+		this.points.cp.attributesSpent = 0;
+		this.points.cp.generalSpent = 0;
+		this.points.xp.spent = 0;
+
 		// Compute amount spent on Attributes
 		this.points.cp.attributesSpent = this.cpSpentAttributes;
 		this.points.xp.spent = this.xpSpentAttributes;
-
-		// Record where we're spending points, for diagnostic and display
-		this.pointsLedger = {};
 
 		const items = this.parent.getItems();
 		this.maneuverSlots = {};
@@ -285,11 +289,11 @@ export class Tribe8CharacterModel extends foundry.abstract.TypeDataModel {
 		// Compute amount spent on various items
 		for (let item of items) {
 			// Add the points
-			this.points.cp.generalSpent += item.totalCP;
-			this.points.xp.spent += item.totalXP;
+			this.points.cp.generalSpent += item.system.totalCP;
+			this.points.xp.spent += item.system.totalXP;
 			// Add the points to the ledger
-			this.#updatePointsLedger(item.type, 'CP', item.totalCP)
-			this.#updatePointsLedger(item.type, 'XP', item.totalXP)
+			this.#updatePointsLedger(item.type, 'CP', item.system.totalCP)
+			this.#updatePointsLedger(item.type, 'XP', item.system.totalXP)
 			// If this Item is a Skill, see if it grants bonus Maneuvers
 			this.#grantManeuverSlots(item);
 		}
@@ -309,9 +313,17 @@ export class Tribe8CharacterModel extends foundry.abstract.TypeDataModel {
 	 * @access private
 	 */
 	#updatePointsLedger(category, type, amount) {
-		if (!this.pointLedger) this.pointsLedger = {};
-		if (!this.pointsLedger[category]) this.pointsLedger[category] = {};
-		if (!this.pointsLedger[category][type]) this.pointsLedger[category][type] = 0;
+		if (isNaN(amount)) {
+			console.warn(`Not adding ${amount} to points ledger in ${category} as ${type} because it's not a number`);
+			return;
+		}
+
+		// Initialize the fields
+		this.pointsLedger = this.pointsLedger ?? {};
+		this.pointsLedger[category] = this.pointsLedger[category] ?? {};
+		this.pointsLedger[category][type] = this.pointsLedger[category][type] ?? 0;
+
+		// Add it
 		this.pointsLedger[category][type] += amount;
 	}
 
@@ -375,21 +387,17 @@ export class Tribe8CharacterModel extends foundry.abstract.TypeDataModel {
 	 */
 	#grantManeuverSlots(item) {
 		if (item.type !== 'skill') return;
-		// What combat category does this Skill belong to?
-		let combatCat = item.system.isCombat;
-		if (!combatCat) return;
 
 		// Initialize a slot category for it, if we don't have one
-		if (!this.maneuverSlots[combatCat])
-			this.maneuverSlots[combatCat] = {};
+		if (!this.maneuverSlots[item.id])
+			this.maneuverSlots[item.id] = {};
 
-		// Join this Skill's slots with existing ones.
 		const itemSlots = item.system.bonusManeuvers;
 		for (let c in itemSlots) {
 			// Initialize slots of this complexity, if we don't yet have them
-			if (!this.maneuverSlots[combatCat][c])
-				this.maneuverSlots[combatCat][c] = [];
-			this.maneuverSlots[combatCat][c] = this.maneuverSlots[combatCat][c].concat(itemSlots[c]);
+			if (!this.maneuverSlots[item.id][c])
+				this.maneuverSlots[item.id][c] = [];
+			this.maneuverSlots[item.id][c] = itemSlots[c];
 		}
 	}
 
@@ -468,32 +476,43 @@ export class Tribe8CharacterModel extends foundry.abstract.TypeDataModel {
 		maneuvers.sort(maneuvers.constructor.cmp);
 
 		// Fill the slots!
+		const skillCache = {};
 		for (let m = 0; m < maneuvers.length; m++) {
 			const maneuver = maneuvers[m];
-			const category = maneuver.system.category;
-			// No slots for this category? Move along.
-			if (!Object.keys(this.maneuverSlots).includes(category))
+
+			// Cache the skill lookups
+			let skill;
+			if (Object.keys(skillCache).includes(maneuver.system.skill))
+				skill = skillCache[maneuver.system.skill];
+			else {
+				skill = this.parent?.getEmbeddedDocument("Item", maneuver.system.skill);
+				skillCache[maneuver.system.skill] = skill;
+			}
+
+			// No slots for this Skill? Move along.
+			if (!Object.keys(this.maneuverSlots).includes(skill?.id)) {
 				continue;
+			}
 			// Figure out the maximum Complexity slot available for this category
-			maneuver.usesPoints = ((maneuver, catSlots) => {
-				const maxCatSlot = Object.keys(catSlots).reduce((max, cat) => Number(cat) > max ? Number(cat) : max, 0);
+			maneuver.usesPoints = ((maneuver, skillSlots) => {
+				const maxSlot = Object.keys(skillSlots).reduce((max, cat) => Number(cat) > max ? Number(cat) : max, 0);
 				// Loop *down* the list
-				for (let c = maxCatSlot; c > 0; c--) {
+				for (let c = maxSlot; c > 0; c--) {
 					if (c < maneuver.system.complexity) continue; // Too complex for this slot
-					for (let s = 0; s < catSlots[c].length; s++) {
-						if (!catSlots[c][s]) { // Found an empty slot!
-							catSlots[c][s] = maneuver;
+					for (let s = 0; s < skillSlots[c].length; s++) {
+						if (!skillSlots[c][s]) { // Found an empty slot!
+							skillSlots[c][s] = maneuver;
 							return false;
 						}
 					}
 				}
 				return true;
-			})(maneuver, this.maneuverSlots[category]); // We'll compare this with fromCpx values later
+			})(maneuver, this.maneuverSlots[skill.id]); // We'll compare this with fromCpx values later
 
 			// Refund the points!
 			if (!maneuver.usesPoints) {
-				this.points.cpGeneralSpent -= maneuver.system.totalCP
-				this.points.xp -= maneuver.system.totalXP
+				this.points.cp.generalSpent -= maneuver.system.totalCP
+				this.points.xp.spent -= maneuver.system.totalXP
 				this.#updatePointsLedger('maneuver', 'CP', -1 * maneuver.system.totalCP);
 				this.#updatePointsLedger('maneuver', 'XP', -1 * maneuver.system.totalXP);
 
@@ -502,7 +521,7 @@ export class Tribe8CharacterModel extends foundry.abstract.TypeDataModel {
 				// console.
 				if (!maneuver.system.fromCpx) {
 					if (game.user.id == maneuver.parent.playerOwner) {
-						const msg = `${maneuver.parent.name}'s '${maneuver.name} (${category})' Maneuver is free due to bonus Maneuver slots, but is not marked as "from Complexity".`;
+						const msg = `${maneuver.parent.name}'s '${maneuver.name} (${skill.name})' Maneuver is free due to bonus Maneuver slots, but is not marked as "from Complexity".`;
 						if (foundry.ui?.notifications) foundry.ui.notifications.warn(msg);
 						else console.warn(msg);
 					}
@@ -512,7 +531,7 @@ export class Tribe8CharacterModel extends foundry.abstract.TypeDataModel {
 			// user marked it as from Complexity, alert them.
 			if (maneuver.usesPoints && maneuver.system.fromCpx) {
 				if (game.user.id == maneuver.parent.playerOwner) {
-					const msg = `${maneuver.parent.name}'s '${maneuver.name} (${category})' Maneuver is marked as from Complexity, but no bonus Maneuver slot was available for it.`;
+					const msg = `${maneuver.parent.name}'s '${maneuver.name} (${skill.name})' Maneuver is marked as from Complexity, but no bonus Maneuver slot was available for it.`;
 					if (foundry.ui?.notifications) foundry.ui.notifications.warn(msg);
 					else console.warn(msg);
 				}

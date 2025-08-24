@@ -795,6 +795,11 @@ div.item-sheet h3 {
 		div.identity div:first-child {
 			padding-right: 0;
 		}
+		div.identity div.name span.combatCategory {
+			font-size: 75%;
+			color: var(--color-medium-gray);
+			vertical-align: super;
+		}
 		div.identity div.specific input {  /* Old-style */
 			border-radius: 0.5rem;
 			padding: 0.25rem;
@@ -1186,7 +1191,7 @@ div.item-sheet h3 {
 	}
 	.equipment div.gear-list div.gear-item-row {
 		display: grid;
-		grid-template-columns: 1fr 3rem 4rem 5rem 2.5rem 2rem 1.5rem;
+		grid-template-columns: 1fr 3rem 4rem 4rem 5rem 2rem 1.5rem;
 	}
 	.equipment div.gear-list div.gear-item-row>div {
 		overflow: hidden;

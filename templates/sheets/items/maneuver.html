@@ -2,25 +2,41 @@
 	<div class="identity">
 		<div class="name"><input type="text" name="name" value="{{document.name}}" size=12></div>
 		<div class="specific">
-			<select name="system.category">
-				{{#each allowedTypes as |name key|}}
-				<option value="{{key}}"{{#if (eq @root.document.system.category key)}} selected{{/if}}>{{name}}</option>
+			<select name="system.skill">
+				{{#each skillChoices as |name key|}}
+				<option value="{{key}}"{{#if (eq @root.document.system.skill key)}} selected{{/if}}>{{name}}</option>
 				{{/each}}
 			</select>
 		</div>
 	</div>
 	{{!-- TODO: Eventually, the idea is for these to only be visible to the GM, who can pre-configure them before players add them to their sheets. --}}
 	<div class="allowed">
-		<input type="checkbox" name="system.allowedTypes[C]" value=true{{#if document.system.allowedTypes.C}} checked{{/if}} title="Can be used with Cavalry Skill" />
-		<label for="system.allowedTypes[C]" title="Can be used with Cavalry Skill">C</label>
-		<input type="checkbox" name="system.allowedTypes[D]" value=true{{#if document.system.allowedTypes.D}} checked{{/if}} title="Can be used with Defense Skill" />
-		<label for="system.allowedTypes[D]" title="Can be used with Defense Skill">D</label>
-		<input type="checkbox" name="system.allowedTypes[H]" value=true{{#if document.system.allowedTypes.H}} checked{{/if}} title="Can be used with Hand-to-Hand Skill" />
-		<label for="system.allowedTypes[H]" title="Can be used with Hand-to-Hand Skill">H</label>
-		<input type="checkbox" name="system.allowedTypes[M]" value=true{{#if document.system.allowedTypes.M}} checked{{/if}} title="Can be used with Melee Skill" />
-		<label for="system.allowedTypes[M]" title="Can be used with Melee Skill">M</label>
-		<input type="checkbox" name="system.allowedTypes[R]" value=true{{#if document.system.allowedTypes.R}} checked{{/if}} title="Can be used with Ranged Skill" />
-		<label for="system.allowedTypes[R]" title="Can be used with Ranged Skill">R</label>
+		{{!-- NOTE: The *existing* value is passed in as allowedTypes[type], while the *submitted* value is passed back as system.allowedTypes[type} --}}
+		<input type="checkbox" name="system.allowedTypes[C]"
+		       value=true{{#if allowedTypes.C}} checked{{/if}}
+		       title="{{localize "tribe8.item.maneuver.system.allowedTypes.cavalry"}}" />
+		<label for="system.allowedTypes[C]"
+		       title="{{localize "tribe8.item.maneuver.system.allowedTypes.cavalry"}}">C</label>
+		<input type="checkbox" name="system.allowedTypes[D]"
+		       value=true{{#if allowedTypes.D}} checked{{/if}}
+		       title="{{localize "tribe8.item.maneuver.system.allowedTypes.defense"}}" />
+		<label for="system.allowedTypes[D]"
+		       title="{{localize "tribe8.item.maneuver.system.allowedTypes.defense"}}">D</label>
+		<input type="checkbox" name="system.allowedTypes[H]"
+		       value=true{{#if allowedTypes.H}} checked{{/if}}
+		       title="{{localize "tribe8.item.maneuver.system.allowedTypes.handtohand"}}" />
+		<label for="system.allowedTypes[H]"
+		       title="{{localize "tribe8.item.maneuver.system.allowedTypes.handtohand"}}">H</label>
+		<input type="checkbox" name="system.allowedTypes[M]"
+		       value=true{{#if allowedTypes.M}} checked{{/if}}
+		       title="{{localize "tribe8.item.maneuver.system.allowedTypes.melee"}}" />
+		<label for="system.allowedTypes[M]"
+		       title="{{localize "tribe8.item.maneuver.system.allowedTypes.melee"}}">M</label>
+		<input type="checkbox" name="system.allowedTypes[R]"
+		       value=true{{#if allowedTypes.R}} checked{{/if}}
+		       title="{{localize "tribe8.item.maneuver.system.allowedTypes.ranged"}}" />
+		<label for="system.allowedTypes[R]"
+		       title="{{localize "tribe8.item.maneuver.allowedTypes.ranged"}}">R</label>
 	</div>
 	<div class="costs">
 		<div class="cost-field cost-field-checkbox">

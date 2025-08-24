@@ -38,15 +38,18 @@ Tribe8.checkFormArrayElements = function(formData) {
  * @return {Array|boolean}           The matching list of combat skill slug names, or false if none found
  */
 Tribe8.findCombatSkill = function(key, skills) {
+	// TODO: Fix findCombatSkill()
 	if (!Object.keys(Tribe8.COMBAT_SKILLS).includes(key)) return false;
 	if (!(skills instanceof Array) || !skills.length) return false;
 	if (typeof key != 'string' || key.length != 1) return false;
 	return skills.find((s) => {
 		const skillNameOptions = ((key) => {
+			/*
 			if (key == 'H')
 				return [Tribe8.COMBAT_SKILLS['H'], ...Tribe8.HAND_TO_HAND_VARIATIONS];
 			if (key == 'R')
 				return [...Tribe8.RANGED_COMBAT_SKILL_REFERENCE];
+			*/
 			return [Tribe8.COMBAT_SKILLS[key]];
 		})(key);
 		for (let opt of skillNameOptions) {
@@ -96,16 +99,16 @@ Tribe8.registerSheets = function(sheetType, docs) {
 
 Tribe8.attributes = {
 	primary: {
-		'agi': 'Agility',
-		'app': 'Appearance',
-		'bld': 'Build',
-		'cre': 'Creativity',
-		'fit': 'Fitness',
-		'inf': 'Influence',
-		'kno': 'Knowledge',
-		'per': 'Perception',
-		'psy': 'Psyche',
-		'wil': 'Willpower'
+		'agi': 'tribe8.actor.character.attributes.primary.agi.full',
+		'app': 'tribe8.actor.character.attributes.primary.app.full',
+		'bld': 'tribe8.actor.character.attributes.primary.bld.full',
+		'cre': 'tribe8.actor.character.attributes.primary.cre.full',
+		'fit': 'tribe8.actor.character.attributes.primary.fit.full',
+		'inf': 'tribe8.actor.character.attributes.primary.inf.full',
+		'kno': 'tribe8.actor.character.attributes.primary.kno.full',
+		'per': 'tribe8.actor.character.attributes.primary.per.full',
+		'psy': 'tribe8.actor.character.attributes.primary.psy.full',
+		'wil': 'tribe8.actor.character.attributes.primary.wil.full'
 	}
 };
 Tribe8.attributeBasis = -1; // Where attributes starts;
@@ -114,50 +117,25 @@ Tribe8.maxComplexity = 5;
 /**
  * The combat meta-skills used to categorize valid uses of Combat
  * Maneuvers. Note that these do not necessarily correspond to actual
- * skill names (e.g. "Ranged")
+ * Skill names (e.g. "Ranged")
  */
 Tribe8.COMBAT_SKILLS = {
-	"C": "Cavalry",
-	"D": "Defense",
-	"H": "Hand-to-Hand",
-	"M": "Melee",
-	"R": "Ranged"
+	"C": "cavalry", // aka riding
+	"D": "defense",
+	"H": "handtohand",
+	"M": "melee",
+	"R": "ranged"
 };
 
 /**
- * The skill slugs that qualify as "ranged" skills.
- */
-Tribe8.RANGED_COMBAT_SKILL_REFERENCE = [
-	'archery',
-	'gunnery',
-	'heavyweapons',
-	'smallarms',
-	'throwing'
-];
-
-/**
- * The skill slugs that might be used for "hand to hand" skills, in
- * addition to "handtohand" itself
- */
-Tribe8.HAND_TO_HAND_VARIATIONS = [
-	'h2h',
-	'hth',
-	'htoh',
-	'hand2hand'
-];
-
-Tribe8.ALL_COMBAT_VARIATIONS = Object.fromEntries(Object.entries(Tribe8.COMBAT_SKILLS).map(([c, skills]) => [c, [skills].map((s) => Tribe8.slugify(s))]));
-Tribe8.ALL_COMBAT_VARIATIONS['R'] = Tribe8.ALL_COMBAT_VARIATIONS['R'].concat(Tribe8.RANGED_COMBAT_SKILL_REFERENCE);
-Tribe8.ALL_COMBAT_VARIATIONS['H'] = Tribe8.ALL_COMBAT_VARIATIONS['H'].concat(Tribe8.HAND_TO_HAND_VARIATIONS);
-
-/**
- * The skill slugs that might be used for magic skills
+ * The localized Skill names that might be used for magic Skills. These
+ * will be put through slugify() before being compared.
  */
 Tribe8.MAGIC_SKILLS = [
-	"synthesis",
-	"ritual",
-	"technosmithing",
-	"sundering"
+	"tribe8.item.skill.names.synthesis",
+	"tribe8.item.skill.names.ritual",
+	"tribe8.item.skill.names.technosmithing",
+	"tribe8.item.skill.names.sundering"
 ];
 
 /**
@@ -237,3 +215,14 @@ Tribe8.movementInjuryMultipliers = {
  * How precise our rounding is for movement display.
  */
 Tribe8.movementPrecision = 1;
+
+/**
+ * Possible value options for Gear
+ */
+Tribe8.gearValueOptions = [
+	"vlow",
+	"low",
+	"avg",
+	"hi",
+	"vhi"
+];

@@ -50,6 +50,7 @@ export class Tribe8PerkFlawModel extends Tribe8ItemModel {
 	 * @access public
 	 */
 	get totalCP() {
+		if (this.granted) return 0;
 		if (!this.points.length) return 0;
 		return this.points.reduce((cp, pointTypeForRank, rank) => {
 			if (pointTypeForRank !== "CP") return cp;
@@ -65,6 +66,7 @@ export class Tribe8PerkFlawModel extends Tribe8ItemModel {
 	 * @access public
 	 */
 	get totalXP() {
+		if (this.granted) return 0;
 		if (!this.points.length) return 0;
 		return this.points.reduce((xp, pointTypeForRank, rank) => {
 			if (pointTypeForRank !== "XP") return xp;

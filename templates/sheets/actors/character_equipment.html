@@ -28,7 +28,8 @@
 			<div class="complexity"><span title="{{localize "tribe8.item.gear.system.complexity.full"}}">{{localize "tribe8.item.gear.system.complexity.short"}}</span></div>
 			<div class="carried"><span title="{{localize "tribe8.item.gear.system.carried.full"}}"><i class="fa fa-solid fa-suitcase"></i></span></div><!-- TODO: Carried toggle -->
 		</div>
-		{{#each gear}}
+		{{#each gear.sortedIDs as |gearID|}}
+		{{#with (lookup ../gear gearID)}}
 			{{#if system.isContainer}}
 		<details class="collapsible-gear-container" open>
 			<summary class="container">
@@ -65,8 +66,9 @@
 					{{/repeat}}
 				{{/if}}
 			{{/if}}
+		{{/with}}
 		{{/each}}
-		{{#if (not gear.length)}}
+		{{#if (not gear.sortedIDs.length)}}
 		<em>None</em>
 		{{/if}}
 	</div>

@@ -1,6 +1,7 @@
 const fields = foundry.data.fields;
+import { Tribe8ItemModel } from './item.js';
 
-export class Tribe8SpecializationModel extends foundry.abstract.TypeDataModel {
+export class Tribe8SpecializationModel extends Tribe8ItemModel {
 	/**
 	 * Defines the schema for a Skill Specialization.
 	 *

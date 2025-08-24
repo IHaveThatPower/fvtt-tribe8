@@ -47,18 +47,31 @@
 			</div>
 		</div>
 	</div>
+	<div class="properties">
+		<div class="property">
+			<div class="property-name">Combat Category</div>
+			<div class="property-input">
+				<select name="system.combatCategory">
+					<option value="">None</option>
+					{{#each combatCategories as |label value|}}
+					<option value="{{value}}"{{#if (eq value ../document.system.combatCategory)}} selected{{/if}}>{{localize (concat "tribe8.item.skill.combatCategory." label)}}</option>
+					{{/each}}
+				</select>
+			</div>
+		</div>
+	</div>
 	<div class="specializations">
 		<h3>Specializations</h3>
 		{{#if document.isEmbedded}}
 		{{#each specializations}}
 		<div class="specialization" data-edit-id="{{this.id}}">
 			<input type="text" value="{{this.name}}" name="specializations[{{this.id}}].name" />
-			<input type="radio" value="CP" id="specializations[{{this.id}}].points.cp" name="specializations[{{this.id}}].points"{{#if (eq this.system.points "CP")}} checked{{/if}} />
-			<label for="specializations[{{this.id}}].points.cp">CP</label>
-			<input type="radio" value="XP" id="specializations[{{this.id}}].points.xp" name="specializations[{{this.id}}].points"{{#if (eq this.system.points "XP")}} checked{{/if}} />
-			<label for="specializations[{{this.id}}].points.xp">XP</label>
-			<input type="checkbox" value=true id="specializations[{{this.id}}].granted" name="specializations[{{this.id}}].granted"{{#if this.system.granted}} checked{{/if}} />
-			<label for="specializations[{{this.id}}].granted">F?</label>
+			<input type="radio" value="CP" id="specializations[{{this.id}}].system.points.cp" name="specializations[{{this.id}}].system.points"{{#if (eq this.system.points "CP")}} checked{{/if}} />
+			<label for="specializations[{{this.id}}].system.points.cp">CP</label>
+			<input type="radio" value="XP" id="specializations[{{this.id}}].system.points.xp" name="specializations[{{this.id}}].system.points"{{#if (eq this.system.points "XP")}} checked{{/if}} />
+			<label for="specializations[{{this.id}}].system.points.xp">XP</label>
+			<input type="checkbox" value=true id="specializations[{{this.id}}].system.granted" name="specializations[{{this.id}}].system.granted"{{#if this.system.granted}} checked{{/if}} />
+			<label for="specializations[{{this.id}}].system.granted">F?</label>
 			<button name="remove-specialization" data-action="removeSpecialization" title="Remove Specialization"><i class="far fa-circle-xmark"></i></button>
 		</div>
 		{{/each}}

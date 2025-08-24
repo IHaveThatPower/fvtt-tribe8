@@ -3,36 +3,40 @@
 	{{#if (not skills)}}
 	<em>None</em>
 	{{/if}}
-	{{#each skills as |skill|}}
-	<div class="skill" data-item-id="{{skill.id}}" class="draggable">
+	{{#each skills.sortedIDs as |skillId|}}
+	{{#with (lookup ../skills skillId)}}
+	<div class="skill" data-item-id="{{id}}" class="draggable">
 		<div class="identity" data-action="editItem">
 			<div class="name">
-				{{skill.system.name}}
+				{{system.name}}
+				{{~#if (lookup @root.COMBAT_SKILLS system.combatCategory)~}}
+				<span class="combatCategory" title="{{localize (concat "tribe8.item.skill.combatCategory." (lookup @root.COMBAT_SKILLS system.combatCategory))}}">{{system.combatCategory}}</span>
+				{{~/if}}
 			</div>
-			{{#if skill.system.specify}}
+			{{#if system.specify}}
 			<div class="specific">
-				({{skill.system.specific}})
+				({{system.specific}})
 			</div>
 			{{/if}}
 		</div>
-		{{#if skill.specializations}}
+		{{#if specializations}}
 		<div class="specializations" data-action="editItem">
-			<label for="system.{{skill.uuid}}.specializations">Specializations</label>
-			<div class="specialization-list" title="{{skill.specializations}}">{{skill.specializations}}</div>
+			<label for="{{uuid}}.system.specializations">Specializations</label>
+			<div class="specialization-list" title="{{specializations}}" name="{{uuid}}.system.specializations">{{specializations}}</div>
 		</div>
 		{{/if}}
 		<div class="points-block">
 			<div class="points-type">Level</div>
-			<div class="value">{{skill.system.level}}</div>
+			<div class="value">{{system.level}}</div>
 		</div>
 		<div class="points-block">
 			<div class="points-type">Cpx</div>
-			<div class="value">{{skill.system.cpx}}</div>
+			<div class="value">{{system.cpx}}</div>
 		</div>
 		<div class="points-block edie-block">
 			<div class="points-type">EDie</div>
 			<div class="value">
-				<input type="number" value="{{skill.system.eDieSpent}}" name="skill.{{skill.uuid}}.system.eDieSpent"  />
+				<input type="number" value="{{system.eDieSpent}}" name="system.eDieSpent"  />
 				<div class="edie-buttons">
 					<button name="edie.inc" data-action="incrementEdie" title="SPEND an E-Die on this skill. It will be removed from the character's general E-Die pool, if available, or spend from available XP if not.">+</button>
 					<button name="edie.dec" data-action="decrementEdie" title="Remove SPENT E-Die. It will be added back to the character's general E-Die pool">-</button>
@@ -40,5 +44,6 @@
 			</div>
 		</div>
 	</div>
+	{{/with}}
 	{{/each}}
 </div>

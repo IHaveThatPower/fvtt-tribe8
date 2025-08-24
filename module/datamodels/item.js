@@ -38,7 +38,6 @@ export class Tribe8ItemModel extends foundry.abstract.TypeDataModel {
 		const costs = CONFIG.Tribe8.costs;
 		if (costs[this.parent?.type])
 			return costs[this.parent.type];
-		console.warn(`No intrinsic cost configured for Item type '${this.parent.type}'.`);
 		return 0;
 	}
 

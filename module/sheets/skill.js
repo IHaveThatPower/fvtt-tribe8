@@ -40,6 +40,9 @@ export class Tribe8SkillSheet extends Tribe8ItemSheet {
 		const item = this.document;
 		const context = await super._prepareContext(options);
 
+		// Supply combat category reference
+		context.combatCategories = CONFIG.Tribe8.COMBAT_SKILLS;
+
 		// Bolt on the Specializations
 		if (item.system.specializations.length) {
 			context.specializations = item.system.specializations.map((s) => { return item.parent.getEmbeddedDocument("Item", s); });
@@ -121,6 +124,16 @@ export class Tribe8SkillSheet extends Tribe8ItemSheet {
 			await this.document.system.alterEdie(eDieDelta);
 		}
 
+		// Update any Specializations we interacted with
+		for (let specId in this.specializations) {
+			const spec = this.document?.parent?.getEmbeddedDocument("Item", specId);
+			if (spec) {
+				const payload = {...this.specializations[specId]};
+				payload['system.skill'] = this.document.id;
+				await spec.update(payload);
+			}
+		}
+
 		// Finally, process the submission
 		await super._processSubmitData(event, form, submitData, options);
 	}
@@ -136,13 +149,10 @@ export class Tribe8SkillSheet extends Tribe8ItemSheet {
 	 */
 	#extractSpecializationsFromForm(key, propertyPath, formData = {}, specializations = {}) {
 		if (key.match(/^specializations\[/)) {
-			if (propertyPath.length != 3)
-				console.warn("Unexpected propertyPath pattern", propertyPath);
 			propertyPath.shift(); // Drop 'specializations' off the front
-			let specID = propertyPath[0]
-			if (!specializations[specID])
-				specializations[specID] = {};
-			specializations[specID][propertyPath[1]] = foundry.utils.deepClone(formData.object[key], {strict: true});
+			let specID = propertyPath.shift();
+			if (!specializations[specID]) specializations[specID] = {};
+			specializations[specID][propertyPath.join('.')] = foundry.utils.deepClone(formData.object[key], {strict: true});
 			delete formData.object[key];
 		}
 	}

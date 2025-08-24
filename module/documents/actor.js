@@ -351,7 +351,7 @@ export class Tribe8Actor extends Actor {
 	 */
 	#getCombatSkills(skills) {
 		// Filter the skill list to just those that qualify
-		skills = skills.filter((s) => s.system.isCombat);
+		skills = skills.filter((s) => s.system.combatCategory || false);
 
 		/**
 		 * Reduce that list down to an object that's keyed with the
@@ -359,10 +359,7 @@ export class Tribe8Actor extends Actor {
 		 * list of skills as the property value.
 		 */
 		const combatSkills = skills.reduce((obj, s) => {
-			let referenceName = CONFIG.Tribe8.slugify(s.system.name);
-			if (CONFIG.Tribe8.RANGED_COMBAT_SKILL_REFERENCE.indexOf(referenceName) >= 0)
-				referenceName = 'ranged';
-			const refKey = referenceName[0].toUpperCase();
+			const refKey = s.system.combatCategory;
 			if (obj[refKey])
 				obj[refKey].push(s);
 			else
@@ -389,14 +386,14 @@ export class Tribe8Actor extends Actor {
 	 */
 	#getMagicSkills(skills) {
 		// Define the default names of the combat Skills, based on config
-		const magicSkillNames = CONFIG.Tribe8.MAGIC_SKILLS;
+		const magicSkillNames = CONFIG.Tribe8.MAGIC_SKILLS.map(n => game.i18n.localize(n).toLowerCase());
 
 		// Filter the skill list to just those that qualify
 		return skills.filter((i) => {
 			if (i.type != 'skill') return false;
 			let lookupName = CONFIG.Tribe8.slugify(i.system.name);
-			if (magicSkillNames.indexOf(lookupName) < 0) return false;
-			return true;
+			if (magicSkillNames.includes(lookupName)) return true;
+			return false;
 		});
 	}
 
