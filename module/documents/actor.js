@@ -423,10 +423,8 @@ export class Tribe8Actor extends Actor {
 	}
 
 	/**
-	 * Compute a differential model of system data used to initialize
-	 * this Actor, that data after the Character model has run
-	 * migrateData() on it, then store it as flag data to be used for
-	 * true migration in the setup Hook
+	 * Perform any source data migration steps that need to be done
+	 * at the Actor level to account for changes to overall design.
 	 *
 	 * @param  {object} data    Object containing data fed in for migration
 	 * @return {object}         Mutated data object for migration
@@ -435,26 +433,88 @@ export class Tribe8Actor extends Actor {
 	 */
 	static migrateData(data) {
 		if (data.system && data.type) {
-			const ourModel = (CONFIG.Actor?.dataModels || {})[data.type];
-			if (ourModel) {
-				const migratedSystem = ourModel.migrateData(data.system);
-				let needsMigration = false;
-				for (let key of Object.keys(migratedSystem)) {
-					if (migratedSystem[key] != data.system[key]) {
-						needsMigration = true;
-						break;
-					}
-				}
+			this.#deepSystemMigration(data);
+		}
+		if (data.items && data.items.length) {
+			this.#itemMigration(data);
+		}
+		return super.migrateData(data);
+	}
 
-				if (needsMigration) {
-					if (!data.flags) data.flags = {};
-					if (!data.flags.tribe8) data.flags.tribe8 = {};
-					console.log(`Migration required for Actor.${data._id}`);
-					data.flags.tribe8.migrateSystemData = foundry.utils.deepClone(migratedSystem);
+	/**
+	 * Compute a differential model of system data used to initialize
+	 * this Actor, that data after the Character model has run
+	 * migrateData() on it, then store it as flag data to be used for
+	 * true migration in the setup Hook
+	 *
+	 * @param  {object} data    Object containing data fed in for migration
+	 * @return {void}
+	 * @access private
+	 * @see    migrateData
+	 */
+	static #deepSystemMigration(data) {
+		const ourModel = (CONFIG.Actor?.dataModels || {})[data.type];
+		if (ourModel) {
+			const migratedSystem = ourModel.migrateData(data.system);
+			let needsMigration = false;
+			for (let key of Object.keys(migratedSystem)) {
+				if (migratedSystem[key] != data.system[key]) {
+					needsMigration = true;
+					break;
+				}
+			}
+
+			if (needsMigration) {
+				if (!data.flags) data.flags = {};
+				if (!data.flags.tribe8) data.flags.tribe8 = {};
+				console.log(`Migration required for Actor.${data._id}`);
+				data.flags.tribe8.migrateSystemData = foundry.utils.deepClone(migratedSystem);
+			}
+		}
+	}
+
+	/**
+	 * Perform any embedded document migration steps necessary
+	 *
+	 * @param  {object} data    Object containing data fed in for migration
+	 * @return {void}
+	 * @access private
+	 * @see    migrateData
+	 */
+	static #itemMigration(data) {
+		// Hunt for Skills that need to be marked as being for a
+		// particular combat Skill group.
+		for (let item of data.items) {
+			if (item.type !== 'skill')
+				continue;
+			if (!item.system?.combatCategory) {
+				if (item.name == 'Melee')
+					item.system.combatCategory = 'M';
+				if (item.name.match(/^Hand/))
+					item.system.combatCategory = 'H';
+				if (item.name == 'Archery')
+					item.system.combatCategory = 'R';
+				if (item.name == 'Defense')
+					item.system.combatCategory = 'D';
+				if (item.name == 'Throwing')
+					item.system.combatCategory = 'R';
+				if (item.name == 'Riding')
+					item.system.combatCategory = 'C';
+			}
+		}
+		// Now that we've done that, hunt for Maneuvers to assign
+		// to skills.
+		for (let item of data.items) {
+			if (item.type !== 'maneuver')
+				continue;
+			if (!item.system?.skill) {
+				const targetSkill = (data.items.filter((i) => i.type === 'skill' && i.system?.combatCategory == (item.system.allowedTypes ?? [])[0]) ?? [])[0];
+				if (targetSkill) {
+					item.system.skill = targetSkill.id;
+					continue;
 				}
 			}
 		}
-		return super.migrateData(data);
 	}
 
 	/**

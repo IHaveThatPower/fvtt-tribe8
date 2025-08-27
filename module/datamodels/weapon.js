@@ -25,6 +25,11 @@ export class Tribe8WeaponModel extends Tribe8GearModel {
 				initial: subcategories[0],
 				hint: "tribe8.item.weapon.subcategory.hint"
 			}),
+			/**
+			 * Shields do not impose an ACC penalty (or rather, are
+			 * considered ACC 0) when using paired weapons Fighting
+			 * rules.
+			 */
 			accuracy: new fields.NumberField({
 				required: true,
 				initial: 0,
@@ -80,6 +85,12 @@ export class Tribe8WeaponModel extends Tribe8GearModel {
 				capacity: new fields.NumberField({required: false, initial: 0, hint: "tribe8.item.weapon.ammo.capacity.hint"})
 			}),
 			/**
+			 * Some weapons have a minimum STR requirement. Each point
+			 * below imposes a -1 penalty to all rolls using the
+			 * weapon.
+			 */
+			// requires: // e.g. STR(+1),
+			/**
 			 * Some weapons have to be wielded 2H. Which ones these are
 			 * is not enumerated in the weapon list.
 			 *
@@ -101,23 +112,7 @@ export class Tribe8WeaponModel extends Tribe8GearModel {
 			 *
 			 * This pertains only to Ranged weapons
 			 */
-			/**
-			 * Some weapons have a minimum STR requirement. Each point
-			 * below imposes a -1 penalty to all rolls using the
-			 * weapon.
-			 */
-			// requires: // e.g. STR(+1),
-			/**
-			 * Shields have ENC and AR, like Armor...except those values
-			 * aren't listed.
-			 *
-			 * These might be sourceable from SilCORE
-			 */
-			/**
-			 * Shields do not impose an ACC penalty (or rather, are
-			 * considered ACC 0) when using paired weapons Fighting
-			 * rules.
-			 */
+			traits: new fields.StringField({require: false, blank: true, hint: "tribe8.item.weapon.traits"})
 		};
 	}
 
