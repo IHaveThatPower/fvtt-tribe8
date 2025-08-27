@@ -53,16 +53,6 @@ export class Tribe8WeaponModel extends Tribe8GearModel {
 			 * those don't seem to need modeling.
 			 */
 			// dm: new fields.StringField({hint: "The effect this Maneuver has on Damage rolls for the round.", required: true, nullable: true}),
-			/**
-			 * Ranges for melee weapons are either "close combat" or
-			 * "throw" with a STR+X value indicating the base range in
-			 * meters.
-			 *
-			 * Ranges for ranged weapons can also be "throw"-style.
-			 *
-			 * Most ranged weapons list ranges that are four multiples
-			 * (e.g. 4/8/16/32) for the four range bands.
-			 */
 			ranges: new fields.ArrayField(
 				new fields.StringField({
 					required: true,
@@ -83,16 +73,8 @@ export class Tribe8WeaponModel extends Tribe8GearModel {
 				hint: "tribe8.item.weapon.baseRange.hint"
 			}),
 			complexity: new fields.NumberField({required: true, initial: 1, hint: "tribe8.item.weapon.complexity.hint"}),
-			/**
-			 * Ranged weapons have a ROF, sometimes listed as 0,
-			 * sometimes listed as 0/X. 0 means single shot. 0/X means
-			 * the weapon can be fired once every X rounds.
-			 */
 			rof: new fields.NumberField({required: false, initial: 0, hint: "tribe8.item.weapon.rof.hint"}),
 			rofRounds: new fields.NumberField({required: false, initial: 1, hint: "tribe8.item.weapon.rofRounds.hint"}),
-			/**
-			 * Ranged weapons have an "Ammo" property.
-			 */
 			ammo: new fields.SchemaField({
 				current: new fields.NumberField({required: false, initial: 0, hint: "tribe8.item.weapon.ammo.current.hint"}),
 				capacity: new fields.NumberField({required: false, initial: 0, hint: "tribe8.item.weapon.ammo.capacity.hint"})

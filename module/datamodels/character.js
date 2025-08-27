@@ -261,8 +261,8 @@ export class Tribe8CharacterModel extends foundry.abstract.TypeDataModel {
 		const skills = this.parent.getSkills({categories: ['combat']});
 
 		// Make sure we're finding the "best" skill we can for these values
-		const skillH2H = skills['H'].length ? skills['H'].sort(skills['H'][0].constructor.cmp)[0] : null;
-		const skillMelee = skills['M'].length ? skills['M'].sort(skills['M'][0].constructor.cmp)[0] : null;
+		const skillH2H = skills['H']?.length ? skills['H'].sort(skills['H'][0].constructor.cmp)[0] : null;
+		const skillMelee = skills['M']?.length ? skills['M'].sort(skills['M'][0].constructor.cmp)[0] : null;
 		secAtts.ud = Tribe8SecondaryAttribute("Unarmed Damage", "UD");
 		secAtts.ad = Tribe8SecondaryAttribute("Armed Damage", "AD");
 		secAtts.ud.value = Math.max(3 + secAtts.str.value + priAtts.bld.value + (skillH2H?.system?.level ?? 0), 1);
