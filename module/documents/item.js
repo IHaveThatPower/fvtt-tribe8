@@ -770,7 +770,7 @@ export class Tribe8Item extends Item {
 	 */
 	static migrateData(data) {
 		if (data.type == 'skill') this.#migrateSpecializations(data);
-		this.#migrateNames(data);
+		data = this.#migrateNames(data);
 
 		// Invoke the system migration, too
 		if (data.system && data.type) {
@@ -820,13 +820,14 @@ export class Tribe8Item extends Item {
 	 * Align certain Items' names, system names, and system sub-names
 	 * for consistency.
 	 *
-	 * @param {object} data    The supplied data migration object
+	 * @param  {object} data    The supplied data migration object
+	 * @return {object}         The modified object
 	 * @access private
 	 */
 	static #migrateNames(data) {
 		// If we don't have ANY name data, assume this is a different sort of update and leave it alone
 		if (!data.name && !data.system?.name && !data.system?.specific)
-			return;
+			return data;
 		const {
 			name: canonName,
 			system: {
@@ -847,6 +848,7 @@ export class Tribe8Item extends Item {
 					data.system.specific = canonSpecificName;
 			}
 		}
+		return data;
 	}
 
 	/**

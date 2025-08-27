@@ -15,7 +15,19 @@
 	<div class="maneuver{{#if (and (not this.usesPoints) this.system.fromCpx)}} from-cpx{{/if}}{{#if this.system.granted}} granted{{/if}} draggable" data-item-id="{{this.id}}">
 		<div class="identity" data-action="editItem">
 			<div class="name">{{this.name}}</div>
-			<div class="specific">({{#with (lookup ../../skills this.system.skill)}}{{name}}{{/with}})</div>
+			<div class="specific">(
+				{{~#if (eq this.system.complexity 0)~}}
+					{{~localize "tribe8.item.maneuver.complexity.free"~}}
+				{{~else~}}
+					{{~#with (lookup ../../skills this.system.skill)~}}
+						{{~#if name~}}
+							{{~name~}}
+						{{~else~}}
+							{{~localize "tribe8.errors.maneuver-missing-skill"~}}
+						{{~/if~}}
+					{{~/with~}}
+				{{~/if~}}
+			)</div>
 		</div>
 		<div class="complexity">{{#if (eq this.system.complexity 0)}}1*{{else}}{{this.system.complexity}}{{/if}}</div>
 		<div class="cost">

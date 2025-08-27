@@ -185,7 +185,7 @@ export class Tribe8Actor extends Actor {
 	 * @return {Array<Tribe8Item>}              The matching set of items, if any
 	 * @access private
 	 */
-	#searchForItems(searchIn, searchFor) {
+	static #searchForItems(searchIn, searchFor) {
 		let returnItems = [];
 		for (let searchTerm of searchFor) {
 			searchTerm = CONFIG.Tribe8.slugify(searchTerm);
@@ -205,7 +205,7 @@ export class Tribe8Actor extends Actor {
 	 * @return {bool}                            Whether or not the search type is valid
 	 * @access private
 	 */
-	#areValidSearchTypes(typesRequested, type = '') {
+	static #areValidSearchTypes(typesRequested, type = '') {
 		if (typesRequested.constructor.name !== 'Array') {
 			console.error(`Invalid type filter syntax; supply an array of strings`);
 			return false;
@@ -262,10 +262,10 @@ export class Tribe8Actor extends Actor {
 
 		// Search?
 		if (options.search && options.search instanceof Array)
-			returnItems = this.#searchForItems(returnItems, options.search);
+			returnItems = this.constructor.#searchForItems(returnItems, options.search);
 
 		// Categories?
-		if (options.categories && !this.#areValidSearchTypes(options.categories, options.type))
+		if (options.categories && !this.constructor.#areValidSearchTypes(options.categories, options.type))
 			return;
 		const itemCategories = [...(options.categories ?? [])];
 
@@ -273,9 +273,9 @@ export class Tribe8Actor extends Actor {
 			const returnItemsByCategory = {};
 			for (let cat of itemCategories) {
 				if (cat === 'combat')
-					returnItemsByCategory[cat] = this.#getCombatSkills(returnItems);
+					returnItemsByCategory[cat] = this.constructor.#getCombatSkills(returnItems);
 				else if (cat === 'magic')
-					returnItemsByCategory[cat] = this.#getMagicSkills(returnItems);
+					returnItemsByCategory[cat] = this.constructor.#getMagicSkills(returnItems);
 				else
 					returnItemsByCategory[cat] = returnItems.filter(i => i.type === cat);
 			}
@@ -349,7 +349,7 @@ export class Tribe8Actor extends Actor {
 	 * @access private
 	 * @see    {@link getItems}
 	 */
-	#getCombatSkills(skills) {
+	static #getCombatSkills(skills) {
 		// Filter the skill list to just those that qualify
 		skills = skills.filter((s) => s.system.combatCategory || false);
 
@@ -384,7 +384,7 @@ export class Tribe8Actor extends Actor {
 	 * @access private
 	 * @see    {@link getItems}
 	 */
-	#getMagicSkills(skills) {
+	static #getMagicSkills(skills) {
 		// Define the default names of the combat Skills, based on config
 		const magicSkillNames = CONFIG.Tribe8.MAGIC_SKILLS.map(n => game.i18n.localize(n).toLowerCase());
 

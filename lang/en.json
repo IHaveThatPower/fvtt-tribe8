@@ -131,6 +131,7 @@
 				"parry.hint": "The effect this Maneuver has on Parry rolls for the round.",
 				"damage.hint": "The effect this Maneuver has on Damage rolls for the round.",
 				"complexity.hint": "The Complexity requirement to use this Maneuver",
+				"complexity.free": "Free",
 				"allowedTypes": {
 					"hint": "The combat Skill categories that can be used with this Maneuver",
 					"cavalry": "Can be used with the Riding Skill",
@@ -287,6 +288,7 @@
 			"quantity-on-container": "A container Item cannot have a quantity other than 1",
 			"unowned-specialization": "Specializations cannot be created outside of a Skill that belongs to a character.",
 			"existing-skill-specialization": "A Specialization with that name already exists for this Skill",
+			"maneuver-missing-skill": "CHOOSE SKILL",
 			"weapon-no-range": "Weapons must have at least one Range selected"
 		}
 	}
