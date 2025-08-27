@@ -1,0 +1,58 @@
+<div class="property qty">
+	<div class="property-name"><label for="system.qty" title="{{localize "tribe8.item.gear.system.qty.hint"}}">{{localize "tribe8.item.gear.system.qty.short"}}</label></div>
+	<div class="property-input">
+		<span class="input-size" data-value="{{document.system.qty}}">
+			<input type="number" name="system.qty" value="{{ document.system.qty }}" title="{{localize "tribe8.item.gear.system.qty.hint"}}" placeholder="1" min="0" max="99" />{{!-- Note that these limits aren't enforced by the form, they're just for sizing --}}
+		</span>
+	</div>
+</div>
+<div class="property weight">
+	<div class="property-name"><label for="system.weight" title="{{localize "tribe8.item.gear.system.weight.hint"}}">{{localize "tribe8.item.gear.system.weight.short"}}</label></div>
+	<div class="property-input">
+		<span class="input-size" data-value="{{document.system.weight}}">
+			<input type="number" name="system.weight" value="{{ document.system.weight }}" title="{{localize "tribe8.item.gear.system.weight.hint"}}" placeholder="0" min="0" max="99" />{{!-- Note that these limits aren't enforced by the form, they're just for sizing --}}
+		</span>
+	</div>
+</div>
+<div class="property value">
+	<div class="property-name"><label for="system.value" title="{{localize "tribe8.item.gear.system.value.hint"}}">{{localize "tribe8.item.gear.system.value.short"}}</label></div>
+	<div class="property-input">
+		<select name="system.value" title="{{localize "tribe8.item.gear.system.value.hint"}}">
+			{{#each valueOptions as |name value|}}
+			<option value="{{value}}"{{#if (eq ../document.system.value value)}} selected{{/if}}>{{localize name}}</option>
+			{{/each}}
+		</select>
+	</div>
+</div>
+<div class="property valueThreshold">
+	<div class="property-name"><label for="system.valueThreshold" title="{{localize "tribe8.item.gear.system.valueThreshold.hint"}}">{{localize "tribe8.item.gear.system.valueThreshold.short"}}</label></div>
+	<div class="property-input">
+		<span class="input-size" data-value="{{document.system.valueThreshold}}">
+			<input type="number" name="system.valueThreshold" value="{{ document.system.valueThreshold }}" title="{{localize "tribe8.item.gear.system.valueThreshold.hint"}}" placeholder="5" min="0" max="10" />{{!-- Note that these limits aren't enforced by the form, they're just for sizing --}}
+		</span>
+	</div>
+</div>
+<div class="property complexity">
+	<div class="property-name"><label for="system.complexity" title="{{localize "tribe8.item.gear.system.complexity.hint"}}">{{localize "tribe8.item.gear.system.complexity.short"}}</label></div>
+	<div class="property-input">
+		<span class="input-size" data-value="{{document.system.complexity}}">
+			<input type="number" name="system.complexity" value="{{ document.system.complexity }}" title="{{localize "tribe8.item.gear.system.complexity.hint"}}" placeholder="1" min="1" max="5" />{{!-- Note that these limits aren't enforced by the form, they're just for sizing --}}
+		</span>
+	</div>
+</div>
+{{#if otherGear.length}}
+<div class="property storage">
+	<div class="property-name"><label for="system.storage" title="{{localize "tribe8.item.gear.system.storage.short"}}"><i class="fa fa-solid fa-box-archive"></i></label></div>
+	<div class="property-input">
+		<select name="system.storage" title="{{localize "tribe8.item.gear.system.storage.hint"}}">
+			<option value=""></option>
+			{{#each otherGear}}
+			<option value="{{this.id}}"{{#if (eq this.id ../document.system.storage)}} selected{{/if}}>
+				{{~#repeat (sub this.depth 1)}}&nbsp;&nbsp;&nbsp;&nbsp;{{/repeat~}}
+				{{~this.name}}{{#if this.system.isContainer}}*{{/if~}}
+			</option>
+			{{/each}}
+		</select>
+	</div>
+</div>
+{{/if}}

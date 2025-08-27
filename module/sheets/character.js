@@ -149,10 +149,20 @@ export class Tribe8CharacterSheet extends Tribe8Application(ActorSheetV2) {
 					collectionName = item.type; // Already plural
 					context.ensureHas(collectionName, {});
 					context[collectionName][item.id] = item;
+					// Also append armor to the Gear list
+					if (item.type == 'armor') {
+						context.ensureHas('gear', {});
+						context['gear'][item.id] = item;
+					}
 					break;
 				default:
 					context.ensureHas(collectionName, {});
 					context[collectionName][item.id] = item;
+					// Also append weapons to the Gear list
+					if (item.type == 'weapon') {
+						context.ensureHas('gear', {});
+						context['gear'][item.id] = item;
+					}
 					break;
 			}
 		}
@@ -271,7 +281,30 @@ export class Tribe8CharacterSheet extends Tribe8Application(ActorSheetV2) {
 				if (!skillId) return;
 				const skill = this.document.getEmbeddedDocument("Item", skillId);
 				if (!skill) return;
-				skill.system.eDieKeyInputEventHandler(e);
+
+				// Get the current and previous value
+				const newValue = e.target.value;
+				const oldValue = this.eDieSpent;
+				let delta = newValue - oldValue;
+				if (!delta || (delta < 0 && oldValue == 0)) { // Might be NaN, or 0, in which case we don't want to muck anything up
+					e.target.value = oldValue;
+					return;
+				}
+
+				// Stop default handling
+				e.preventDefault();
+				e.stopPropagation();
+				e.target.readonly = true; // Block further editing until we're done
+
+				// Act based on the direction of the change
+				(async (skill, delta) => {
+					await skill.system.alterEdie(delta);
+				})(skill, delta).then((resolve) => {
+					if (!resolve) {
+						e.target.value = oldValue;
+					}
+					e.target.readonly = false;
+				});
 			});
 		});
 	}
@@ -475,7 +508,6 @@ export class Tribe8CharacterSheet extends Tribe8Application(ActorSheetV2) {
 		if (itemType == 'aspect' && actionParts.length)
 			newItemPayload.ritual = (actionParts[0] == 'ritual');
 		this.document.createEmbeddedDocuments('Item', [newItemPayload]).then((resolve) => {
-			console.log("resolve", resolve);
 			const newItem = resolve[0];
 			// Open the editing window for it
 			newItem.sheet.render(true);

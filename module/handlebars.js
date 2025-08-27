@@ -160,8 +160,8 @@ foundry.applications.handlebars.loadTemplates(
 		// Character sheet parts
 		"sheets/actors/partials/attributes.html",
 		"sheets/actors/partials/basic_info.html",
-		"sheets/actors/partials/injuries.html",
 		"sheets/actors/partials/gear.html",
+		"sheets/actors/partials/injuries.html",
 		"sheets/actors/partials/magic.html",
 		"sheets/actors/partials/magic_aspects.html",
 		"sheets/actors/partials/maneuvers.html",
@@ -169,8 +169,10 @@ foundry.applications.handlebars.loadTemplates(
 		"sheets/actors/partials/points.html",
 		"sheets/actors/partials/portrait.html",
 		"sheets/actors/partials/skills.html",
+		"sheets/actors/partials/weapon.html",
 
 		// Shared Item sheet parts
+		"sheets/items/partials/gearCommonProperties.html",
 		"sheets/items/partials/buttons.html",
 		"sheets/items/partials/description.html"
 	]

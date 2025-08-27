@@ -167,9 +167,8 @@ export class Tribe8SkillModel extends Tribe8ItemModel {
 		if (!data) return false;
 
 		// Don't do anything if we'd go negative
-		//TODO: Fix/Rethink this. Feels over-complicated as-is.
-		if (this.points.edie.fromBonus + data.spendFromBonus < 0 || this.points.edie.fromXP + data.spendFromXP < 0) {
-			const msg = "Can't decrease spent EDie below 0";
+		if (this.eDieSpent + (data.spendFromBonus + data.spendFromXP) < 0) {
+			const msg = "Can't decrease spent EDie below 0"; // TODO: Localize
 			if (foundry.ui?.notifications) foundry.ui.notifications.warn(msg);
 			else console.warn(msg);
 			return false;
@@ -186,7 +185,7 @@ export class Tribe8SkillModel extends Tribe8ItemModel {
 
 		// Don't mess with the actor if our values didn't change
 		if (skill.system.points.edie.fromBonus != newFromBonus || skill.system.points.edie.fromXP != newFromXP) {
-			const msg = `EDie state on Skill.${skill.id} unchanged`;
+			const msg = `EDie state on Skill.${skill.id} unchanged`; // TODO: Localize
 			if (foundry.ui?.notifications) foundry.ui.notifications.warn(msg);
 			else console.warn(msg);
 		}
@@ -213,17 +212,29 @@ export class Tribe8SkillModel extends Tribe8ItemModel {
 		amount = Number(amount);
 		if (!amount) return false;
 
-		// Return data
+		// Initialize return data
 		const data = {
 			'spendFromBonus': amount,
 			'spendFromXP': 0
 		}
+
+		// There's an edge case for decrementing spent edie where we
+		// need to determine if we _can_ decrement the requested amount
+		// from bonus, or if we have to flip over.
+		if (amount < 0) {
+			if ((this.points.edie.fromBonus + amount) < 0) {
+				data.spendFromBonus = this.points.edie.fromBonus;
+				data.spendFromXP = (this.points.edie.fromBonus + amount); // This should now be whatever we actually had in spendFromBonus
+			}
+		}
+
+		// Update the Actor, if applicable
 		if (this.parent.isEmbedded) {
 			const owner = this.parent.parent;
 
 			// Does the owner have enough eDie at all?
 			if (owner.system.edieTotal < amount) {
-				const msg = "You do not have enough EDie!";
+				const msg = "You do not have enough EDie!"; // TODO: Localize
 				if (foundry.ui?.notifications) foundry.ui.notifications.error(msg);
 				else console.error(msg);
 				return false;
@@ -243,39 +254,5 @@ export class Tribe8SkillModel extends Tribe8ItemModel {
 			}
 		}
 		return data;
-	}
-
-	/**
-	 * Handle manual interaction with an EDie field for this skill.
-	 *
-	 * TODO: Should this be somewhere else? Weird to put a UI handler on a DataModel...
-	 *
-	 * @param {KeyboardEent} e    The triggering keyboard event
-	 * @access public
-	 */
-	eDieKeyInputEventHandler(e) {
-		// Get the current and previous value
-		const newValue = e.target.value;
-		const oldValue = this.eDieSpent;
-		let delta = newValue - oldValue;
-		if (!delta || (delta < 0 && oldValue == 0)) { // Might be NaN, or 0, in which case we don't want to muck anything up
-			e.target.value = oldValue;
-			return;
-		}
-
-		// Stop default handling
-		e.preventDefault();
-		e.stopPropagation();
-		e.target.readonly = true; // Block further editing until we're done
-
-		// Act based on the direction of the change
-		(async (skill, delta) => {
-			await skill.system.alterEdie(delta);
-		})(this.parent, delta).then((resolve) => {
-			if (!resolve) {
-				e.target.value = oldValue;
-			}
-			e.target.readonly = false;
-		});
 	}
 }

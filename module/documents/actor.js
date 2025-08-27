@@ -69,7 +69,7 @@ export class Tribe8Actor extends Actor {
 	 * @access private
 	 */
 	#auditSkillsAndSpecs() {
-		console.log(`Actor.${this.id} auditing Skill and Specializations`);
+		// console.log(`Actor.${this.id} auditing Skill and Specializations`);
 		const skills = this.getItems({type: 'skill'});
 		const specs = this.getItems({type: 'specialization'});
 

@@ -165,7 +165,7 @@ div.item-sheet h3 {
 	width: 100%;
 	font-family: var(--font-header);
 	font-variant: small-caps;
-	font-size: 24px;
+	font-size: 1.5rem;
 	border-bottom: 1px solid;
 	margin-top: 0.75rem;
 	word-spacing: -0.5rem;
@@ -1145,9 +1145,15 @@ div.item-sheet h3 {
 		border-image: var(--border-header-left);
 		justify-self: end;
 	}
+	.equipment div.weapons-list, .equipment div.armor-list {
+		margin-top: 1rem;
+	}
 	.equipment div.gear-list h2 {
 		border-image: var(--border-header-right-shorttail);
 		column-span: all;
+	}
+	.equipment div.armor-list h2 {
+		justify-content: end;
 	}
 	div.character-sheet.equipment>div {
 		min-height: 5rem;
@@ -1350,7 +1356,8 @@ div.item-sheet h3 {
 	}
 	div.specify,
 	div.ranked,
-	div.granted {
+	div.granted,
+	div.carried {
 		text-align: left;
 		white-space: nowrap;
 		line-height: 100%;
@@ -1407,6 +1414,9 @@ div.item-sheet h3 {
 		justify-content: center;
 		margin: 0.2rem 0;
 	}
+	.weapon div.properties {
+		row-gap: 0.4rem;
+	}
 	div.identity+div.properties {
 		margin-top: 0.4rem; /* Give this one a little more space, since it won't have div.costs to buffer it */
 	}
@@ -1416,6 +1426,11 @@ div.item-sheet h3 {
 		align-items: center;
 		break-inside: avoid;
 		justify-content: end;
+	}
+	div.property.value {
+		font-size: revert;
+		border: revert;
+		min-width: revert;
 	}
 	div.property.storage {
 		width: 100%;
@@ -1561,5 +1576,39 @@ div.item-sheet h3 {
 	div.specialization button,
 	div.add-specialization button {
 		margin-left: 0.25rem;
+	}
+
+	div.property.range {
+		display: flex;
+		flex-flow: column;
+	}
+	div.property.range div.property-name {
+		order: 1;
+	}
+	div.property.range div.property-input {
+		display: flex;
+		flex-flow: row;
+		align-items: center;
+		justify-content: center;
+		order: 2;
+		gap: 0.2rem;
+	}
+	div.property.range div.property-input>* {
+		display: block;
+		flex: 0 0 min-content;
+	}
+
+	div.property.range div.property-input button {
+		transition: none;
+		padding: 0 0.2rem;
+		border-radius: 0.75rem;
+		height: 1.5rem; /* calc(var(--input-height) */
+		min-height: 1.5rem; /* var(--input-height); */
+		width: 1.5rem;
+		flex: 0 0 1.5rem;
+	}
+	div.property.range button.selected {
+		border: 2px inset;
+		background: var(--color-medium-gray);
 	}
 }

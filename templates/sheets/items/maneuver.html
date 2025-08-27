@@ -4,7 +4,7 @@
 		<div class="specific">
 			<select name="system.skill">
 				{{#each skillChoices as |name key|}}
-				<option value="{{key}}"{{#if (eq @root.document.system.skill key)}} selected{{/if}}>{{name}}</option>
+				<option value="{{key}}"{{#if (eq @root.document.system.skill key)}} selected{{/if}}>{{localize name}}</option>
 				{{/each}}
 			</select>
 		</div>

@@ -15,7 +15,7 @@ export class Tribe8ItemSheet extends Tribe8Application(ItemSheetV2) {
 		},
 		window: { resizable: true },
 		actions: {
-			deleteItem: Tribe8ItemSheet.deleteItem
+			deleteItem: Tribe8ItemSheet.action_deleteItem
 		}
 	}
 
@@ -54,7 +54,7 @@ export class Tribe8ItemSheet extends Tribe8Application(ItemSheetV2) {
 	 * @param {Event} event    The event triggered by interaction with the form element
 	 * @access public
 	 */
-	static deleteItem(event) {
+	static action_deleteItem(event) {
 		event.preventDefault();
 		event.stopPropagation();
 		const item = this.document;

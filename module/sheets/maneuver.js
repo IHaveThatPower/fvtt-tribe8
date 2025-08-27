@@ -130,7 +130,6 @@ export class Tribe8ManeuverSheet extends Tribe8ItemSheet {
 				}
 			}
 		}
-
 		return super._prepareSubmitData(event, form, formData, updateData);
 	}
 }

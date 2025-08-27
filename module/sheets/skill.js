@@ -240,7 +240,6 @@ export class Tribe8SkillSheet extends Tribe8ItemSheet {
 
 		// Can we find the specialization among the Skill's list?
 		const currentSpecializations = this.document.system.specializations;
-		console.log("Current Specializations", currentSpecializations);
 		if (!currentSpecializations.includes(specId)) {
 			foundry.ui.notifications.error(`Could not find Specialization.${specId} among those of Skill '${this.document.name}'`);
 			return;

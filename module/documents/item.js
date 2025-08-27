@@ -150,6 +150,47 @@ export class Tribe8Item extends Item {
 				}
 			}
 		}
+		if (request == 'update' && this.type == 'weapon') {
+			let rangesKey = Object.hasOwn(data.system, "==ranges") ? '==ranges' : 'ranges';
+			if (Object.hasOwn(data.system, rangesKey)) {
+				if (data.system[rangesKey].length > 1 && data.system[rangesKey].includes('ranged')) {
+					// If the previously set data didn't include ranged,
+					// and the new data does, then we swap to ranged.
+					if (!this.system.ranges.includes('ranged'))
+						data.system[rangesKey] = ['ranged'];
+					// Otherwise, if the previously set data _did_
+					// include ranged and the new data also does, we
+					// assume the user wants to turn ranged off.
+					else
+						data.system[rangesKey].splice(data.system[rangesKey].indexOf('ranged'), 1);
+				}
+			}
+			if (Object.hasOwn(data.system, 'category')) {
+				// If we're switching categories, we may need to include
+				// a forced resetting of the ranges choices
+				const rangeChanges = [
+					{"from": "ranged", "to": "melee",  "remove": "ranged", "add": "close"},
+					{"from": "melee",  "to": "ranged", "remove": "close",  "add": "ranged"}
+				];
+				let newRanges = [...this.system.ranges];
+				for (let swap of rangeChanges) {
+					if (data.system.category == swap.to && this.system.category == swap.from) {
+						// Remove the "remove" range, if present
+						if (newRanges.includes(swap.remove)) {
+							newRanges.splice(newRanges.indexOf(swap.remove), 1);
+						}
+						// If we no longer have any ranges, add the "add" range back in
+						if (newRanges.length == 0) {
+							newRanges.push(swap.add);
+						}
+					}
+				}
+				// If we changed it, bolt it onto the payload.
+				if (newRanges != this.system.ranges) {
+					data.system[rangesKey] = newRanges;
+				}
+			}
+		}
 		if (request == 'create' && data.type === 'specialization') {
 			if (!actor) {
 				throw new ReferenceError(game.i18n.localize("tribe8.errors.unowned-specialization"));
@@ -242,6 +283,35 @@ export class Tribe8Item extends Item {
 			}
 			// Fire off another update with the updated specializations
 			this.update({'system.==specializations': [...skillSpecs]});
+		}
+	}
+
+	/**
+	 * Pre-process a deletion operation for a single Document instance.
+	 * Pre-operation events only occur for the client which requested
+	 * the operation.
+	 *
+	 * @param  {object}                options    Additional options which modify the deletion request
+	 * @param  {BaseUser}              user       The User requesting the document deletion
+	 * @return {Promise<boolean|void>}            A return value of false indicates the deletion operation should be canceled.
+	 * @access protected
+	 */
+	async _preDelete(options, user) {
+		if (await super._preDelete(options, user) === false)
+			return false;
+
+		// When a physical item is deleted, remove references to it
+		// as storage on any other Items listing it.
+		if (this.parent && this.isPhysicalItem) {
+			// If the item being deleted had a storage item, move the
+			// items it contained into that container, instead.
+			const ourStorage = this.system.storage || null;
+			const items = this.parent.getGear().filter((g) => g.system.storage == this.id);
+			if (items.length) {
+				for (let item of items) {
+					await item.update({'system.==storage': ourStorage}, {diff: false});
+				}
+			}
 		}
 	}
 
@@ -345,7 +415,7 @@ export class Tribe8Item extends Item {
 	 * @access private
 	 */
 	static #cmpFallback(a, b) {
-		if (a.type != b.type)
+		if (a.type != b.type && !(a.isPhysicalItem && b.isPhysicalItem))
 			throw new Error("Cannot compare items of different types");
 		if (a.name < b.name) return -1;
 		if (a.name > b.name) return 1;
@@ -552,9 +622,12 @@ export class Tribe8Item extends Item {
 			const actor = a.parent;
 			aPath.splice(0, spliceCount);
 			bPath.splice(0, spliceCount);
-			const aCmp = (aPath[0] == a.id ? a : actor.getEmbeddedDocument("Item", aPath[0]));
-			const bCmp = (bPath[0] == b.id ? b : actor.getEmbeddedDocument("Item", bPath[0]));
-			return this.#cmpGear(aCmp, bCmp);
+			// If we just found ourselves, then actor *is* the common parent, so use the Fallback
+			if (aPath[0] != a.id || bPath[0] != b.id) {
+				const aCmp = (aPath[0] == a.id ? a : actor.getEmbeddedDocument("Item", aPath[0]));
+				const bCmp = (bPath[0] == b.id ? b : actor.getEmbeddedDocument("Item", bPath[0]));
+				return this.#cmpGear(aCmp, bCmp);
+			}
 		}
 
 		// Same storage, so just sort within tier
@@ -587,7 +660,9 @@ export class Tribe8Item extends Item {
 		if (item.system.storage) {
 			const storageItem = item.parent.getEmbeddedDocument("Item", item.system.storage);
 			if (!storageItem) {
-				throw new ReferenceError("Indicated storage Item did not exist on the Actor!");
+				console.warn(`Item.${item.id} wants Item.${item.system.storage} as storage, but it does not exist on the Actor!`);
+				path.push(item.parent.id);
+				return path;
 			}
 			return path.concat(this.#pathToActor(storageItem));
 		}

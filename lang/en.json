@@ -160,10 +160,15 @@
 				"combatCategory": {
 					"hint": "The combat categories this Skill applies to",
 					"cavalry": "Riding",
+					"cavalry-hint": "This Skill is marked as a Riding Combat Skill",
 					"defense": "Defense",
+					"defense-hint": "This Skill is marked as a Defense Combat Skill",
 					"handtohand": "Hand-to-Hand",
+					"handtohand-hint": "This Skill is marked as a Hand-to-Hand Combat Skill",
 					"melee": "Melee",
-					"ranged": "Ranged"
+					"melee-hint": "This Skill is marked as a Melee Combat Skill",
+					"ranged": "Ranged",
+					"ranged-hint": "This Skill is marked as a Ranged Combat Skill"
 				},
 				"points": {
 					"level.cp.hint": "The number of CP invested into increasing this Skill's starting Level",
@@ -236,13 +241,53 @@
 					"full": "Total Weight (kg) of this Gear and any contents",
 					"short": "T.W. (kg)"
 				}
+			},
+			"weapon": {
+				"system": {
+					"category": {
+						"melee.full": "Melee",
+						"melee.short": "M",
+						"melee.bludgeoning.full": "Bludgeoning",
+						"melee.bludgeoning.short": "Blu",
+						"melee.bladed.full": "Bladed",
+						"melee.bladed.short": "Bla",
+						"melee.axe.full": "Axes",
+						"melee.axe.short": "Axe",
+						"melee.polearm.full": "Polearms",
+						"melee.polearm.short": "Pol",
+						"melee.misc.full": "Whips and Flails",
+						"melee.misc.short": "W/F",
+						"melee.shield.full": "Shields",
+						"melee.shield.short": "Shl",
+						"ranged.full": "Ranged",
+						"ranged.short": "R",
+						"ranged.tribal.full": "Tribal",
+						"ranged.tribal.short": "Tri",
+						"ranged.keeper.full": "Keeper",
+						"ranged.keeper.short": "Kpr"
+					},
+					"ranges": {
+						"close.full": "Close Combat",
+						"close.short": "C",
+						"throw.full": "Throw",
+						"throw.short": "T",
+						"ranged.full": "Ranged",
+						"ranged.short": "R"
+					},
+					"fumble": {
+						"low": "Low",
+						"medium": "Medium",
+						"high": "High"
+					}
+				}
 			}
 		},
 		"errors": {
 			"circular-container": "An Item cannot be made its own container",
 			"quantity-on-container": "A container Item cannot have a quantity other than 1",
 			"unowned-specialization": "Specializations cannot be created outside of a Skill that belongs to a character.",
-			"existing-skill-specialization": "A Specialization with that name already exists for this Skill"
+			"existing-skill-specialization": "A Specialization with that name already exists for this Skill",
+			"weapon-no-range": "Weapons must have at least one Range selected"
 		}
 	}
 }

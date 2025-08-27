@@ -11,8 +11,7 @@ export class Tribe8GearSheet extends Tribe8ItemSheet {
 	}
 
 	/**
-	 * Prepend 'Aspect' to the sheet title, and include the tribe, if
-	 * specified
+	 * Prepend the owner to the sheet title, if the Gear is owned.
 	 *
 	 * @return {string} The assembled sheet title
 	 * @access public

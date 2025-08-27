@@ -10,7 +10,7 @@
 			<div class="name">
 				{{system.name}}
 				{{~#if (lookup @root.COMBAT_SKILLS system.combatCategory)~}}
-				<span class="combatCategory" title="{{localize (concat "tribe8.item.skill.combatCategory." (lookup @root.COMBAT_SKILLS system.combatCategory))}}">{{system.combatCategory}}</span>
+				<span class="combatCategory" title="{{localize (concat "tribe8.item.skill.combatCategory." (lookup @root.COMBAT_SKILLS system.combatCategory) "-hint")}}">{{system.combatCategory}}</span>
 				{{~/if}}
 			</div>
 			{{#if system.specify}}

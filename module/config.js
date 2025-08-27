@@ -29,38 +29,6 @@ Tribe8.checkFormArrayElements = function(formData) {
 };
 
 /**
- * Given a single-character identifier and an array of skill items,
- * find the one that matches the combat skill indicated by the
- * indentifier
- *
- * @param  {string}        key       The one-letter combat skill category designator
- * @param  {Array}         skills    The list of skills to be filtered
- * @return {Array|boolean}           The matching list of combat skill slug names, or false if none found
- */
-Tribe8.findCombatSkill = function(key, skills) {
-	// TODO: Fix findCombatSkill()
-	if (!Object.keys(Tribe8.COMBAT_SKILLS).includes(key)) return false;
-	if (!(skills instanceof Array) || !skills.length) return false;
-	if (typeof key != 'string' || key.length != 1) return false;
-	return skills.find((s) => {
-		const skillNameOptions = ((key) => {
-			/*
-			if (key == 'H')
-				return [Tribe8.COMBAT_SKILLS['H'], ...Tribe8.HAND_TO_HAND_VARIATIONS];
-			if (key == 'R')
-				return [...Tribe8.RANGED_COMBAT_SKILL_REFERENCE];
-			*/
-			return [Tribe8.COMBAT_SKILLS[key]];
-		})(key);
-		for (let opt of skillNameOptions) {
-			if (Tribe8.slugify(s.name) == Tribe8.slugify(opt))
-				return s;
-		}
-		return false;
-	});
-}
-
-/**
  * Register sheets of the indicated type using the supplied sheet
  * collection.
  *
@@ -225,4 +193,40 @@ Tribe8.gearValueOptions = [
 	"avg",
 	"hi",
 	"vhi"
+];
+
+/**
+ * Valid weapon subcategories
+ */
+Tribe8.weaponCategories = {
+	"melee": [
+		"bludgeoning",
+		"bladed",
+		"axe",
+		"polearm",
+		"misc", // Whips & Flails
+		"shield"
+	],
+	"ranged": [
+		"tribal",
+		"keeper"
+	]
+};
+
+/**
+ * Range choices for weapons
+ */
+Tribe8.weaponRanges = [
+	"close",
+	"throw",
+	"ranged"
+];
+
+/**
+ * Fumble types for ranged weapons
+ */
+Tribe8.fumble = [
+	"low",
+	"medium",
+	"high"
 ];
