@@ -46,18 +46,12 @@ export class Tribe8WeaponModel extends Tribe8GearModel {
 				initial: CONFIG.Tribe8.fumble[0],
 				hint: "tribe8.item.weapon.fumble.hint"
 			}),
-			/**
-			 * DM for melee weapons is usually an AD+X value, but
-			 * sometimes it's just 0 (net).
-			 *
-			 * DM for melee weapons may have different values for 1- or
-			 * 2-handed.
-			 *
-			 * DM for ranged weapons is a flat value. Some items (e.g
-			 * Pitch Smoke Bomb) may have other effects listed, but
-			 * those don't seem to need modeling.
-			 */
-			// dm: new fields.StringField({hint: "The effect this Maneuver has on Damage rolls for the round.", required: true, nullable: true}),
+			damage: new fields.StringField({
+				required: true,
+				blank: true,
+				validate: Tribe8WeaponModel.validateDamage,
+				hint: "tribe8.item.weapon.dm"
+			}),
 			ranges: new fields.ArrayField(
 				new fields.StringField({
 					required: true,
@@ -72,9 +66,11 @@ export class Tribe8WeaponModel extends Tribe8GearModel {
 					validate: Tribe8WeaponModel.validateRanges
 				}
 			),
-			baseRange: new fields.NumberField({
+			baseRange: new fields.StringField({
 				required: false,
-				initial: 0,
+				blank: true,
+				initial: "0",
+				validate: Tribe8WeaponModel.validateBaseRange,
 				hint: "tribe8.item.weapon.baseRange.hint"
 			}),
 			complexity: new fields.NumberField({required: true, initial: 1, hint: "tribe8.item.weapon.complexity.hint"}),
@@ -84,12 +80,6 @@ export class Tribe8WeaponModel extends Tribe8GearModel {
 				current: new fields.NumberField({required: false, initial: 0, hint: "tribe8.item.weapon.ammo.current.hint"}),
 				capacity: new fields.NumberField({required: false, initial: 0, hint: "tribe8.item.weapon.ammo.capacity.hint"})
 			}),
-			/**
-			 * Some weapons have a minimum STR requirement. Each point
-			 * below imposes a -1 penalty to all rolls using the
-			 * weapon.
-			 */
-			// requires: // e.g. STR(+1),
 			/**
 			 * Some weapons have to be wielded 2H. Which ones these are
 			 * is not enumerated in the weapon list.
@@ -111,6 +101,11 @@ export class Tribe8WeaponModel extends Tribe8GearModel {
 			 * required to use the weapon.
 			 *
 			 * This pertains only to Ranged weapons
+			 */
+			/**
+			 * Some weapons have a minimum STR requirement. Each point
+			 * below imposes a -1 penalty to all rolls using the
+			 * weapon.
 			 */
 			traits: new fields.StringField({require: false, blank: true, hint: "tribe8.item.weapon.traits"})
 		};
@@ -134,6 +129,26 @@ export class Tribe8WeaponModel extends Tribe8GearModel {
 	}
 
 	/**
+	 * Validate the entered Damage Multiplier matches our formula
+	 * expectations.
+	 *
+	 * @param  {object} data    The submitted DM to evaluate
+	 * @return {void}
+	 * @throws {Error}          An error if a validation failure is detected
+	 * @access public
+	 */
+	static validateDamage(data) {
+		// Basic value is just a number
+		if (!isNaN(data))
+			return;
+		// More advanced is an AD+X/Y pattern
+		if (data.match(/(A|U)D[+-][0-9]+(\/[0-9]+)?/)) {
+			return;
+		}
+		throw new Error("Damage must be a flat value or a recognized Damage equation"); // TODO: localize
+	}
+
+	/**
 	 * Validate that the selected range values are legal
 	 *
 	 * @param  {object} data    The list of ranges under evaluation
@@ -143,10 +158,29 @@ export class Tribe8WeaponModel extends Tribe8GearModel {
 	 */
 	static validateRanges(data) {
 		// This is purely an internal error, and shouldn't happen
-		if (data.constructor.name !== 'Array') throw new Error("Cannot submit non-array data for Weapon ranges");
+		if (data.constructor.name !== 'Array') throw new Error("Cannot submit non-array data for Weapon ranges"); // TODO: localize
 		if (!data.length) throw new Error(game.i18n.localize("tribe8.errors.weapon-no-range"));
 		// This should also not actually get hit, since we have logic elsewhere to prevent it
-		if (data.includes("ranged") && data.length > 1) throw new Error("Cannot mix ranged with other Weapon ranges");
+		if (data.includes("ranged") && data.length > 1) throw new Error("Cannot mix ranged with other Weapon ranges"); // TODO: localize
+	}
+
+	/**
+	 * Validate that the supplied base range value is a format we
+	 * understand.
+	 *
+	 * @param  {object} data    The supplied baseRange input
+	 * @return {void}
+	 * @throws {Error}          An error if a validation failure is detected
+	 * @access public
+	 */
+	static validateBaseRange(data) {
+		// Basic format is just a number
+		if (!isNaN(data))
+			return;
+		// Thrown weapons might list STR+X
+		if (data.match(/STR\+[0-9]+/))
+			return;
+		throw new Error("Base Range must be a flat value or a recognized Base Range equation (e.g. STR+1)"); // TODO: localize
 	}
 
 	/**

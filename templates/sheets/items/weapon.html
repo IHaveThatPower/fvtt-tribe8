@@ -1,8 +1,8 @@
 <div class="item-sheet gear weapon">
 	<div class="identity">
-		<div class="name"><input type="text" name="name" value="{{document.name}}" size=12></div>
+		<div class="name"><input type="text" name="name" value="{{document.name}}" size=12 title="{{localize "tribe8.item.gear.name.hint"}}"></div>
 		<div class="specific">
-			<select name="system.category">
+			<select name="system.category" title="{{localize "tribe8.item.weapon.category.hint"}}">
 				{{#each weaponCategories as |name key|}}
 				<option value="{{key}}"{{#if (eq @root.document.system.category key)}} selected{{/if}}>{{localize name}}</option>
 				{{/each}}
@@ -10,7 +10,7 @@
 		</div>
 		{{#if document.system.category}}
 		<div class="specific">
-			<select name="system.subcategory">
+			<select name="system.subcategory" title="{{localize "tribe8.item.weapon.subcategory.hint"}}">
 				{{#each weaponSubcategories as |name key|}}
 				<option value="{{key}}"{{#if (eq @root.document.system.subcategory key)}} selected{{/if}}>{{localize name}}</option>
 				{{/each}}
@@ -19,8 +19,8 @@
 		{{/if}}
 		{{#if document.isEmbedded}}
 		<div class="carried">
-			<input type="checkbox" name="system.carried" title="{{localize "tribe8.item.gear.system.carried.hint"}}" value="true"{{#if document.system.carried}} checked{{/if}} />
-			<label for="system.carried" title="{{localize "tribe8.item.gear.system.carried.hint"}}">{{localize "tribe8.item.gear.system.carried.short"}}</label>
+			<input type="checkbox" name="system.carried" title="{{localize "tribe8.item.gear.carried.hint"}}" value="true"{{#if document.system.carried}} checked{{/if}} />
+			<label for="system.carried" title="{{localize "tribe8.item.gear.carried.hint"}}">{{localize "tribe8.item.gear.carried.short"}}</label>
 		</div>
 		{{/if}}
 	</div>
@@ -30,7 +30,7 @@
 			<div class="property-name">Acc.</div>
 			<div class="property-input">
 				<span class="input-sizer" data-value="{{document.system.accuracy}}">
-					<input type="text" name="system.accuracy" value="{{document.system.accuracy}}" placeholder="N/A" size=2 />
+					<input type="text" name="system.accuracy" value="{{document.system.accuracy}}" placeholder="0" size=2 title="{{localize "tribe8.item.weapon.accuracy.hint"}}"/>
 				</span>
 			</div>
 		</div>
@@ -38,7 +38,7 @@
 		<div class="property fumble">
 			<div class="property-name">Fumble</div>
 			<div class="property-input">
-				<select name="system.fumble">
+				<select name="system.fumble" title="{{localize "tribe8.item.weapon.fumble.hint"}}">
 					{{#each fumbleRisk as |name key|}}
 					<option value="{{key}}"{{#if (eq @root.document.system.fumble key)}} selected{{/if}}>{{localize name}}</option>
 					{{/each}}
@@ -50,7 +50,7 @@
 			<div class="property-name">Parry</div>
 			<div class="property-input">
 				<span class="input-sizer" data-value="{{document.system.parry}}">
-					<input type="text" name="system.parry" value="{{document.system.parry}}" placeholder="N/A" size=2 />
+					<input type="text" name="system.parry" value="{{document.system.parry}}" placeholder="0" size=2 title="{{localize "tribe8.item.weapon.parry.hint"}}"/>
 				</span>
 			</div>
 		</div>
@@ -59,7 +59,7 @@
 			<div class="property-name">DM</div>
 			<div class="property-input">
 				<span class="input-sizer" data-value="{{document.system.damage}}">
-					<input type="text" name="system.damage" value="{{document.system.damage}}" placeholder="N/A" size=4 />
+					<input type="text" name="system.damage" value="{{document.system.damage}}" placeholder="0" size=4 title="{{localize "tribe8.item.weapon.damage.hint"}}"/>
 				</span>
 			</div>
 		</div>
@@ -67,16 +67,16 @@
 			<div class="property-name">Traits</div>
 			<div class="property-input">
 				<span class="input-sizer" data-value="{{document.system.traits}}">
-					<input type="text" name="system.traits" value="{{document.system.traits}}" placeholder="None" size=4 />
+					<input type="text" name="system.traits" value="{{document.system.traits}}" placeholder="None" size=4 title="{{localize "tribe8.item.weapon.traits.hint"}}" />
 				</span>
 			</div>
 		</div>
 		<hr />
 		<div class="property range">
-			<div class="property-name">Range</div>
+			<div class="property-name" title="{{localize "tribe8.item.weapon.ranges.hint"}}">Range</div>
 			<div class="property-input">
 				{{#each weaponRanges as |name value|}}
-				<button name="system.ranges.{{value}}"{{#if (lookup ../ranges value)}} class="selected"{{/if}} data-action="toggleRange" title="{{localize (concat "tribe8.item.weapon.system.ranges." value ".full")}}">{{localize (concat "tribe8.item.weapon.system.ranges." value ".short")}}</button>
+				<button name="system.ranges.{{value}}"{{#if (lookup ../ranges value)}} class="selected"{{/if}} data-action="toggleRange" title="{{localize (concat "tribe8.item.weapon.ranges." value ".full")}}">{{localize (concat "tribe8.item.weapon.ranges." value ".short")}}</button>
 				{{/each}}
 			</div>
 		</div>
@@ -85,7 +85,7 @@
 			<div class="property-name">Base Dist.</div>
 			<div class="property-input">
 				<span class="input-sizer" data-value="{{document.system.baseRange}}">
-					<input type="text" name="system.baseRange" value="{{document.system.baseRange}}" placeholder="N/A" size=4 />
+					<input type="text" name="system.baseRange" value="{{document.system.baseRange}}" placeholder="N/A" size=4 title="{{localize "tribe8.item.weapon.baseRange.hint"}}" />
 				</span>
 			</div>
 		</div>
@@ -94,7 +94,7 @@
 			<div class="property-name">ROF</div>
 			<div class="property-input">
 				<span class="input-sizer" data-value="{{document.system.rof}}">
-					<input type="text" name="system.rof" value="{{document.system.rof}}" placeholder="N/A" size=4 />
+					<input type="text" name="system.rof" value="{{document.system.rof}}" placeholder="N/A" size=4 title="{{localize "tribe8.item.weapon.rof.hint"}}" />
 				</span>
 			</div>
 		</div>
@@ -102,7 +102,7 @@
 			<div class="property-name">Ammo Curr.</div>
 			<div class="property-input">
 				<span class="input-sizer" data-value="{{document.system.ammo.current}}">
-					<input type="text" name="system.ammo.current" value="{{document.system.ammo.current}}" placeholder="N/A" size=4 />
+					<input type="text" name="system.ammo.current" value="{{document.system.ammo.current}}" placeholder="N/A" size=4 title="{{localize "tribe8.item.weapon.ammo.current.hint"}}" />
 				</span>
 			</div>
 		</div>
@@ -110,7 +110,7 @@
 			<div class="property-name">Ammo Cap.</div>
 			<div class="property-input">
 				<span class="input-sizer" data-value="{{document.system.ammo.capacity}}">
-					<input type="text" name="system.ammo.capacity" value="{{document.system.ammo.capacity}}" placeholder="N/A" size=4 />
+					<input type="text" name="system.ammo.capacity" value="{{document.system.ammo.capacity}}" placeholder="N/A" size=4 title="{{localize "tribe8.item.weapon.ammo.capacity.hint"}}" />
 				</span>
 			</div>
 		</div>

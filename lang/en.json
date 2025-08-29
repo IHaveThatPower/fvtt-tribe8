@@ -6,18 +6,26 @@
 		"Item": {
 			"item": "Generic Item",
 			"skill": "Skill",
+			"skill-plural": "SkillS",
 			"specialization": "Specialization",
+			"specialization-plural": "Specializations",
 			"perk": "Perk",
+			"perk-plural": "Perks",
 			"flaw": "Flaw",
+			"flaw-plural": "Flaws",
 			"maneuver": "Combat Maneuver",
+			"maneuver-plural": "Combat Maneuvers",
 			"eminence": "Eminence",
+			"eminence-plural": "Eminences",
 			"aspect": "Aspect",
+			"aspect-plural": "Aspects",
 			"totem": "Totem",
+			"totem-plural": "Totems",
 			"gear": "Gear",
-			"armor": "Armor",
-			"weapon": "Weapon",
 			"gear-plural": "Gear",
+			"armor": "Armor",
 			"armor-plural": "Armor",
+			"weapon": "Weapon",
 			"weapon-plural": "Weapons"
 		}
 	},
@@ -187,21 +195,24 @@
 				}
 			},
 			"gear": {
+				"name": {
+					"hint": "The name of this piece of Gear"
+				},
 				"title": {
 					"owned": "{owner}'s {item}",
 					"unowned": "Item: {item}"
 				},
-				"system.qty": {
+				"qty": {
 					"full": "Quantity",
 					"short": "Qty",
 					"hint": "The quantity of this Gear possessed"
 				},
-				"system.weight": {
+				"weight": {
 					"full": "Weight (kg)",
 					"short": "Wt. (kg)",
 					"hint": "The Weight for one unit of this Gear"
 				},
-				"system.value": {
+				"value": {
 					"hint": "The Value of one unit of this Gear",
 					"full": "Value",
 					"short": "Val",
@@ -218,22 +229,22 @@
 						"vhi.full": "Very High"
 					}
 				},
-				"system.valueThreshold": {
+				"valueThreshold": {
 					"full": "Find Threshold",
 					"short": "Find",
 					"hint": "The Threshold required to find this type of Item"
 				},
-				"system.complexity": {
+				"complexity": {
 					"full": "Complexity",
 					"short": "Cpx",
 					"hint": "The Complexity requirement to use, or fully use, this Gear"
 				},
-				"system.storage": {
+				"storage": {
 					"full": "Container/Carrier",
 					"short": "On/In",
 					"hint": "Another piece of Gear on or in which this Gear belongs"
 				},
-				"system.carried": {
+				"carried": {
 					"full": "Carried/Worn",
 					"short": "C?",
 					"hint": "Whether or not this Gear is carried by/worn on the Character who possesses it"
@@ -244,42 +255,68 @@
 				}
 			},
 			"weapon": {
-				"system": {
-					"category": {
-						"melee.full": "Melee",
-						"melee.short": "M",
-						"melee.bludgeoning.full": "Bludgeoning",
-						"melee.bludgeoning.short": "Blu",
-						"melee.bladed.full": "Bladed",
-						"melee.bladed.short": "Bla",
-						"melee.axe.full": "Axes",
-						"melee.axe.short": "Axe",
-						"melee.polearm.full": "Polearms",
-						"melee.polearm.short": "Pol",
-						"melee.misc.full": "Whips and Flails",
-						"melee.misc.short": "W/F",
-						"melee.shield.full": "Shields",
-						"melee.shield.short": "Shl",
-						"ranged.full": "Ranged",
-						"ranged.short": "R",
-						"ranged.tribal.full": "Tribal",
-						"ranged.tribal.short": "Tri",
-						"ranged.keeper.full": "Keeper",
-						"ranged.keeper.short": "Kpr"
-					},
-					"ranges": {
-						"close.full": "Close Combat",
-						"close.short": "C",
-						"throw.full": "Throw",
-						"throw.short": "T",
-						"ranged.full": "Ranged",
-						"ranged.short": "R"
-					},
-					"fumble": {
-						"low": "Low",
-						"medium": "Medium",
-						"high": "High"
-					}
+				"category": {
+					"hint": "The general category this Weapon belongs to",
+					"melee.full": "Melee",
+					"melee.short": "M",
+					"melee.bludgeoning.full": "Bludgeoning",
+					"melee.bludgeoning.short": "Blu",
+					"melee.bladed.full": "Bladed",
+					"melee.bladed.short": "Bla",
+					"melee.axe.full": "Axes",
+					"melee.axe.short": "Axe",
+					"melee.polearm.full": "Polearms",
+					"melee.polearm.short": "Pol",
+					"melee.misc.full": "Whips and Flails",
+					"melee.misc.short": "W/F",
+					"melee.shield.full": "Shields",
+					"melee.shield.short": "Shl",
+					"ranged.full": "Ranged",
+					"ranged.short": "R",
+					"ranged.tribal.full": "Tribal",
+					"ranged.tribal.short": "Tri",
+					"ranged.keeper.full": "Keeper",
+					"ranged.keeper.short": "Kpr"
+				},
+				"subcategory": {
+					"hint": "The specific category this Weapon belongs to, within its general category"
+				},
+				"accuracy": {
+					"hint": "The Accuracy modifier of this Weapon"
+				},
+				"parry": {
+					"hint": "The Parry modifier of this Weapon"
+				},
+				"fumble": {
+					"low": "Low",
+					"medium": "Medium",
+					"high": "High",
+					"hint": "The Fumble Risk of this Weapon"
+				},
+				"damage": {
+					"hint": "The Damage Multiplier formula for this Weapon, generally a flat number, AD+X, or AD+X/Y"
+				},
+				"traits": {
+					"hint": "Any special traits this Weapon has (e.g. ENT, MNT, 2H)"
+				},
+				"ranges": {
+					"hint": "The range type(s) at which this Weapon can be used",
+					"close.full": "Close Combat",
+					"close.short": "C",
+					"throw.full": "Throw",
+					"throw.short": "T",
+					"ranged.full": "Ranged",
+					"ranged.short": "R"
+				},
+				"baseRange": {
+					"hint": "The first range band of this Weapon, generally a flat number or STR+X"
+				},
+				"rof": {
+					"hint": "The Rate Of Fire for this Weapon, generally a flat number or X/Y"
+				},
+				"ammo": {
+					"current.hint": "The current amount of ammo loaded into this Weapon",
+					"capacity.hint": "The ammo capacity of this Weapon before it needs to be reloaded"
 				}
 			}
 		},

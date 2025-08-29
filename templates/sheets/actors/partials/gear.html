@@ -9,15 +9,15 @@
 		<div class="weight" data-action="editItem">{{#if system.weight}}{{system.weight}}{{else}}&mdash;{{/if}}</div>
 		<div class="total-weight" data-action="editItem">{{totalWeight}}</div>
 		<div class="value" data-action="editItem">
-			<span title="{{localize "tribe8.item.gear.system.value.hint"}}">
+			<span title="{{localize "tribe8.item.gear.value.hint"}}">
 			{{~#if system.value~}}
-			{{~localize (concat "tribe8.item.gear.system.value.strings." system.value ".short")~}}
+			{{~localize (concat "tribe8.item.gear.value.strings." system.value ".short")~}}
 			{{~else~}}
 			&mdash;
 			{{~/if~}}
 			</span>
 			{{#if system.valueThreshold~}}
-			<span title="{{localize "tribe8.item.gear.system.valueThreshold.hint"}}">({{system.valueThreshold}})</span>
+			<span title="{{localize "tribe8.item.gear.valueThreshold.hint"}}">({{system.valueThreshold}})</span>
 			{{~/if}}
 		</div>
 		<div class="complexity" data-action="editItem">{{system.complexity}}</div>

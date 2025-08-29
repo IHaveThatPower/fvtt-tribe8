@@ -1,7 +1,7 @@
 <div class="perks-flaws">
 	<h2><span>Perks &amp; Flaws</span><button name="add-pf" data-action="addNewItem"><i class="fa fa-solid fa-plus"></i></button></h2>
 	{{#if perksAndFlaws~}}
-	<h3>Perks</h3>
+	<h3>{{localize "TYPES.Item.perk-plural"}}</h3>
 	{{~else~}}
 	<em>None</em>
 	{{~/if}}
@@ -9,7 +9,7 @@
 		{{~#with (lookup @root.perksAndFlaws pfId)~}}
 		{{~#with (lookup @root.perksAndFlaws (lookup @root.perksAndFlaws.sortedIDs (sub @index 1))) as | prevItem |~}}
 			{{~#if (and (eq ../this.type 'flaw') (eq prevItem.type 'perk'))}}
-	<h3>Flaws</h3>
+	<h3>{{localize "TYPES.Item.flaws-plural"}}</h3>
 			{{~/if~}}
 		{{~/with}}
 	<div class="pf {{this.type}}{{#if this.system.granted}} granted{{/if}} draggable" data-item-id="{{this.id}}">
