@@ -292,6 +292,8 @@ export class Tribe8CharacterModel extends foundry.abstract.TypeDataModel {
 		this.#prepareFreeTotemSlots();
 		// Compute amount spent on various items
 		for (let item of items) {
+			if (item.type == 'totem' && item.inFreeSlot) // inFreeSlot comes from #prepareFreeTotemSlots
+				continue;
 			// Add the points
 			this.points.cp.generalSpent += item.system.totalCP;
 			this.points.xp.spent += item.system.totalXP;
@@ -406,8 +408,8 @@ export class Tribe8CharacterModel extends foundry.abstract.TypeDataModel {
 	}
 
 	/**
-	 * Similar to _prepareBonusManeuverSlots(), prepare slots for Totems
-	 * that the Ritual Skill's Complexity grants for free.
+	 * Prepare slots for Totems that the Ritual Skill's Complexity
+	 * grants for free.
 	 *
 	 * @return {void}
 	 * @access private
