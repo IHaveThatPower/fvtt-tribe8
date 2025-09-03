@@ -42,8 +42,8 @@
 			<div class="points-type">EDie</div>
 			<div class="value"><input type="number" value="{{#if document.system.eDieSpent}}{{document.system.eDieSpent}}{{else}}0{{/if}}" name="system.eDieSpent" min="0" max="999" /></div>
 			<div class="points">
-				<button name="edie.dec" data-action="decrementEdie" title="Remove SPENT E-Die. It will be added back to the character's general E-Die pool">-</button>
-				<button name="edie.inc" data-action="incrementEdie" title="SPEND an E-Die on this skill. It will be removed from the character's general E-Die pool, if available, or spend from available XP if not.">+</button>
+				<button name="edie.dec" data-action="decrementEdie" title="Remove SPENT E-Die. It will be added back to the character's general E-Die pool" type="button">-</button>
+				<button name="edie.inc" data-action="incrementEdie" title="SPEND an E-Die on this skill. It will be removed from the character's general E-Die pool, if available, or spend from available XP if not." type="button">+</button>
 			</div>
 		</div>
 	</div>
@@ -72,7 +72,7 @@
 			<label for="specializations[{{this.id}}].system.points.xp">XP</label>
 			<input type="checkbox" value=true id="specializations[{{this.id}}].system.granted" name="specializations[{{this.id}}].system.granted"{{#if this.system.granted}} checked{{/if}} />
 			<label for="specializations[{{this.id}}].system.granted">F?</label>
-			<button name="remove-specialization" data-action="removeSpecialization" title="Remove Specialization"><i class="far fa-circle-xmark"></i></button>
+			<button name="remove-specialization" data-action="removeSpecialization" title="Remove Specialization" type="button"><i class="far fa-circle-xmark"></i></button>
 		</div>
 		{{/each}}
 		<div class="add-specialization">
@@ -83,7 +83,7 @@
 			<label for="newSpecialization.pointSource.xp">XP</label>
 			<input type="checkbox" id="newSpecialization.granted" value="xp" name="newSpecialization.granted"{{#if newSpecialization.granted}} checked{{/if}} />
 			<label for="newSpecialization.granted">F?</label>
-			<button name="add-specialization" data-action="addSpecialization"><i class="fa fa-solid fa-plus"></i></button>
+			<button name="add-specialization" data-action="addSpecialization" type="button"><i class="fa fa-solid fa-plus"></i></button>
 		</div>
 		{{else}}
 		<em>Specializations can only be added to Skills belonging to a character.</em>

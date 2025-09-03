@@ -83,7 +83,7 @@
 		{{/if}}
 	</div>
 	<div class="combat-pane weapons">
-		<h2><span>{{localize "TYPES.Item.weapon-plural"}}</span><button name="add-weapon" data-action="addNewItem"><i class="fa fa-solid fa-plus"></i></button></h2>
+		<h2><span>{{localize "TYPES.Item.weapon-plural"}}</span><button name="add-weapon" data-action="addNewItem" type="button"><i class="fa fa-solid fa-plus"></i></button></h2>
 		{{#if weapons}}
 		<ul>
 		{{#each weapons.sortedIDs as |weaponId|}}
@@ -102,7 +102,7 @@
 		{{/if}}
 	</div>
 	<div class="combat-pane maneuvers">
-		<h2><span>{{localize "TYPES.Item.maneuver-plural"}}</span><button name="add-maneuver" data-action="addNewItem"><i class="fa fa-solid fa-plus"></i></button></h2>
+		<h2><span>{{localize "TYPES.Item.maneuver-plural"}}</span><button name="add-maneuver" data-action="addNewItem" type="button"><i class="fa fa-solid fa-plus"></i></button></h2>
 		{{#if sortedManeuvers}}
 		<ul>
 		{{#each sortedManeuvers.sortedIDs as |maneuverId|}}
@@ -228,7 +228,7 @@
 		</div>
 	</div>
 	<div class="combat-pane armor">
-		<h2><span>{{localize "TYPES.Item.armor-plural"}}</span><button name="add-armor" data-action="addNewItem"><i class="fa fa-solid fa-plus"></i></button></h2>
+		<h2><span>{{localize "TYPES.Item.armor-plural"}}</span><button name="add-armor" data-action="addNewItem" type="button"><i class="fa fa-solid fa-plus"></i></button></h2>
 	</div>
 	<div class="combat-pane injuries">
 		{{> "systems/tribe8/templates/sheets/actors/partials/injuries.html"}}

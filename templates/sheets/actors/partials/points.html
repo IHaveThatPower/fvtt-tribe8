@@ -25,7 +25,7 @@
 				<dt class="points-type edie-xp{{#if (lt document.system.edie.fromXP 0)}} over{{/if}}">From XP</dt>
 				<dd class="points-value edie-xp{{#if (lt document.system.edie.fromXP 0)}} over{{/if}}">{{document.system.edie.fromXP}}</dd>
 				<dt class="points-type edie-other">Other</dt>
-				<dd class="points-value edie-other"><button name="edie.dec" data-action="decrementEdie">-</button><input type="number" name="system.edie" value="{{document.system.edie}}" /><button name="edie.inc" data-action="incrementEdie">+</button></dd>
+				<dd class="points-value edie-other"><button name="edie.dec" data-action="decrementEdie" type="button">-</button><input type="number" name="system.edie" value="{{document.system.edie}}" /><button name="edie.inc" data-action="incrementEdie" type="button">+</button></dd>
 			</dl>
 		</dd>
 	</dl>

@@ -41,7 +41,7 @@
 			<label for="system.points[{{@index}}].cp">CP</label>
 			<input type="radio" value="XP" id="system.points[{{@index}}].xp" name="system.points[{{@index}}]"{{#if (eq this "XP")}} checked{{/if}} />
 			<label for="system.points[{{@index}}].xp">XP</label>
-			<button name="remove-rank" data-action="removeRank" title="Remove Rank"><i class="far fa-circle-xmark"></i></button>
+			<button name="remove-rank" data-action="removeRank" title="Remove Rank" type="button"><i class="far fa-circle-xmark"></i></button>
 		</div>
 		{{/each}}
 	</div>

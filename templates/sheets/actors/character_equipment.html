@@ -1,6 +1,6 @@
 <div class="character-sheet tab equipment {{tab.cssClass}}" data-group="character" data-tab="equipment">
 	<div class="gear-list weapons-list">
-		<h2><span>{{localize "TYPES.Item.weapon-plural"}}</span><button name="add-weapon" data-action="addNewItem"><i class="fa fa-solid fa-plus"></i></button></h2>
+		<h2><span>{{localize "TYPES.Item.weapon-plural"}}</span><button name="add-weapon" data-action="addNewItem" type="button"><i class="fa fa-solid fa-plus"></i></button></h2>
 		<div class="gear-item-row gear-list-header">
 			<div class="identity">{{!-- TODO: Add sorting controls to all of these --}}
 				<div class="name">{{localize "tribe8.item.name"}}</div>
@@ -22,7 +22,7 @@
 		{{/if}}
 	</div>
 	<div class="gear-list armor-list">
-		<h2><span>{{localize "TYPES.Item.armor-plural"}}</span><button name="add-armor" data-action="addNewItem"><i class="fa fa-solid fa-plus"></i></button></h2>
+		<h2><span>{{localize "TYPES.Item.armor-plural"}}</span><button name="add-armor" data-action="addNewItem" type="button"><i class="fa fa-solid fa-plus"></i></button></h2>
 		{{#each armor.sortedIDs as |armorID|}}
 		{{#with (lookup ../armor armorID)}}
 		Armor
@@ -33,7 +33,7 @@
 		{{/if}}
 	</div>
 	<div class="gear-list">
-		<h2><span>{{localize "TYPES.Item.gear-plural"}}</span><button name="add-gear" data-action="addNewItem"><i class="fa fa-solid fa-plus"></i></button></h2>
+		<h2><span>{{localize "TYPES.Item.gear-plural"}}</span><button name="add-gear" data-action="addNewItem" type="button"><i class="fa fa-solid fa-plus"></i></button></h2>
 		<div class="gear-item-row gear-list-header">
 			<div class="identity">{{!-- TODO: Add sorting controls to all of these --}}
 				<div class="name">{{localize "tribe8.item.name"}}</div>

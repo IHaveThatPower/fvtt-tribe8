@@ -79,7 +79,7 @@
 			<div class="property-name" title="{{localize "tribe8.item.weapon.ranges.hint"}}">Range</div>
 			<div class="property-input">
 				{{#each weaponRanges as |name value|}}
-				<button name="system.ranges.{{value}}"{{#if (lookup ../ranges value)}} class="selected"{{/if}} data-action="toggleRange" title="{{localize (concat "tribe8.item.weapon.ranges." value ".full")}}">{{localize (concat "tribe8.item.weapon.ranges." value ".short")}}</button>
+				<button name="system.ranges.{{value}}"{{#if (lookup ../ranges value)}} class="selected"{{/if}} data-action="toggleRange" title="{{localize (concat "tribe8.item.weapon.ranges." value ".full")}}" type="button">{{localize (concat "tribe8.item.weapon.ranges." value ".short")}}</button>
 				{{/each}}
 			</div>
 		</div>

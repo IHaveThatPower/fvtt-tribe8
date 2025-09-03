@@ -1,4 +1,4 @@
-<h2><span>Skills</span><button name="add-skill" data-action="addNewItem"><i class="fa fa-solid fa-plus"></i></button></h2>
+<h2><span>Skills</span><button name="add-skill" data-action="addNewItem" type="button"><i class="fa fa-solid fa-plus"></i></button></h2>
 <div class="skills">
 	{{#if (not skills)}}
 	<em>None</em>
@@ -38,8 +38,8 @@
 			<div class="value">
 				<input type="number" value="{{system.eDieSpent}}" name="system.eDieSpent"  />
 				<div class="edie-buttons">
-					<button name="edie.inc" data-action="incrementEdie" title="SPEND an E-Die on this skill. It will be removed from the character's general E-Die pool, if available, or spend from available XP if not.">+</button>
-					<button name="edie.dec" data-action="decrementEdie" title="Remove SPENT E-Die. It will be added back to the character's general E-Die pool">-</button>
+					<button name="edie.inc" data-action="incrementEdie" title="SPEND an E-Die on this skill. It will be removed from the character's general E-Die pool, if available, or spend from available XP if not." type="button">+</button>
+					<button name="edie.dec" data-action="decrementEdie" title="Remove SPENT E-Die. It will be added back to the character's general E-Die pool" type="button">-</button>
 				</div>
 			</div>
 		</div>

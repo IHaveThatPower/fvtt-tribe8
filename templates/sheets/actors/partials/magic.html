@@ -7,7 +7,7 @@
 		{{~/if~}}
 	</h3>
 	<dl>
-		<dt><span>Eminences</span><button name="add-eminence" data-action="addNewItem"><i class="fa fa-solid fa-plus"></i></button></dt>
+		<dt><span>Eminences</span><button name="add-eminence" data-action="addNewItem" type="button"><i class="fa fa-solid fa-plus"></i></button></dt>
 		<dd>
 			{{#if magic.eminences}}
 				{{#each magic.eminences.sortedIDs as |eminenceId|}}
@@ -39,7 +39,7 @@
 		{{~/if~}}
 	</h3>
 	<dl>
-		<dt><span>Totems</span><button name="add-totem" data-action="addNewItem"><i class="fa fa-solid fa-plus"></i></button></dt>
+		<dt><span>Totems</span><button name="add-totem" data-action="addNewItem" type="button"><i class="fa fa-solid fa-plus"></i></button></dt>
 		<dd>
 			{{#if magic.totems}}
 				{{#each magic.totems.sortedIDs as |totemId|}}
