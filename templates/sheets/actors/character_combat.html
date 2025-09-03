@@ -110,7 +110,7 @@
 		{{setVar "maneuverEligible" (or
 			(eq @root.combatData.useCombatSkill system.skill)
 			(and
-				(eq system.complexity 0)
+				system.free
 				(ifIn system.allowedTypes (lookup (lookup (lookup ../../skills @root.combatData.useCombatSkill) "system") "combatCategory"))
 			)
 		)}}
@@ -127,7 +127,7 @@
 			<div class="identity" data-action="editItem">
 				<div class="name">{{name}}</div>
 				<div class="specific">(
-					{{~#if (eq system.complexity 0)~}}
+					{{~#if system.free~}}
 					{{localize "tribe8.item.maneuver.complexity.free"}}: {{system.allowedTypes}}
 					{{~else~}}
 						{{~#with (lookup ../../skills this.system.skill)~}}

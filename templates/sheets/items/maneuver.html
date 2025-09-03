@@ -55,7 +55,11 @@
 		</div>
 		<div class="granted cost-field cost-field-checkbox">
 			<input type="checkbox" name="system.granted" value=true{{#if document.system.granted}} checked{{/if}} title="Check if the Weaver granted this for free" />
-			<label for="system.granted" title="Check if the Weaver granted this for free">F?</label>
+			<label for="system.granted" title="Check if the Weaver granted this for free">G?</label>
+		</div>
+		<div class="free cost-field cost-field-checkbox">
+			<input type="checkbox" name="system.free" value=true{{# if document.system.free}} checked{{/if}} title="This is a Free Maneuver available to everyone." />
+			<label for="system.free" title="This is a Free Maneuver available to everyone.">Free</label>
 		</div>
 	</div>
 	<div class="properties">

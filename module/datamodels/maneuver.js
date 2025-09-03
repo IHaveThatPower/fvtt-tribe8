@@ -16,7 +16,7 @@ export class Tribe8ManeuverModel extends Tribe8ItemModel {
 			defense: new fields.StringField({hint: "tribe8.item.maneuver.defense.hint", required: true, nullable: true}),
 			parry: new fields.StringField({hint: "tribe8.item.maneuver.parry.hint", required: true, nullable: true}),
 			damage: new fields.StringField({hint: "tribe8.item.maneuver.damage.hint", required: true, nullable: true}),
-			complexity: new fields.NumberField({hint: "tribe8.item.maneuver.complexity.hint", required: true, nullable: false, initial: 0}),
+			complexity: new fields.NumberField({hint: "tribe8.item.maneuver.complexity.hint", required: true, nullable: false, initial: 1}),
 			allowedTypes: new fields.ArrayField(
 				new fields.StringField({
 					required: true,
@@ -37,6 +37,7 @@ export class Tribe8ManeuverModel extends Tribe8ItemModel {
 			),
 			fromCpx: new fields.BooleanField({hint: "tribe8.item.maneuver.fromCpx.hint", initial: false, required: true, nullable: false}),
 			granted: new fields.BooleanField({hint: "tribe8.item.maneuver.granted.hint", initial: false, required: true, nullable: false}),
+			free: new fields.BooleanField({hint: "tribe8.item.maneuver.free.hint", initial: false, required: true, nullable: false}),
 			points: new fields.StringField({hint: "tribe8.item.maneuver.points.hint", choices: ["CP", "XP"], initial: "CP", required: true, nullable: false})
 		};
 	}
@@ -48,7 +49,7 @@ export class Tribe8ManeuverModel extends Tribe8ItemModel {
 	 * @access private
 	 */
 	get intrinsicCost() {
-		return this.complexity;
+		return (this.free ? 0 : this.complexity);
 	}
 
 	/**
@@ -72,6 +73,17 @@ export class Tribe8ManeuverModel extends Tribe8ItemModel {
 		// Old key-style allowedTypes storage
 		if (data.allowedTypes && data.allowedTypes.constructor.name === 'Object') {
 			data.allowedTypes = Object.keys(data.allowedTypes);
+		}
+		// Old "Complexity 0" free maneuver pattern
+		if (data.complexity == 0) {
+			data.complexity = 1;
+			data.free = true;
+		}
+		// Clean up values for free maneuvers
+		if (data.free) {
+			data.skill = undefined;
+			data.granted = false;
+			data.fromCpx = false;
 		}
 		return super.migrateData(data);
 	}
