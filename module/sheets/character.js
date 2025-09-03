@@ -253,6 +253,8 @@ export class Tribe8CharacterSheet extends Tribe8Application(ActorSheetV2) {
 				// Weapon Traits just get bolted onto the list.
 				this.combatData.summary.traits = this.combatData.summary.traits.concat(weapon.system.traits.split(','));
 				this.combatData.summary.fumble = weapon.system.fumble;
+				// TODO: Account for Complexity penalty to Acc (p. 148)
+				// TODO: Account for Str penalty to all rolls (p. 148-149)
 			}
 			else
 				console.warn(`Chosen weapon ${this.combatData.useWeapon} not found`);
@@ -275,7 +277,7 @@ export class Tribe8CharacterSheet extends Tribe8Application(ActorSheetV2) {
 					console.warn(`Selected Maneuver.${maneuverId} not found in Actor.${this.document.id} Maneuver list`);
 					continue;
 				}
-				if (maneuver.system?.skill == this.combatData.useSkill) {
+				if (maneuver.system?.skill == this.combatData.useCombatSkill) {
 					for (let maneuverProperty in maneuver.system) {
 						if (Object.hasOwn(this.combatData.summary, maneuverProperty)) {
 							this.combatData.summary[maneuverProperty] = this.#addCombatModifier(this.combatData.summary[maneuverProperty], maneuver.system[maneuverProperty], maneuverProperty);

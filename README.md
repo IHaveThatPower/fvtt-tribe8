@@ -39,10 +39,11 @@ At present, no stock Items (i.e. Skills, Perks, Flaws, Combat Maneuvers, Aspects
 This is a rough, ever-changing list that depicts in approximate priority order what's on the list of yet-to-be-implemented features.
 
 ### Short Term
-- Equipment tab
-  - Includes DataModel for Gear-type Items
 - Combat tab
-  - Includes DataModels for Weapon- and Armor-type Items
+  - DataModel for Armor-type Items
+  - Support for Thrown weapon ranges
+- Equipment tab
+  - User-driven sorting
 - Character artwork editing support
 - Item artwork editing support
 - Finalize character sheet layout
