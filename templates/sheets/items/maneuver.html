@@ -1,7 +1,7 @@
 <div class="item-sheet maneuver">
 	<div class="identity">
 		<div class="name"><input type="text" name="name" value="{{document.name}}" size=12></div>
-		{{#if document.system.complexity}}
+		{{#if (and document.isEmbedded (not document.system.free))}}
 		<div class="specific">
 			<select name="system.skill">
 				{{#each skillChoices as |name key|}}
