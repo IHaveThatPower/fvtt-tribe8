@@ -41,7 +41,7 @@ export class Tribe8GearSheet extends Tribe8ItemSheet {
 		}
 
 		// The form needs to know the possible options for values
-		context.valueOptions = Object.fromEntries(CONFIG.Tribe8.gearValueOptions.map((o) => [o, `tribe8.item.gear.system.value.strings.${o}.full`]));
+		context.valueOptions = Object.fromEntries(CONFIG.Tribe8.gearValueOptions.map((o) => [o, `tribe8.item.gear.value.strings.${o}.full`]));
 		return context;
 	}
 }
