@@ -41,7 +41,6 @@ This is a rough, ever-changing list that depicts in approximate priority order w
 ### Short Term
 - Combat tab
   - DataModel for Armor-type Items
-  - Support for Thrown weapon ranges
 - Equipment tab
   - User-driven sorting
 - Character artwork editing support

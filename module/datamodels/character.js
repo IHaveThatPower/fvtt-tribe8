@@ -29,10 +29,6 @@ export class Tribe8CharacterModel extends foundry.abstract.TypeDataModel {
 						str: new fields.SchemaField(Tribe8SecondaryAttribute('Strength', 'str')),
 						hea: new fields.SchemaField(Tribe8SecondaryAttribute('Health', 'hea')),
 						sta: new fields.SchemaField(Tribe8SecondaryAttribute('Stamina', 'sta')),
-						/*
-						ud: new fields.SchemaField(Tribe8SecondaryAttribute('Unarmed Damage', 'ud')),
-						ad: new fields.SchemaField(Tribe8SecondaryAttribute('Armed Damage', 'ad')),
-						*/
 						thresholds: new fields.SchemaField({
 							flesh: new fields.SchemaField(Tribe8SecondaryAttribute('Flesh Wound', 'FW')),
 							deep: new fields.SchemaField(Tribe8SecondaryAttribute('Deep Wound', 'DW')),

@@ -173,12 +173,13 @@
 					<select name="combatData.modifier.range">
 						{{#with (lookup weapons combatData.useWeapon) as |weapon|}}
 							{{#with (lookup (lookup weapon "system") "ranges") as |ranges|}}
+								{{#ifIn ranges "close"}}
+									<option value="close">{{localize "tribe8.item.weapon.ranges.close.full"}}</option>
+								{{/ifIn}}
 								{{#if (or (ifIn ranges "ranged") (ifIn ranges "throw"))}}
 									{{#each @root.rangeBands}}
-										<option value="{{this}}"{{#if (or (eq @root.combatData.modifier.range this) (and (not @root.combatData.modifier.range) (eq this "short")))}} selected{{/if}}>{{localize (concat "tribe8.item.weapon.rangeBands." this "-with-distance") distance=(mult weapon.system.baseRange @index)}}</option>
+										<option value="{{this}}"{{#if (or (eq @root.combatData.modifier.range this) (and (not @root.combatData.modifier.range) (eq this "short")))}} selected{{/if}}>{{localize (concat "tribe8.item.weapon.rangeBands." this "-with-distance") distance=(mult @root.combatData.weaponBaseRange @index)}}</option>
 									{{/each}}
-								{{else}}
-									<option value="">{{localize "tribe8.item.weapon.ranges.close.full"}}</option>
 								{{/if}}
 							{{/with}}
 						{{/with}}

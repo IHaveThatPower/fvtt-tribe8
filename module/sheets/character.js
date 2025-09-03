@@ -244,6 +244,7 @@ export class Tribe8CharacterSheet extends Tribe8Application(ActorSheetV2) {
 		this.combatData.summary.initiative = 0;
 		this.combatData.summary.defense = 0;
 
+		const useSkill = (this.combatData.useCombatSkill ? this.document.getEmbeddedDocument("Item", this.combatData.useCombatSkill) : {});
 		if (this.combatData.useWeapon) {
 			const weapon = this.document.getEmbeddedDocument("Item", this.combatData.useWeapon);
 			if (weapon) {
@@ -251,16 +252,43 @@ export class Tribe8CharacterSheet extends Tribe8Application(ActorSheetV2) {
 				this.combatData.summary.parry = this.#addCombatModifier(this.combatData.summary.parry, weapon.system.parry, 'parry');
 				this.combatData.summary.damage = this.#addCombatModifier(this.combatData.summary.damage, weapon.system.damage, 'damage');
 				// Weapon Traits just get bolted onto the list.
-				this.combatData.summary.traits = this.combatData.summary.traits.concat(weapon.system.traits.split(','));
+				const weaponTraits = weapon.system.traits.split(',');
+				this.combatData.summary.traits = this.combatData.summary.traits.concat(weaponTraits);
 				this.combatData.summary.fumble = weapon.system.fumble;
-				// TODO: Account for Complexity penalty to Acc (p. 148)
-				// TODO: Account for Str penalty to all rolls (p. 148-149)
+				// Account for Complexity penalty to Acc (p. 148)
+				this.combatData.summary.accuracy = this.#addCombatModifier(
+														this.combatData.summary.accuracy,
+														Math.min(((useSkill?.system?.cpx ?? 1) - weapon.system.complexity), 0),
+														'accuracy'
+													);
+				// Account for Str penalty to all rolls (p. 148-149)
+				const strTraits = weaponTraits.filter((t) => t.trim().match(/^STR.*\d/));
+				if (strTraits.length) {
+					for (let trait of strTraits) {
+						const matchParts = trait.trim().match(/^STR[^\d]*\+?(-?\d+)/);
+						const strRequired = Number(matchParts[1]);
+						const strPenalty = Math.min(this.document.system.attributes.secondary.physical.str.value - strRequired, 0);
+						for (let prop of ['accuracy', 'parry']) {
+							this.combatData.summary[prop] = this.#addCombatModifier(this.combatData.summary[prop], strPenalty, prop);
+						}
+					}
+				}
+				// Pre-process base range, if needed
+				if (weapon.system.ranges.length > 1 || !weapon.system.ranges.includes('close')) {
+					this.combatData.weaponBaseRange = weapon.system.baseRange;
+					if (isNaN(this.combatData.weaponBaseRange)) {
+						// Extract the relevant stat
+						const matchParts = this.combatData.weaponBaseRange.match(/([A-Za-z]{3})\+?(-?\d+)/);
+						const attName = matchParts[1].toLowerCase();
+						const attr = this.document.system?.attributes?.primary[attName] ?? this.document.system?.attributes?.secondary?.physical[attName] ?? {};
+						this.combatData.weaponBaseRange = attr?.value + Number(matchParts[2]);
+					}
+				}
 			}
 			else
 				console.warn(`Chosen weapon ${this.combatData.useWeapon} not found`);
 		}
 
-		const useSkill = (this.combatData.useCombatSkill ? this.document.getEmbeddedDocument("Item", this.combatData.useCombatSkill) : {});
 		// Factor in Specialization use
 		if (this.combatData.useSpecialization) {
 			const spec = this.document.getEmbeddedDocument("Item", this.combatData.useSpecialization);
