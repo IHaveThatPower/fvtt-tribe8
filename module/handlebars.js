@@ -85,35 +85,20 @@ Handlebars.registerHelper('mod',
 	}
 );
 
-Handlebars.registerHelper('roman',
+Handlebars.registerHelper('ifIn',
 	/**
-	 * Convert a number to Roman numerals
+	 * Check if a supplied value is in a supplied array.
 	 *
-	 * @param  {int}    a    The number to be converted
-	 * @return {string}      The resulting Roman numerals
-	 * @throws {Error}       If any required conditions are not met
+	 * @param  {Array}       array      The array to be searched
+	 * @param  {mixed}       elem       The element to be found
+	 * @param  {object}      options    Handlebars options object
+	 * @return {string|bool}            Either the appropriate block of
+	 *                                  contained HTML or a boolean
 	 */
-	function (a) {
-		a = Number(a);
-		if (typeof a !== "number") throw new TypeError("Argument must be a number");
-
-		const roman = {
-			M: 1000, CM: 900,
-			D: 500, CD: 400,
-			C: 100, XC: 90,
-			L: 50, XL: 40,
-			X: 10, IX: 9,
-			V: 5, IV: 4,
-			I: 1
-		};
-		let str = '';
-
-		for (const i of Object.keys(roman)) {
-			const q = Math.floor(a / roman[i]);
-			a -= q * roman[i];
-			str += i.repeat(q);
-		}
-		return str;
+	function(array, elem, options) {
+		if (!(array instanceof Array)) return (options.inverse ? options.inverse(this) : false);
+		if (array.includes(elem)) return (options.fn ? options.fn(this) : true);
+		return (options.inverse ? options.inverse(this) : false);
 	}
 );
 
@@ -151,6 +136,38 @@ Handlebars.registerHelper('repeat',
 			content.push(result);
 		}
 		return content.join('');
+	}
+);
+
+Handlebars.registerHelper('roman',
+	/**
+	 * Convert a number to Roman numerals
+	 *
+	 * @param  {int}    a    The number to be converted
+	 * @return {string}      The resulting Roman numerals
+	 * @throws {Error}       If any required conditions are not met
+	 */
+	function (a) {
+		a = Number(a);
+		if (typeof a !== "number") throw new TypeError("Argument must be a number");
+
+		const roman = {
+			M: 1000, CM: 900,
+			D: 500, CD: 400,
+			C: 100, XC: 90,
+			L: 50, XL: 40,
+			X: 10, IX: 9,
+			V: 5, IV: 4,
+			I: 1
+		};
+		let str = '';
+
+		for (const i of Object.keys(roman)) {
+			const q = Math.floor(a / roman[i]);
+			a -= q * roman[i];
+			str += i.repeat(q);
+		}
+		return str;
 	}
 );
 

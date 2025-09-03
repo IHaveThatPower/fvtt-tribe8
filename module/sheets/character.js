@@ -2,28 +2,31 @@ const { DialogV2 } = foundry.applications.api;
 const { ActorSheetV2 } = foundry.applications.sheets;
 import { Tribe8Application } from '../apps/base-app.js';
 import { Tribe8AttributeEditor } from '../apps/attribute-editor.js';
+import { Tribe8WeaponModel } from '../datamodels/weapon.js'; // For #addCombatModifier
 
 export class Tribe8CharacterSheet extends Tribe8Application(ActorSheetV2) {
 	static DEFAULT_OPTIONS = {
 		form: { closeOnSubmit: false, submitOnChange: true },
-		position: { width: 1024, height: 768 },
+		position: { width: 1200, height: 900 },
 		window: {
 			resizable: true,
 			contentClasses: ["tribe8", "character", "sheet", "actor"]
 		},
 		actions: {
-			incrementEdie: Tribe8CharacterSheet.action_incrementEdie,
-			decrementEdie: Tribe8CharacterSheet.action_decrementEdie,
-			editItem:      Tribe8CharacterSheet.action_editItem,
-			addNewItem:    Tribe8CharacterSheet.action_addNewItem,
-			useEminence:   Tribe8CharacterSheet.action_useEminence,
+			incrementEdie:    Tribe8CharacterSheet.action_incrementEdie,
+			decrementEdie:    Tribe8CharacterSheet.action_decrementEdie,
+			editItem:         Tribe8CharacterSheet.action_editItem,
+			addNewItem:       Tribe8CharacterSheet.action_addNewItem,
+			useEminence:      Tribe8CharacterSheet.action_useEminence,
+			combatCalculator: Tribe8CharacterSheet.action_combatCalculator,
 		}
 	}
 
 	static PARTS = {
 		tabs: { template: 'templates/generic/tab-navigation.hbs' },
 		main: { template: 'systems/tribe8/templates/sheets/actors/character_main.html' },
-		equipment: { template: 'systems/tribe8/templates/sheets/actors/character_equipment.html' }
+		equipment: { template: 'systems/tribe8/templates/sheets/actors/character_equipment.html' },
+		combat: { template: 'systems/tribe8/templates/sheets/actors/character_combat.html' }
 	}
 
 	static TABS = {
@@ -82,6 +85,11 @@ export class Tribe8CharacterSheet extends Tribe8Application(ActorSheetV2) {
 		this.#prepareContext_collectItems(context);
 		this.#prepareContext_sortCollections(context);
 
+		context.fumble = CONFIG.Tribe8.fumble;
+		context.rangeBands = Object.keys(CONFIG.Tribe8.rangeBands);
+		this.#prepareContext_combatData();
+		context.combatData = this.combatData;
+
 		// Add the tabs
 		const contextWithTabs = {...context, tabs: this._prepareTabs("character")};
 		return contextWithTabs;
@@ -98,9 +106,6 @@ export class Tribe8CharacterSheet extends Tribe8Application(ActorSheetV2) {
 		for (let item of this.document.items) {
 			let collectionName = `${item.type}s`; // Default context collection name we add items of this type to
 			switch (item.type) {
-				case 'specialization':
-					// Handled in Skills, below
-					break;
 				case 'skill':
 					context.ensureHas(collectionName, {});
 					item.specializations = ""; // Transient property for display
@@ -109,10 +114,10 @@ export class Tribe8CharacterSheet extends Tribe8Application(ActorSheetV2) {
 					context[collectionName][item.id] = item;
 
 					// Track Synthesis and Ritual, specifically
-					if (CONFIG.Tribe8.slugify(item.system.name) == 'synthesis') { // TODO: Use localized slug
+					if (CONFIG.Tribe8.slugify(item.system.name) == 'synthesis') { // TODO: (Localization) Use localized slug
 						context.magic.synthesisSkill = item;
 					}
-					if (CONFIG.Tribe8.slugify(item.system.name) == 'ritual') { // TODO: Use localized slug
+					if (CONFIG.Tribe8.slugify(item.system.name) == 'ritual') { // TODO: (Localization) Use localized slug
 						context.magic.ritualSkill = item;
 					}
 					break;
@@ -122,10 +127,10 @@ export class Tribe8CharacterSheet extends Tribe8Application(ActorSheetV2) {
 					context[collectionName][item.id] = item;
 
 					// Track Dreamer and Awakened Dreamer Perks
-					if (CONFIG.Tribe8.slugify(item.name) == 'dreamer') { // TODO: Use localized slug
+					if (CONFIG.Tribe8.slugify(item.name) == 'dreamer') { // TODO: (Localization) Use localized slug
 						context.magic.hasDreamerPerk = true;
 					}
-					if (CONFIG.Tribe8.slugify(item.name) == 'awakeneddreamer') { // TODO: Use localized slug
+					if (CONFIG.Tribe8.slugify(item.name) == 'awakeneddreamer') { // TODO: (Localization) Use localized slug
 						context.magic.hasAwakenedDreamerPerk = true;
 					}
 					break;
@@ -180,7 +185,7 @@ export class Tribe8CharacterSheet extends Tribe8Application(ActorSheetV2) {
 			'skills', 'perksAndFlaws', 'sortedManeuvers',
 			'magic.eminences', 'magic.totems',
 			'magic.synthesisAspects', 'magic.ritualAspects',
-			'weapons', 'armor', 'gear'
+			'weapons', 'armor', 'gear', 'specializations'
 		];
 		for (let itemGroup of itemSortGroups) {
 			let contextTarget = context[itemGroup];
@@ -202,7 +207,7 @@ export class Tribe8CharacterSheet extends Tribe8Application(ActorSheetV2) {
 				}
 			}
 		}
-		// TODO: Support different user-driven sort methods for gear
+		// TODO: (UI) Support different user-driven sort methods for gear
 	}
 
 	/**
@@ -220,6 +225,386 @@ export class Tribe8CharacterSheet extends Tribe8Application(ActorSheetV2) {
 	}
 
 	/**
+	 * Prepare all of the data necessary to display and interact with
+	 * the Combat tab.
+	 *
+	 * @return {void}
+	 * @access private
+	 */
+	#prepareContext_combatData() {
+		// TODO: Should this whole thing (incl. #addCombatModifier) just be its own support class?
+		// Initialize the return values
+		if (!this.combatData) this.combatData = {};
+		if (!this.combatData.summary) this.combatData.summary = {};
+		this.combatData.summary.accuracy = [0];
+		this.combatData.summary.parry = [0];
+		this.combatData.summary.fumble = '';
+		this.combatData.summary.damage = [0];
+		this.combatData.summary.traits = [];
+		this.combatData.summary.initiative = 0;
+		this.combatData.summary.defense = 0;
+
+		if (this.combatData.useWeapon) {
+			const weapon = this.document.getEmbeddedDocument("Item", this.combatData.useWeapon);
+			if (weapon) {
+				this.combatData.summary.accuracy = this.#addCombatModifier(this.combatData.summary.accuracy, weapon.system.accuracy, 'accuracy');
+				this.combatData.summary.parry = this.#addCombatModifier(this.combatData.summary.parry, weapon.system.parry, 'parry');
+				this.combatData.summary.damage = this.#addCombatModifier(this.combatData.summary.damage, weapon.system.damage, 'damage');
+				// Weapon Traits just get bolted onto the list.
+				this.combatData.summary.traits = this.combatData.summary.traits.concat(weapon.system.traits.split(','));
+				this.combatData.summary.fumble = weapon.system.fumble;
+			}
+			else
+				console.warn(`Chosen weapon ${this.combatData.useWeapon} not found`);
+		}
+
+		// Factor in Specialization use
+		if (this.combatData.useSpecialization) {
+			const spec = this.document.getEmbeddedDocument("Item", this.combatData.useSpecialization);
+			if (spec && spec.system?.skill == this.combatData.useCombatSkill) {
+				this.combatData.summary.accuracy = this.#addCombatModifier(this.combatData.summary.accuracy, 1, 'accuracy');
+				this.combatData.summary.parry = this.#addCombatModifier(this.combatData.summary.parry, 1, 'accuracy');
+			}
+		}
+
+		// Factor in Maneuvers
+		if (this.combatData.useManeuver) {
+			for (let maneuverId of Object.keys(this.combatData.useManeuver)) {
+				const maneuver = (this.document.getItems({'type': 'maneuver'}).filter((m) => m.id == maneuverId) ?? [])[0];
+				if (!maneuver) {
+					console.warn(`Selected Maneuver.${maneuverId} not found in Actor.${this.document.id} Maneuver list`);
+					continue;
+				}
+				if (maneuver.system?.skill == this.combatData.useSkill) {
+					for (let maneuverProperty in maneuver.system) {
+						if (Object.hasOwn(this.combatData.summary, maneuverProperty)) {
+							this.combatData.summary[maneuverProperty] = this.#addCombatModifier(this.combatData.summary[maneuverProperty], maneuver.system[maneuverProperty], maneuverProperty);
+						}
+					}
+				}
+			}
+		}
+
+		// Factor in injuries
+		if (this.document.system.actionPenalty) {
+			for (let prop of ['accuracy', 'parry', 'initiative', 'defense']) {
+				this.combatData.summary[prop] = this.#addCombatModifier(this.combatData.summary[prop], this.document.system.actionPenalty, prop);
+			}
+		}
+
+		// Factor in situational
+		if (this.combatData.modifier) {
+			for (let modifierName in this.combatData.modifier) {
+				if (modifierName === 'range') {
+					this.combatData.summary.accuracy = this.#addCombatModifier(this.combatData.summary.accuracy, CONFIG.Tribe8.rangeBands[this.combatData.modifier.range], 'accuracy');
+					continue;
+				}
+				if (Object.hasOwn(this.combatData.summary, modifierName)) {
+					this.combatData.summary[modifierName] = this.#addCombatModifier(this.combatData.summary[modifierName], this.combatData.modifier[modifierName], modifierName);
+				}
+			}
+		}
+
+		// If we indicated an overall damage multiplier, include that
+		if (Object.hasOwn(this.combatData.summary, 'multiplyDamage')) {
+			if (this.combatData.summary.damage instanceof Array) {
+				for (let d = 0; d < this.combatData.summary.damage.length; d++) {
+					this.combatData.summary.damage[d] = Math.round(this.combatData.summary.damage[d] * Number(this.combatData.summary.multiplyDamage));
+				}
+			}
+			else {
+				this.combatData.summary.damage = Math.round(this.combatData.summary.damage * Number(this.combatData.summary.multiplyDamage));
+			}
+		}
+
+		// Convert arrays into x/y display format
+		for (let prop in this.combatData.summary) {
+			if (this.combatData.summary[prop] instanceof Array) {
+				if (prop == 'traits')
+					this.combatData.summary[prop] = this.combatData.summary[prop].join(', ');
+				else
+					this.combatData.summary[prop] = this.combatData.summary[prop].map((p) => (p > 0 && prop != 'damage' ? `+${p}` : p)).join('/');
+			}
+			else {
+				this.combatData.summary[prop] = (!isNaN(this.combatData.summary[prop]) && Number(this.combatData.summary[prop]) > 0 && prop != 'damage' ? `+${this.combatData.summary[prop]}` : this.combatData.summary[prop]);
+			}
+		}
+	}
+
+	/**
+	 * Given an existing calculated value for a given aspect of combat
+	 * data, add the supplied modifier to it.
+	 *
+	 * @param  {Array|int} summaryValue     The running total so far
+	 * @param  {Array|int} modifierValue    The modifier to be added
+	 * @param  {string}    modifierName     The name of the modifier being added
+	 * @return {Array|int}                  The mutated total
+	 * @access private
+	 */
+	#addCombatModifier(summaryValue, modifierValue, modifierName) {
+		if (!modifierValue) return summaryValue;
+
+		// Detect whether we need to handle multiple values or not
+		const summaryIsArray = summaryValue instanceof Array;
+		// If the summary is an array, but the modifier is not (yet) an
+		// array, see if we have the forward slash delimiter
+		if (summaryIsArray && !(modifierValue instanceof Array)) {
+			if (String(modifierValue).match('/') && !String(modifierValue).match(/x\d+\/\d+/))
+				modifierValue = modifierValue.split('/');
+		}
+		const modifierIsArray = modifierValue instanceof Array;
+		const arrayHandling = summaryIsArray || modifierIsArray;
+		const arrayLength = Math.max((modifierIsArray ? modifierValue.length : 0), (summaryIsArray ? summaryValue.length : 0));
+
+		// TODO: This is obviously too long and convoluted.
+		switch (modifierName) {
+			case 'accuracy':
+			case 'parry':
+			case 'damage':
+				// All of these modifiers should use array handling,
+				// even if there are only single values within the
+				// array.
+				if (arrayHandling) {
+					// If the receiving (summary) value isn't yet of the
+					// correct length, we need to clone what's currently
+					// there.
+					if (!summaryIsArray) summaryValue = [summaryValue];
+					if (summaryValue.length < arrayLength) {
+						if (summaryValue.length > 1)
+							console.warn(`Adding an array combat modifier to an existing combat modifier array set of differing length. Results unpredictable`);
+						for (let i = 1; i < arrayLength; i++) {
+							summaryValue[i] = summaryValue[0];
+						}
+					}
+					// If the applying modifier value isn't yet of the
+					// correct length, we need to clone what's currently
+					// there.
+					if (!modifierIsArray) modifierValue = [modifierValue];
+					if (modifierValue.length < arrayLength) {
+						if (modifierValue.length > 1)
+							console.warn(`Adding an array combat modifier to an existing combat modifier array set of differing length. Results unpredictable`);
+						for (let i = 1; i < arrayLength; i++) {
+							modifierValue[i] = modifierValue[0];
+						}
+					}
+					// Now apply the modifier to the existing summary
+					for (let i = 0; i < arrayLength; i++) {
+						if (modifierValue[i] == 'N/A') continue;
+						if (modifierValue[i] === null || typeof modifierValue[i] == 'undefined')
+							continue;
+						// Simple numeric?
+						if (!isNaN(modifierValue[i]) && !isNaN(summaryValue[i])) {
+							summaryValue[i] += Number(modifierValue[i]);
+							continue;
+						}
+						// Riposte adds +CPLX to Acc
+						if (modifierValue[i] == '+CPLX') {
+							const skill = this.document.getEmbeddedDocument("Item", this.combatData.useCombatSkill);
+							if (!skill) {
+								console.warn(`Couldn't locate Skill.${this.combatData.useCombatSkill} for Actor.${this.document.id}; cannot add modifier '${modifierValue[i]}'`);
+								continue;
+							}
+							summaryValue[i] += Number(skill.system.cpx);
+							continue;
+						}
+						// Special cases for damage
+						if (modifierName == 'damage') {
+							// Several of the cases below will need the following
+							const prefix = Tribe8WeaponModel.extractWeaponDamagePrefix(modifierValue[i]);
+							let attValue = 0;
+							if (prefix.match(/UD/))
+								attValue = Number(this.document.system.attributes.secondary.physical.ud.value);
+							else if (prefix.match(/AD/))
+								attValue = Number(this.document.system.attributes.secondary.physical.ad.value);
+
+							/**
+							 * If we had a compound damage field that
+							 * included a special effect (e.g. an "ENT"
+							 * value for the Grapple Maneuver), pre-
+							 * split that.
+							 */
+							if (modifierValue[i].match(',')) { // e.g. "Grapple"
+								modifierValue[i] = modifierValue[i].split(',').filter((m) => !m.match(/ENT/));
+								if (modifierValue[i].length > 1) {
+									console.log(`Comma-delimited damage modifier longer than expected after removing condition component; results may be unexpected`);
+								}
+								if (modifierValue[i].length < 1) { // e.g. "Weapon Catch", deals no damage
+									continue;
+								}
+								modifierValue[i] = modifierValue[i][0];
+							}
+
+							// BLD-based maneuvers replace any existing damage
+							if (modifierValue[i].match(/^BLD/)) {
+								// Case 2: BLD+1 (e.g. Charge)
+								// Case 9: BLDx3 (e.g. Trample)
+								const ourBuild = Number(this.document.system.attributes.primary.bld.value);
+								const matchParts = modifierValue[i].match(/^BLD([+-x/])(\d+)(\/\d+)?/);
+								let operation = matchParts[1];
+								let operand = Number(matchParts[2]);
+								// If we had a third match, we need to divided the second match by it
+								if (matchParts[3]) operand /= Number(matchParts[3]);
+								switch (operation) {
+									case '+':
+										summaryValue[i] = ourBuild + operand;
+										break;
+									case '-':
+										summaryValue[i] = ourBuild - operand;
+										break;
+									case 'x':
+										summaryValue[i] = ourBuild * operand;
+										break;
+									case '/':
+										summaryValue[i] = ourBuild / operand;
+										break;
+									default:
+										console.warn(`Unhandled arithmetic operation ${operation} for damage modifier`);
+									break;
+								}
+								continue;
+							}
+
+							/**
+							 * If we're globally halving or doubling
+							 * damage, we simply track that for later
+							 * multiplication.
+							 */
+							if (modifierValue[i].match(/^\s*x\d(\/\d)?/)) {
+								// Case 4: x1/2 (global halving)
+								// Case 5: x2 (global doubling)
+								let matchParts = modifierValue[i].trim().match(/x(\d)(\/(\d))?$/);
+								let multiplier = Number(matchParts[1]);
+								if (matchParts[2])
+									multiplier /= Number(matchParts[3]);
+								this.combatData.summary.multiplyDamage = multiplier;
+								continue;
+							}
+
+							// Multiplying a specific damage stat
+							if (modifierValue[i].match(/^\s*(A|U)Dx\d(\/\d)?/)) {
+								// Case 6: UDx1/2 (normal UD, halved)
+								const matchParts = modifierValue[i].match(/x(\d)(\/(\d))?/);
+								let multiplier = Number(matchParts[1]);
+								if (matchParts[2])
+									multiplier /= Number(matchParts[3]);
+								summaryValue[i] = attValue * multiplier;
+								continue;
+							}
+
+							/**
+							 * The general case for weapon damage, as
+							 * well as Maneuvers that replace the
+							 * existing damage formula with a different
+							 * value.
+							 */
+							if (prefix.length) {
+								// Case 3: AD|UD+N (replaces standard; Crush, Head-Butt, Hilt-strike)
+								const damageNoPrefix = Number(modifierValue[i].replace(prefix, ''));
+								summaryValue[i] = attValue + damageNoPrefix;
+								continue;
+							}
+
+							/**
+							 * Some maneuvers provide a flat boost to
+							 * the existing value
+							 */
+							if (modifierValue[i].match(/[+-]?\d+\s*$/)) {
+								// Case 7: "as attack"+N
+								let matchParts = modifierValue[i].trim().match(/\+?(-?\d+)$/);
+								let damageBoost = Number(matchParts[1]);
+								summaryValue[i] += damageBoost;
+								continue;
+							}
+						}
+						// All other formats (currently) unhandled:
+						// Case 1: "as attack/weapon" -- no change; default
+						// Case 8: "as best/as worst/special" -- unhandled
+						// "# of rounds"
+						console.log(`Modifier '${modifierValue[i]}' not currently handled for Combat summary`);
+					}
+					return summaryValue;
+				}
+				else
+					console.warn(`${modifierName} should always be an array operation, but non-array values detected`);
+				break;
+			case 'initiative':
+			case 'defense':
+				if (modifierValue == 'N/A' || modifierValue === null || typeof modifierValue == 'undefined')
+					return summaryValue;
+				// Simple numeric?
+				if (!isNaN(modifierValue) && !isNaN(summaryValue)) {
+					summaryValue += Number(modifierValue);
+					return summaryValue;
+				}
+				break;
+			case 'fumble':
+				return modifierValue ? modifierValue : summaryValue;
+			default:
+				console.log(`Need handler for ${modifierName}`);
+				break;
+		}
+		return summaryValue;
+	}
+
+	/**
+	 * Pre-process data for form submission. In particular:
+	 *
+	 * - Remove any tab name prefixes to form element names, which are
+	 *   only present to prevent form field name collision.
+	 * - Extract combat data modifiers and move them to the transient
+	 *   combatData property for storage, while also flagging the need
+	 *   to re-render after submit.
+	 *
+	 * @param  {Event}            event              The triggering event
+	 * @param  {HTMLFormElement}  form               The top-level form element
+	 * @param  {FormDataExtended} formData           The actual data payload
+	 * @param  {object}           [updateData={}]    Any supplemental data
+	 * @return {object}                              Prepared submission data as an object
+	 * @access protected
+	 */
+	_prepareSubmitData(event, form, formData, updateData) {
+		// If we had any tab-specific fields, remap them to their
+		// proper names, or drop them, depending on which tab was active
+		// at time of submit.
+		const currentTab = this.tabGroups.character;
+		for (let field in formData.object) {
+			if (!Object.hasOwn(formData.object, field))
+				continue;
+			const re = new RegExp(`^${currentTab}\\.`);
+			if (field.match(re)) {
+				formData.object[field.replace(re, '')] = foundry.utils.deepClone(formData.object[field]);
+				delete formData.object[field];
+			}
+		}
+		// Extract combat modifiers
+		const combatModifiers = Object.fromEntries(Object.entries(formData.object).filter(([key, ]) => key.match(/^combatData\.modifier\./)).map(([key, value]) => [key.replace(/^combatData\.modifier\./, ''), value]));
+		if (!this.combatData) this.combatData = {};
+		// If modifiers changed, flag re-render
+		if (this.combatData.modifier != combatModifiers) {
+			this.rerenderAfterSubmit = true;
+			this.combatData.modifier = combatModifiers;
+		}
+		return super._prepareSubmitData(event, form, formData, updateData);
+	}
+
+	/**
+	 * If we indicated in _prepareSubmitData() that we wanted to re-
+	 * render after submission, we call that here.
+	 *
+	 * @param  {ApplicationFormConfiguration} formConfig    The form configuration for which this handler is bound
+	 * @param  {Event|SubmitEvent}            event         The form submission event
+	 * @return {Promise<void>}
+	 * @access protected
+	 */
+	async _onSubmitForm(formConfig, event) {
+		await super._onSubmitForm(formConfig, event);
+		if (this.rerenderAfterSubmit) {
+			this.rerenderAfterSubmit = false;
+			this.render(); // This is async, but we don't need to await it
+		}
+	}
+
+	/**
 	 * Handle any special _onRender events, including event listeners
 	 * that we need to ensure re-register with their elements on each
 	 * re-render.
@@ -234,14 +619,16 @@ export class Tribe8CharacterSheet extends Tribe8Application(ActorSheetV2) {
 		this.#listeners_attEditor();
 
 		// Scale System Shock icon font size based on container
-		const shockIcons = this.element.querySelectorAll('div.shock-state i');
-		const baseIconHeight = shockIcons[0]?.parentNode?.offsetHeight; // Just use offset here, since we're (probably...) not dealing with CSS transforms
-		if (baseIconHeight) {
-			shockIcons.forEach((i) => {
-				const height = baseIconHeight * 0.75;
-				i.style.fontSize = `${height}px`;
-			});
-		}
+		const shockScaler = new ResizeObserver((icons) => {
+			for (const icon of icons) {
+				const baseIconHeight = icon.target.parentNode?.offsetHeight;
+				if (baseIconHeight) {
+					const height = baseIconHeight * 0.75;
+					icon.target.style.fontSize = `${height}px`;
+				}
+			}
+		});
+		this.element.querySelectorAll('div.shock-state i').forEach((i) => { shockScaler.observe(i); });
 
 		super._onRender(context, options);
 	}
@@ -493,6 +880,41 @@ export class Tribe8CharacterSheet extends Tribe8Application(ActorSheetV2) {
 		const item = this.#getItemFromTarget(target);
 		if (!item) return;
 		item.update({'system.used': target.checked});
+	}
+
+	/**
+	 * Gather up all of the combat data inputs and store them in a
+	 * transient combatData property.
+	 *
+	 * @param {Event}           event     The event triggered by interaction with the form element
+	 * @param {HTMLFormElement} target    The element that triggered the event
+	 * @access public
+	 */
+	static action_combatCalculator(event, target) {
+		// Gather all the data
+		const combatData = {};
+		const combatInputs = target.closest('div.character-sheet.combat').querySelectorAll('input[name^="combatData."]');
+		for (let input of combatInputs) {
+			if ((input.type == 'radio' || input.type == 'checkbox') && !input.checked) {
+				continue; // Don't bother with unchecked radio and checkbox inputs
+			}
+			let inputName = input.name.replace(/^combatData\./, '');
+			let inputValue = input.value;
+			let propertyPath = inputName.split(/[[\].]/).filter(p => p);
+			if (propertyPath.length > 1) {
+				let subObject = combatData;
+				for (let p = 0; p < (propertyPath.length - 1); p++) {
+					if (!Object.hasOwn(subObject, propertyPath[p]))
+						subObject[propertyPath[p]] = {};
+					subObject = subObject[propertyPath[p]];
+				}
+				subObject[propertyPath.pop()] = inputValue;
+			}
+			else
+				combatData[inputName] = inputValue;
+		}
+		this.combatData = combatData;
+		this.render();
 	}
 
 	/**

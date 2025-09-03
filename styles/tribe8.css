@@ -228,8 +228,10 @@ div.item-sheet h3 {
 	div.name, div.specific {
 		margin-top: 0;
 		overflow: hidden;
+		text-overflow: ellipsis;
 		display: flex;
 		flex: 1 1 fit-content;
+		white-space: nowrap;
 	}
 	div.name input[type=text],
 	div.specific input[type=text] {
@@ -365,7 +367,7 @@ div.item-sheet h3 {
 	}
 
 	h3 {
-		border-image: var(--border-gradient-right);
+		border-image: var(--border-header-right);
 		margin-top: 0.25rem;
 		padding-left: 0.25rem;
 	}
@@ -377,7 +379,7 @@ div.item-sheet h3 {
 	div.character-sheet div.left-column,
 	div.character-sheet div.middle-column,
 	div.character-sheet div.right-column {
-		flex: 0 0 15rem;
+		flex: 0 0 16rem;
 		display: flex;
 		flex-flow: column;
 		height: 100%;
@@ -1135,25 +1137,22 @@ div.item-sheet h3 {
 		grid-template-columns: min-content min-content;
 		gap: 0.5rem;
 	}
-	.equipment div.weapons h2,
-	.equipment div.armor h2 {
-		width: 70%;
+	.equipment div.gear-list h2 {
+		border-image: var(--border-header-right-shorttail);
+		column-span: all;
+	}
+	.equipment div.weapons-list h2,
+	.equipment div.armor-list h2 {
+		/* width: 70%; */
 		border-image: var(--border-header-right);
 	}
-	.equipment div.armor h2 {
+	.equipment div.armor-list h2 {
 		justify-content: end;
 		border-image: var(--border-header-left);
 		justify-self: end;
 	}
 	.equipment div.weapons-list, .equipment div.armor-list {
 		margin-top: 1rem;
-	}
-	.equipment div.gear-list h2 {
-		border-image: var(--border-header-right-shorttail);
-		column-span: all;
-	}
-	.equipment div.armor-list h2 {
-		justify-content: end;
 	}
 	div.character-sheet.equipment>div {
 		min-height: 5rem;
@@ -1220,6 +1219,82 @@ div.item-sheet h3 {
 		font-weight: bold;
 		/* cursor: pointer; */
 		cursor: not-allowed;
+	}
+
+
+	/**
+	 * Character Sheet Combat Tool
+	 */
+	.combat {
+		display: flex;
+		flex-flow: column wrap;
+		height: calc(100% - 1rem);
+		margin-top: 1rem;
+		row-gap: 1rem;
+		column-gap: 0;
+	}
+	.combat .combat-pane {
+		flex: 0 0 min-content;
+		width: 50%;
+	}
+	.combat .combat-pane h2 {
+		display: grid;
+		grid-template-columns: repeat(2, min-content);
+		border-image: var(--border-header-right);
+	}
+	.combat .combat-pane.armor h2,
+	.combat .combat-pane.injuries h2 {
+		justify-content: end;
+		border-image: var(--border-header-left);
+	}
+	.combat .combat-pane.armor {
+		flex: 0 0 25%;
+	}
+	.combat-pane .properties {
+		display: flex;
+		flex-flow: row;
+		justify-content: space-evenly;
+	}
+	.combat-pane .properties .property {
+		text-align: center;
+		display: flex;
+		flex-flow: column;
+	}
+	.combat-pane .properties .property-value input {
+		grid-area: 1/1;
+		text-align: center;
+	}
+	.combat-pane ul {
+		list-style-type: none;
+		column-count: 2;
+		margin: 0.5rem 0 0;
+	}
+	.combat-pane li  {
+		display: flex;
+		flex-flow: row;
+		align-items: center;
+		break-inside: avoid;
+		gap: 0.2rem;
+		margin-bottom: 0;
+	}
+	.combat-pane li input {
+		flex: 0 0 min-content;
+	}
+	.combat-pane li div.identity {
+		width: unset;
+	}
+	.combat-pane div.injuries {
+		align-items: end;
+	}
+	.combat-pane div.injuries h2 {
+		align-items: end;
+	}
+	.combat-pane div.injuries h2 span:last-child::before {
+		content: "";
+		margin-left: 0.75rem;
+	}
+	.combat-pane div.injuries>*:not(h2) {
+		width: 16rem;
 	}
 }
 

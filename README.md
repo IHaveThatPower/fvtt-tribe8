@@ -1,4 +1,4 @@
-# Unofficial _Tribe 8 2nd Edition_ (Silhoutte CORE) System for Foundry VTT
+# Unofficial _Tribe 8 2nd Edition_ (Silhouette CORE) System for Foundry VTT
 
 _System written by **IHaveThatPower**_
 

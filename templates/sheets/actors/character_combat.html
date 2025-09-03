@@ -1,0 +1,224 @@
+<div class="character-sheet tab combat {{tab.cssClass}}" data-group="character" data-tab="combat">
+	<div class="combat-pane attack-summary">
+		<h2><span>Attack Summary</span></h2>
+		<div class="properties">
+			<div class="property initiative">
+				<div class="property-name">Init.</div>
+				<div class="property-value">{{combatData.summary.initiative}}</div>
+			</div>
+			<div class="property accuracy">
+				<div class="property-name">Acc.</div>
+				<div class="property-value">{{combatData.summary.accuracy}}</div>
+			</div>
+			<div class="property damage">
+				<div class="property-name">Dmg.</div>
+				<div class="property-value">{{combatData.summary.damage}}</div>
+			</div>
+			{{#ifIn (lookup (lookup (lookup weapons combatData.useWeapon) "system") "ranges") "ranged"}}
+			<div class="property fumble">
+				<div class="property-name">Fumble</div>
+				<div class="property-value">{{localize (concat "tribe8.item.weapon.fumble." combatData.summary.fumble)}}</div>
+			</div>
+			{{else}}
+			<div class="property parry">
+				<div class="property-name">Parry</div>
+				<div class="property-value">{{combatData.summary.parry}}</div>
+			</div>
+			{{/ifIn}}
+			<div class="property defense">
+				<div class="property-name">Def.</div>
+				<div class="property-value">{{combatData.summary.defense}}</div>
+			</div>
+			<div class="property traits">
+				<div class="property-name">Traits</div>
+				<div class="property-value">{{combatData.summary.traits}}</div>
+			</div>
+		</div>
+	</div>
+	<div class="combat-pane combat-skills">
+		<h2><span>Combat Skills</span></h2>
+		{{#if skills}}
+		<ul>
+		{{#each skills.sortedIDs as |skillId|}}
+		{{#with (lookup ../skills skillId)}}
+		{{~#if (lookup @root.COMBAT_SKILLS system.combatCategory)~}}
+		<li data-item-id="{{id}}">
+			<input type="radio" name="combatData.useCombatSkill" value="{{id}}" data-action="combatCalculator"{{#if (eq @root.combatData.useCombatSkill id)}} checked{{/if}} />
+			<div class="identity" data-action="editItem">
+				<div class="name">{{name}}</div>
+				<div class="specific">{{system.level}}c{{system.cpx}}</div>
+			</div>
+		</li>
+		{{/if}}
+		{{/with}}
+		{{/each}}
+		</ul>
+		{{else}}
+		<em>None</em>
+		{{/if}}
+		{{#if combatData.useCombatSkill}}
+			{{#with (lookup skills combatData.useCombatSkill)}}
+				{{#if this.system.specializations}}
+				<h3>Specializations</h3>
+				<ul>
+					{{#each this.system.specializations}}
+					{{#with (lookup @root.specializations this)}}
+					<li data-item-id="{{../../this.id}}">
+						<input type="radio" name="combatData.useSpecialization" value="{{id}}" data-action="combatCalculator"{{#if (eq @root.combatData.useSpecialization id)}} checked{{/if}} />
+						<div class="identity" data-action="editSkill">
+							<div class="name">{{name}}</div>
+						</div>
+					</li>
+					{{/with}}
+					{{/each}}
+					<li>
+						<input type="radio" name="combatData.useSpecialization" value="" data-action="combatCalculator"{{#if (not @root.combatData.useSpecialization)}} checked{{/if}} />
+						<div class="identity">
+							<div class="name">None</div>
+						</div>
+					</li>
+				</ul>
+				{{/if}}
+			{{/with}}
+		{{/if}}
+	</div>
+	<div class="combat-pane weapons">
+		<h2><span>{{localize "TYPES.Item.weapon-plural"}}</span><button name="add-weapon" data-action="addNewItem"><i class="fa fa-solid fa-plus"></i></button></h2>
+		{{#if weapons}}
+		<ul>
+		{{#each weapons.sortedIDs as |weaponId|}}
+		{{#with (lookup ../weapons weaponId)}}
+		<li data-item-id="{{id}}">
+			<input type="radio" name="combatData.useWeapon" value="{{id}}" data-action="combatCalculator"{{#if (eq @root.combatData.useWeapon id)}} checked{{/if}} />
+			<div class="identity" data-action="editItem">
+				<div class="name">{{name}}</div>
+			</div>
+		</li>
+		{{/with}}
+		{{/each}}
+		</ul>
+		{{else}}
+		<em>None</em>
+		{{/if}}
+	</div>
+	<div class="combat-pane maneuvers">
+		<h2><span>{{localize "TYPES.Item.maneuver-plural"}}</span><button name="add-maneuver" data-action="addNewItem"><i class="fa fa-solid fa-plus"></i></button></h2>
+		{{#if sortedManeuvers}}
+		<ul>
+		{{#each sortedManeuvers.sortedIDs as |maneuverId|}}
+		{{#with (lookup ../sortedManeuvers maneuverId)}}
+		<li data-item-id="{{id}}"{{#if (not (eq @root.combatData.useCombatSkill system.skill))}} class="disabled"{{/if}}>
+			<input type="checkbox" value="{{id}}"
+				name="combatData.useManeuver[{{id}}]"
+				data-action="combatCalculator"
+				{{#if (not (eq @root.combatData.useCombatSkill system.skill))}}
+				disabled
+				{{else}}
+				{{#if (lookup @root.combatData.useManeuver id)}} checked{{/if}}
+				{{/if}}
+			/>
+			<div class="identity" data-action="editItem">
+				<div class="name">{{name}}</div>
+				<div class="specific">(
+					{{~#with (lookup ../../skills this.system.skill)~}}
+						{{~#if name~}}
+							{{~name~}}
+						{{~else~}}
+							{{~localize "tribe8.errors.maneuver-missing-skill"~}}
+						{{~/if~}}
+					{{~/with~}}
+				)</div>
+			</div>
+		</li>
+		{{/with}}
+		{{/each}}
+		</ul>
+		{{else}}
+		<em>None</em>
+		{{/if}}
+	</div>
+	<div class="combat-pane situational">
+		<h2><span>Situational Modifiers</span></h2>
+		<div class="properties">
+			<div class="property initiative">
+				<div class="property-name">Init.</div>
+				<div class="property-value">
+					<span class="input-sizer" data-value="">
+						<input type="text" name="combatData.modifier.initiative" value="{{#if combatData.modifier.initiative}}{{combatData.modifier.initiative}}{{/if}}" placeholder="0" size=4  />
+					</span>
+				</div>
+			</div>
+			<div class="property accuracy">
+				<div class="property-name">Acc.</div>
+				<div class="property-value">
+					<span class="input-sizer" data-value="">
+						<input type="text" name="combatData.modifier.accuracy" value="{{#if combatData.modifier.accuracy}}{{combatData.modifier.accuracy}}{{/if}}" placeholder="0" size=4  />
+					</span>
+				</div>
+			</div>
+			<div class="property range">
+				<div class="property-name">Range</div>
+				<div class="property-value">
+					<select name="combatData.modifier.range">
+						{{#with (lookup weapons combatData.useWeapon) as |weapon|}}
+							{{#with (lookup (lookup weapon "system") "ranges") as |ranges|}}
+								{{#if (or (ifIn ranges "ranged") (ifIn ranges "throw"))}}
+									{{#each @root.rangeBands}}
+										<option value="{{this}}"{{#if (or (eq @root.combatData.modifier.range this) (and (not @root.combatData.modifier.range) (eq this "short")))}} selected{{/if}}>{{localize (concat "tribe8.item.weapon.rangeBands." this "-with-distance") distance=(mult weapon.system.baseRange @index)}}</option>
+									{{/each}}
+								{{else}}
+									<option value="">{{localize "tribe8.item.weapon.ranges.close.full"}}</option>
+								{{/if}}
+							{{/with}}
+						{{/with}}
+					</select>
+				</div>
+			</div>
+			<div class="property damage">
+				<div class="property-name">Dmg.</div>
+				<div class="property-value">
+					<span class="input-sizer" data-value="">
+						<input type="text" name="combatData.modifier.damage" value="{{#if combatData.modifier.damage}}{{combatData.modifier.damage}}{{/if}}" placeholder="0" size=4  />
+					</span>
+				</div>
+			</div>
+			{{#ifIn (lookup (lookup (lookup weapons combatData.useWeapon) "system") "ranges") "ranged"}}
+			<div class="property fumble">
+				<div class="property-name">Fumble</div>
+				<div class="property-value">
+					<select name="combatData.modifier.fumble">
+						<option value=""></option>
+						{{#each @root.fumble}}
+						<option value="{{this}}"{{#if (eq @root.combatData.modifier.fumble this)}} selected{{/if}}>{{localize (concat "tribe8.item.weapon.fumble." this)}}</option>
+						{{/each}}
+					</select>
+				</select>
+				</div>
+			</div>
+			{{else}}
+			<div class="property parry">
+				<div class="property-name">Parry {{ranges}}</div>
+				<div class="property-value">
+					<span class="input-sizer" data-value="">
+						<input type="text" name="combatData.modifier.parry" value="{{#if combatData.modifier.parry}}{{combatData.modifier.parry}}{{/if}}" placeholder="0" size=4  />
+					</span>
+				</div>
+			</div>
+			{{/ifIn}}
+			<div class="property defense">
+				<div class="property-name">Def.</div>
+				<div class="property-value">
+					<span class="input-sizer" data-value="">
+						<input type="text" name="combatData.modifier.defense" value="{{#if combatData.modifier.defense}}{{combatData.modifier.defense}}{{/if}}" placeholder="0" size=4 />
+					</span>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="combat-pane armor">
+		<h2><span>{{localize "TYPES.Item.armor-plural"}}</span><button name="add-armor" data-action="addNewItem"><i class="fa fa-solid fa-plus"></i></button></h2>
+	</div>
+	<div class="combat-pane injuries">
+		{{> "systems/tribe8/templates/sheets/actors/partials/injuries.html"}}
+	</div>
+</div>

@@ -223,6 +223,17 @@ Tribe8.weaponRanges = [
 ];
 
 /**
+ * Range bands
+ */
+Tribe8.rangeBands = {
+	"pointblank": 1,
+	"short": 0,
+	"medium": -1,
+	"long": -2,
+	"extreme": -3
+};
+
+/**
  * Fumble types for ranged weapons
  */
 Tribe8.fumble = [

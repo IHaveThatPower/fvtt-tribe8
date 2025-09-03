@@ -35,14 +35,34 @@ export class Tribe8WeaponSheet extends Tribe8GearSheet {
 	async _prepareContext(options) {
 		const context = await super._prepareContext(options);
 
+		// If we have multiple accuracy, parry, or damage values, we
+		// need to reframe them for display. This means parallel storage
+		// directly on the context object.
+		if (!Object.hasOwn(context, 'system'))
+			context.system = {};
+		context.system.accuracy = this.document.system.accuracy;
+		if (this.document.system.accuracy instanceof Array && this.document.system.accuracy.length > 1) {
+			context.system.accuracy = this.document.system.accuracy.join('/');
+		}
+		context.system.parry = this.document.system.parry;
+		if (this.document.system.parry instanceof Array && this.document.system.parry.length > 1) {
+			context.system.parry = this.document.system.parry.join('/');
+		}
+		context.system.damage = this.document.system.damage;
+		if (this.document.system.damage instanceof Array && this.document.system.damage.length > 1) {
+			// For damage, we need to be a little fancier, since we want
+			// to combine the damage prefix
+			let prefix = this.document.system.constructor.extractWeaponDamagePrefix(this.document.system.damage[0]);
+			context.system.damage = this.#applyWeaponDamagePrefix(this.document.system.damage, prefix, true).join('/');
+		}
+
 		// If we have ROF data, we need to combine that into a single
 		// value for sheet rendering.
 		if (context.document?.system && Object.hasOwn(context.document.system, 'rof')) {
-			console.log(document.system);
 			if (!context.document.system.rofRounds || context.document.system.rofRounds == 0)
-				context.document.system.rof = `${context.document.system.rof ?? 0}`;
+				context.system.rof = `${context.document.system.rof ?? 0}`;
 			else
-				context.document.system.rof = `${context.document.system.rof ?? 0}/${context.document.system.rofRounds ?? 0}`;
+				context.system.rof = `${context.document.system.rof ?? 0}/${context.document.system.rofRounds ?? 0}`;
 		}
 
 		// If this item is owned, get a list of all the other items that
@@ -83,7 +103,37 @@ export class Tribe8WeaponSheet extends Tribe8GearSheet {
 			oFormData["system.rof"] = rof ?? 0;
 			oFormData["system.rofRounds"] = rounds ?? 0;
 		}
+
+		// If we have multiple accuracy, parry, or damage values, we
+		// need to reframe them for storage
+		if (Object.hasOwn(oFormData, "system.accuracy")) {
+			oFormData["system.accuracy"] = oFormData["system.accuracy"].split('/');
+		}
+		if (Object.hasOwn(oFormData, "system.parry")) {
+			oFormData["system.parry"] = oFormData["system.parry"].split('/');
+		}
+		if (Object.hasOwn(oFormData, "system.damage")) {
+			let submitDamage = oFormData["system.damage"].split('/');
+			let prefix = this.document.system.constructor.extractWeaponDamagePrefix(submitDamage[0]);
+			oFormData["system.damage"] = this.#applyWeaponDamagePrefix(submitDamage, prefix);
+		}
+
 		return super._prepareSubmitData(event, form, formData, updateData);
+	}
+
+	/**
+	 * Apply a supplied common damage prefix to all damage array elements
+	 *
+	 * @param  {Array<string>} weaponDamageList    The list of weapon damage strings
+	 * @param  {string}        prefix              The prefix to apply to the list
+	 * @param  {boolean}       [remove=false]      Whether we should invert the behavior and remove strings instead
+	 * @return {Array<string>}                     The transformed list
+	 * @access private
+	 */
+	#applyWeaponDamagePrefix(weaponDamageList, prefix, remove=false) {
+		if (!prefix || prefix.length == 0)
+			return weaponDamageList
+		return weaponDamageList.map((d, idx) => (idx > 0 ? (remove ? d.replace(prefix, '') : `${prefix}${d}`) : d));
 	}
 
 	/**

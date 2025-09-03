@@ -168,7 +168,7 @@ export class Tribe8SkillModel extends Tribe8ItemModel {
 
 		// Don't do anything if we'd go negative
 		if (this.eDieSpent + (data.spendFromBonus + data.spendFromXP) < 0) {
-			const msg = "Can't decrease spent EDie below 0"; // TODO: Localize
+			const msg = "Can't decrease spent EDie below 0"; // TODO: (Localization) Localize
 			if (foundry.ui?.notifications) foundry.ui.notifications.warn(msg);
 			else console.warn(msg);
 			return false;
@@ -185,7 +185,7 @@ export class Tribe8SkillModel extends Tribe8ItemModel {
 
 		// Don't mess with the actor if our values didn't change
 		if (skill.system.points.edie.fromBonus != newFromBonus || skill.system.points.edie.fromXP != newFromXP) {
-			const msg = `EDie state on Skill.${skill.id} unchanged`; // TODO: Localize
+			const msg = `EDie state on Skill.${skill.id} unchanged`; // TODO: (Localization) Localize
 			if (foundry.ui?.notifications) foundry.ui.notifications.warn(msg);
 			else console.warn(msg);
 		}
@@ -234,7 +234,7 @@ export class Tribe8SkillModel extends Tribe8ItemModel {
 
 			// Does the owner have enough eDie at all?
 			if (owner.system.edieTotal < amount) {
-				const msg = "You do not have enough EDie!"; // TODO: Localize
+				const msg = "You do not have enough EDie!"; // TODO: (Localization) Localize
 				if (foundry.ui?.notifications) foundry.ui.notifications.error(msg);
 				else console.error(msg);
 				return false;

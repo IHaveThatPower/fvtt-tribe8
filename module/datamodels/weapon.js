@@ -30,28 +30,35 @@ export class Tribe8WeaponModel extends Tribe8GearModel {
 			 * considered ACC 0) when using paired weapons Fighting
 			 * rules.
 			 */
-			accuracy: new fields.NumberField({
-				required: true,
-				initial: 0,
-				hint: "tribe8.item.weapon.accuracy.hint"
-			}),
-			parry: new fields.NumberField({
-				required: true,
-				initial: 0,
-				hint: "tribe8.item.weapon.parry.hint"
-			}),
+			accuracy: new fields.ArrayField(
+				new fields.NumberField({
+					required: true,
+					initial: 0,
+					hint: "tribe8.item.weapon.accuracy.hint"
+				})
+			),
+			parry: new fields.ArrayField(
+				new fields.NumberField({
+					required: true,
+					initial: 0,
+					hint: "tribe8.item.weapon.parry.hint"
+				})
+			),
 			fumble: new fields.StringField({
 				required: true,
 				choices: CONFIG.Tribe8.fumble,
 				initial: CONFIG.Tribe8.fumble[0],
 				hint: "tribe8.item.weapon.fumble.hint"
 			}),
-			damage: new fields.StringField({
-				required: true,
-				blank: true,
-				validate: Tribe8WeaponModel.validateDamage,
-				hint: "tribe8.item.weapon.dm"
-			}),
+			damage: new fields.ArrayField(
+				new fields.StringField({
+					required: true,
+					blank: true,
+					hint: "tribe8.item.weapon.dm"
+				}), {
+					validate: Tribe8WeaponModel.validateDamage
+				}
+			),
 			ranges: new fields.ArrayField(
 				new fields.StringField({
 					required: true,
@@ -125,6 +132,22 @@ export class Tribe8WeaponModel extends Tribe8GearModel {
 			data.category = "ranged";
 		if (data.ranges?.includes("close") && data.category == "ranged")
 			data.category = "melee";
+		if (data.accuracy?.constructor.name != "Array")
+			data.accuracy = [data.accuracy];
+		if (data.parry?.constructor.name != "Array")
+			data.parry = [data.parry];
+		if (data.damage?.constructor.name != "Array") {
+			if (data.damage?.match('/')) {
+				// First, split it up into its constituent parts
+				data.damage = data.damage.split('/');
+				// Next, carry over the stuff from the first part into the second
+				const prefix = Tribe8WeaponModel.extractWeaponDamagePrefix(data.damage[0]);
+				if (prefix.length)
+					data.damage = data.damage.map((d, idx) => (idx > 0 ? `${prefix}${d}` : d));
+			}
+			else
+				data.damage = [data.damage];
+		}
 		return data;
 	}
 
@@ -138,14 +161,30 @@ export class Tribe8WeaponModel extends Tribe8GearModel {
 	 * @access public
 	 */
 	static validateDamage(data) {
-		// Basic value is just a number
-		if (!isNaN(data))
-			return;
-		// More advanced is an AD+X/Y pattern
-		if (data.match(/(A|U)D[+-][0-9]+(\/[0-9]+)?/)) {
-			return;
+		let firstEntry = false;
+		let damagePrefix = '';
+		// Check each component
+		for (let entry of data) {
+			// Basic value is just a number
+			if (!isNaN(entry)) {
+				firstEntry = true;
+				continue;
+			}
+			// More advanced is an AD+X/Y pattern
+			let thisPrefix = Tribe8WeaponModel.extractWeaponDamagePrefix(entry);
+
+			// If we have multiple entries, and this is the first,
+			// we need to capture this for comparison
+			if (!firstEntry) {
+				damagePrefix = thisPrefix;
+				firstEntry = true;
+			}
+			else {
+				if (damagePrefix != thisPrefix) {
+					throw new Error("Damage prefix must match for multiple damage modes"); // TODO: (Localization) localize
+				}
+			}
 		}
-		throw new Error("Damage must be a flat value or a recognized Damage equation"); // TODO: localize
 	}
 
 	/**
@@ -158,10 +197,10 @@ export class Tribe8WeaponModel extends Tribe8GearModel {
 	 */
 	static validateRanges(data) {
 		// This is purely an internal error, and shouldn't happen
-		if (data.constructor.name !== 'Array') throw new Error("Cannot submit non-array data for Weapon ranges"); // TODO: localize
+		if (data.constructor.name !== 'Array') throw new Error("Cannot submit non-array data for Weapon ranges"); // TODO: (Localization) localize
 		if (!data.length) throw new Error(game.i18n.localize("tribe8.errors.weapon-no-range"));
 		// This should also not actually get hit, since we have logic elsewhere to prevent it
-		if (data.includes("ranged") && data.length > 1) throw new Error("Cannot mix ranged with other Weapon ranges"); // TODO: localize
+		if (data.includes("ranged") && data.length > 1) throw new Error("Cannot mix ranged with other Weapon ranges"); // TODO: (Localization) localize
 	}
 
 	/**
@@ -180,7 +219,7 @@ export class Tribe8WeaponModel extends Tribe8GearModel {
 		// Thrown weapons might list STR+X
 		if (data.match(/STR\+[0-9]+/))
 			return;
-		throw new Error("Base Range must be a flat value or a recognized Base Range equation (e.g. STR+1)"); // TODO: localize
+		throw new Error("Base Range must be a flat value or a recognized Base Range equation (e.g. STR+1)"); // TODO: (Localization) localize
 	}
 
 	/**
@@ -197,5 +236,24 @@ export class Tribe8WeaponModel extends Tribe8GearModel {
 			throw new Error("Melee weapons cannot be marked ranged");
 		if (data.ranges?.includes("close") && data.category == "ranged")
 			throw new Error("Ranged weapons cannot be marked close");
+	}
+
+	/**
+	 * Extract a damage prefix from a damage modifier string
+	 *
+	 * @param  {string} damageString    A weapon damage string, which
+	 *                                  may or may not include a prefix
+	 *                                  indicating an additional derived
+	 *                                  attribute to be added.
+	 * @return {string}                 The prefix extracted from the
+	 *                                  damage string, or an empty
+	 *                                  string if none is found.
+	 * @access public
+	 */
+	static extractWeaponDamagePrefix(damageString) {
+		let damageParts = damageString.match(/^((A|U)D[+-])([0-9]+)/);
+		if (damageParts && damageParts[1])
+			return damageParts[1];
+		return ''; // no prefix
 	}
 }

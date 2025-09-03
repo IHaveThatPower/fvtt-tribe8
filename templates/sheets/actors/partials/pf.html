@@ -9,7 +9,7 @@
 		{{~#with (lookup @root.perksAndFlaws pfId)~}}
 		{{~#with (lookup @root.perksAndFlaws (lookup @root.perksAndFlaws.sortedIDs (sub @index 1))) as | prevItem |~}}
 			{{~#if (and (eq ../this.type 'flaw') (eq prevItem.type 'perk'))}}
-	<h3>{{localize "TYPES.Item.flaws-plural"}}</h3>
+	<h3>{{localize "TYPES.Item.flaw-plural"}}</h3>
 			{{~/if~}}
 		{{~/with}}
 	<div class="pf {{this.type}}{{#if this.system.granted}} granted{{/if}} draggable" data-item-id="{{this.id}}">

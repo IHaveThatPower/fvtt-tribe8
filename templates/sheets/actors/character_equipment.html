@@ -10,7 +10,7 @@
 			<div class="total-weight"><span title="{{localize "tribe8.item.gear.totalWeight.full"}}">&Sigma;<i class="fa fa-solid fa-weight-hanging"></i></span></div>
 			<div class="value"><span title="{{localize "tribe8.item.gear.value.full"}}">{{localize "tribe8.item.gear.value.short"}}</span></div>
 			<div class="complexity"><span title="{{localize "tribe8.item.gear.complexity.full"}}">{{localize "tribe8.item.gear.complexity.short"}}</span></div>
-			<div class="carried"><span title="{{localize "tribe8.item.gear.carried.full"}}"><i class="fa fa-solid fa-suitcase"></i></span></div><!-- TODO: Carried toggle -->
+			<div class="carried"><span title="{{localize "tribe8.item.gear.carried.full"}}"><i class="fa fa-solid fa-suitcase"></i></span></div><!-- TODO: (UI) Carried toggle -->
 		</div>
 		{{#each weapons.sortedIDs as |weaponID|}}
 		{{#with (lookup ../weapons weaponID)}}
@@ -43,7 +43,7 @@
 			<div class="total-weight"><span title="{{localize "tribe8.item.gear.totalWeight.full"}}">&Sigma;<i class="fa fa-solid fa-weight-hanging"></i></span></div>
 			<div class="value"><span title="{{localize "tribe8.item.gear.value.full"}}">{{localize "tribe8.item.gear.value.short"}}</span></div>
 			<div class="complexity"><span title="{{localize "tribe8.item.gear.complexity.full"}}">{{localize "tribe8.item.gear.complexity.short"}}</span></div>
-			<div class="carried"><span title="{{localize "tribe8.item.gear.carried.full"}}"><i class="fa fa-solid fa-suitcase"></i></span></div><!-- TODO: Carried toggle -->
+			<div class="carried"><span title="{{localize "tribe8.item.gear.carried.full"}}"><i class="fa fa-solid fa-suitcase"></i></span></div><!-- TODO: (UI) Carried toggle -->
 		</div>
 		{{#each gear.sortedIDs as |gearID|}}
 		{{#with (lookup ../gear gearID)}}

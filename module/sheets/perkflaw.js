@@ -6,7 +6,7 @@ class Tribe8PerkFlawSheet extends Tribe8ItemSheet {
 		window: { contentClasses: ["tribe8", "pf", "sheet", "item"] },
 		position: { width: 300 },
 		actions: {
-			removeRank: Tribe8PerkFlawSheet.removeRank
+			removeRank: Tribe8PerkFlawSheet.action_removeRank
 		}
 
 	}
@@ -94,7 +94,7 @@ class Tribe8PerkFlawSheet extends Tribe8ItemSheet {
 	 * @param {HTMLFormElement} target    The element that triggered the event
 	 * @access public
 	 */
-	static removeRank(event, target) {
+	static action_removeRank(event, target) {
 		event.stopPropagation();
 		event.preventDefault();
 		const rankIdx = Number(target?.parentNode?.dataset?.rank);

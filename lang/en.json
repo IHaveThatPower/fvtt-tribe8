@@ -311,6 +311,18 @@
 				"baseRange": {
 					"hint": "The first range band of this Weapon, generally a flat number or STR+X"
 				},
+				"rangeBands": {
+					"pointblank": "Point Blank",
+					"pointblank-with-distance": "Point Blank",
+					"short": "Short",
+					"short-with-distance": "Short (<={distance}m)",
+					"medium": "Medium",
+					"medium-with-distance": "Medium (<={distance}m)",
+					"long": "Long",
+					"long-with-distance": "Long (<={distance}m)",
+					"extreme": "Extreme",
+					"extreme-with-distance": "Extreme (<={distance}m)"
+				},
 				"rof": {
 					"hint": "The Rate Of Fire for this Weapon, generally a flat number or X/Y"
 				},

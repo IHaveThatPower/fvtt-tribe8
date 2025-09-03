@@ -29,8 +29,9 @@
 		<div class="property accuracy">
 			<div class="property-name">Acc.</div>
 			<div class="property-input">
-				<span class="input-sizer" data-value="{{document.system.accuracy}}">
-					<input type="text" name="system.accuracy" value="{{document.system.accuracy}}" placeholder="0" size=2 title="{{localize "tribe8.item.weapon.accuracy.hint"}}"/>
+				{{!-- NOT document.system! --}}
+				<span class="input-sizer" data-value="{{system.accuracy}}">
+					<input type="text" name="system.accuracy" value="{{system.accuracy}}" placeholder="0" size=2 title="{{localize "tribe8.item.weapon.accuracy.hint"}}"/>
 				</span>
 			</div>
 		</div>
@@ -49,8 +50,9 @@
 		<div class="property parry">
 			<div class="property-name">Parry</div>
 			<div class="property-input">
-				<span class="input-sizer" data-value="{{document.system.parry}}">
-					<input type="text" name="system.parry" value="{{document.system.parry}}" placeholder="0" size=2 title="{{localize "tribe8.item.weapon.parry.hint"}}"/>
+				{{!-- NOT document.system! --}}
+				<span class="input-sizer" data-value="{{system.parry}}">
+					<input type="text" name="system.parry" value="{{system.parry}}" placeholder="0" size=2 title="{{localize "tribe8.item.weapon.parry.hint"}}"/>
 				</span>
 			</div>
 		</div>
@@ -58,8 +60,9 @@
 		<div class="property DM">
 			<div class="property-name">DM</div>
 			<div class="property-input">
-				<span class="input-sizer" data-value="{{document.system.damage}}">
-					<input type="text" name="system.damage" value="{{document.system.damage}}" placeholder="0" size=4 title="{{localize "tribe8.item.weapon.damage.hint"}}"/>
+				{{!-- NOT document.system! --}}
+				<span class="input-sizer" data-value="{{system.damage}}">
+					<input type="text" name="system.damage" value="{{system.damage}}" placeholder="0" size=4 title="{{localize "tribe8.item.weapon.damage.hint"}}"/>
 				</span>
 			</div>
 		</div>
@@ -93,8 +96,9 @@
 		<div class="property rof">
 			<div class="property-name">ROF</div>
 			<div class="property-input">
-				<span class="input-sizer" data-value="{{document.system.rof}}">
-					<input type="text" name="system.rof" value="{{document.system.rof}}" placeholder="N/A" size=4 title="{{localize "tribe8.item.weapon.rof.hint"}}" />
+				{{!-- NOT document.system! --}}
+				<span class="input-sizer" data-value="{{system.rof}}">
+					<input type="text" name="system.rof" value="{{system.rof}}" placeholder="N/A" size=4 title="{{localize "tribe8.item.weapon.rof.hint"}}" />
 				</span>
 			</div>
 		</div>

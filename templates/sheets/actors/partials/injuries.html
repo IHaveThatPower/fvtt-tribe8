@@ -17,7 +17,7 @@
 			<div class="header">Current</div>
 			{{#each document.system.wounds}}
 			<div class="injury-value severity-{{@key}}">
-				<input type="number" name="system.wounds.{{@key}}" value="{{this}}" min=0 max=99 title="Current number of {{#with (lookup @root.document.system.attributes.secondary.physical.thresholds @key)}}{{this.name}}s{{/with}}" />
+				<input type="number" name="{{@root.tab.id}}.system.wounds.{{@key}}" value="{{this}}" min=0 max=99 title="Current number of {{#with (lookup @root.document.system.attributes.secondary.physical.thresholds @key)}}{{this.name}}s{{/with}}" />
 			</div>
 			{{/each}}
 			<div class="injury-value severity-instant{{#if (gte
