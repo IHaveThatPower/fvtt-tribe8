@@ -241,7 +241,7 @@ div.item-sheet h3 {
 	div.value {
 		text-align: center;
 		font-size: 125%;
-		border: 1px inset #888;
+		border: 1px inset var(--color-medium-gray);
 		min-width: 4rem;
 	}
 	div.points {
@@ -260,7 +260,7 @@ div.item-sheet h3 {
 		height: 1rem;
 		width: 2rem;
 		border-radius: 0;
-		border: 1px inset #888;
+		border: 1px inset var(--color-medium-gray);
 	}
 	div.points label,
 	div.specializations label {
@@ -477,7 +477,7 @@ div.item-sheet h3 {
 			display: block;
 			text-transform: uppercase;
 			border-top: 1px solid;
-			border-right: 1px solid #888;
+			border-right: 1px solid var(--color-medium-gray);
 			border-radius: var(--attribute-block-top-corners) var(--attribute-block-top-corners) 0 0;
 		}
 		div.value {
@@ -689,7 +689,7 @@ div.item-sheet h3 {
 		height: 1rem;
 		width: 2rem;
 		border-radius: 0;
-		border: 1px ridge #888;
+		border: 1px ridge var(--color-medium-gray);
 	}
 	div.points-summary button {
 		display: inline-flex;
@@ -1259,6 +1259,29 @@ div.item-sheet h3 {
 		text-align: center;
 		display: flex;
 		flex-flow: column;
+	}
+	.combat-pane.attack-summary {
+		font-size: 1rem;
+	}
+	.combat-pane.attack-summary .properties {
+		column-gap: 0.25rem;
+	}
+	.combat-pane.attack-summary .property {
+		flex: 1 0 min-content;
+	}
+	.combat-pane.attack-summary .property-name {
+		background: var(--color-label-background);
+		border-radius: 1rem 1rem 0 0;
+	}
+	.combat-pane.attack-summary .property-value {
+		font-size: 1.4rem;
+		border: 1px inset var(--color-medium-gray);
+		border-radius: 0 0 1rem 1rem;
+	}
+	.combat-pane.attack-summary .property.traits .property-value {
+		font-size: revert;
+		flex-grow: 1;
+		align-content: center;
 	}
 	.combat-pane .properties .property-value input {
 		grid-area: 1/1;

@@ -171,6 +171,22 @@ Handlebars.registerHelper('roman',
 	}
 );
 
+Handlebars.registerHelper('setVar',
+	/**
+	 * Set an arbitrary value to an arbitrary variable name that a
+	 * template can use from that point forward.
+	 *
+	 * @param  {string} name
+	 * @param  {mixed} value
+	 * @param {object} options
+	 * @return {void}
+	 */
+	function (name, value, options) {
+		if (!options.data?.root) return;
+		options.data.root[name] = value;
+	}
+);
+
 // Load supplemental templates
 foundry.applications.handlebars.loadTemplates(
 	[

@@ -107,11 +107,18 @@
 		<ul>
 		{{#each sortedManeuvers.sortedIDs as |maneuverId|}}
 		{{#with (lookup ../sortedManeuvers maneuverId)}}
-		<li data-item-id="{{id}}"{{#if (not (eq @root.combatData.useCombatSkill system.skill))}} class="disabled"{{/if}}>
+		{{setVar "maneuverEligible" (or
+			(eq @root.combatData.useCombatSkill system.skill)
+			(and
+				(eq system.complexity 0)
+				(ifIn system.allowedTypes (lookup (lookup (lookup ../../skills @root.combatData.useCombatSkill) "system") "combatCategory"))
+			)
+		)}}
+		<li data-item-id="{{id}}"{{#if (not @root.maneuverEligible)}} class="disabled"{{/if}}>
 			<input type="checkbox" value="{{id}}"
 				name="combatData.useManeuver[{{id}}]"
 				data-action="combatCalculator"
-				{{#if (not (eq @root.combatData.useCombatSkill system.skill))}}
+				{{#if (not @root.maneuverEligible)}}
 				disabled
 				{{else}}
 				{{#if (lookup @root.combatData.useManeuver id)}} checked{{/if}}
@@ -120,13 +127,17 @@
 			<div class="identity" data-action="editItem">
 				<div class="name">{{name}}</div>
 				<div class="specific">(
-					{{~#with (lookup ../../skills this.system.skill)~}}
-						{{~#if name~}}
-							{{~name~}}
-						{{~else~}}
-							{{~localize "tribe8.errors.maneuver-missing-skill"~}}
-						{{~/if~}}
-					{{~/with~}}
+					{{~#if (eq system.complexity 0)~}}
+					{{localize "tribe8.item.maneuver.complexity.free"}}: {{system.allowedTypes}}
+					{{~else~}}
+						{{~#with (lookup ../../skills this.system.skill)~}}
+							{{~#if name~}}
+								{{~name~}}
+							{{~else~}}
+								{{~localize "tribe8.errors.maneuver-missing-skill"~}}
+							{{~/if~}}
+						{{~/with~}}
+					{{~/if~}}
 				)</div>
 			</div>
 		</li>

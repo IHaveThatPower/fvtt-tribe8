@@ -488,8 +488,13 @@ export class Tribe8Item extends Item {
 		if (a.type != 'maneuver' || b.type != 'maneuver')
 			throw new Error("Cannot use Maneuver comparison function to sort non-Maneuver items");
 
+		// 0-complexity (Free) maneuvers are always sorted after non-0 maneuvers
+		if (a.system.complexity == 0 && b.system.complexity != 0) return 1;
+		if (a.system.complexity != 0 && b.system.complexity == 0) return -1;
+
 		// If the skills don't match, we need to first consult their sorting algorithm
-		if (a.system.skill != b.system.skill)
+		// Of course, this is irrelevant if they're both complexity 0
+		if (a.system.complexity != 0 && b.system.complexity != 0 && a.system.skill != b.system.skill)
 		{
 			// Identify the relevant skills to our a and b
 			const aSkill = a.parent?.getEmbeddedDocument("Item", a.system.skill);

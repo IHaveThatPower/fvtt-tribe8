@@ -1,6 +1,7 @@
 <div class="item-sheet maneuver">
 	<div class="identity">
 		<div class="name"><input type="text" name="name" value="{{document.name}}" size=12></div>
+		{{#if document.system.complexity}}
 		<div class="specific">
 			<select name="system.skill">
 				{{#each skillChoices as |name key|}}
@@ -8,6 +9,7 @@
 				{{/each}}
 			</select>
 		</div>
+		{{/if}}
 	</div>
 	{{!-- TODO: Eventually, the idea is for these to only be visible to the GM, who can pre-configure them before players add them to their sheets. --}}
 	<div class="allowed">

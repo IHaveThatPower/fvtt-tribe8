@@ -88,7 +88,8 @@ export class Tribe8ManeuverSheet extends Tribe8ItemSheet {
 		const checkKeys = CONFIG.Tribe8.checkFormArrayElements(formData);
 
 		// If N/A was selected, or the only option, drop it from internal storage
-		if (formData.object['system.skill'] === "N/A") {
+		// If Complexity is 0, also drop it
+		if (formData.object['system.skill'] === "N/A" || formData.object['system.complexity'] == 0) {
 			delete formData.object['system.skill'];
 			formData.object['system.==skill'] = null;
 		}

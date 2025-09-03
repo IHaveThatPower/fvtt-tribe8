@@ -260,10 +260,11 @@ export class Tribe8CharacterSheet extends Tribe8Application(ActorSheetV2) {
 				console.warn(`Chosen weapon ${this.combatData.useWeapon} not found`);
 		}
 
+		const useSkill = (this.combatData.useCombatSkill ? this.document.getEmbeddedDocument("Item", this.combatData.useCombatSkill) : {});
 		// Factor in Specialization use
 		if (this.combatData.useSpecialization) {
 			const spec = this.document.getEmbeddedDocument("Item", this.combatData.useSpecialization);
-			if (spec && spec.system?.skill == this.combatData.useCombatSkill) {
+			if (spec && spec.system?.skill == useSkill.id) {
 				this.combatData.summary.accuracy = this.#addCombatModifier(this.combatData.summary.accuracy, 1, 'accuracy');
 				this.combatData.summary.parry = this.#addCombatModifier(this.combatData.summary.parry, 1, 'accuracy');
 			}
@@ -277,7 +278,15 @@ export class Tribe8CharacterSheet extends Tribe8Application(ActorSheetV2) {
 					console.warn(`Selected Maneuver.${maneuverId} not found in Actor.${this.document.id} Maneuver list`);
 					continue;
 				}
-				if (maneuver.system?.skill == this.combatData.useCombatSkill) {
+				/**
+				 * A Maneuver is applicable either when its associated
+				 * Skill is selected, or its a Free (Cpx 0) Maneuver and
+				 * the chosen Skill belongs to any of its allowed types.
+				 */
+				let maneuverApplies = false;
+				maneuverApplies |= (maneuver.system?.skill == useSkill.id);
+				maneuverApplies |= (maneuver.system?.complexity == 0 && maneuver.system?.allowedTypes?.includes(useSkill.system.combatCategory));
+				if (maneuverApplies) {
 					for (let maneuverProperty in maneuver.system) {
 						if (Object.hasOwn(this.combatData.summary, maneuverProperty)) {
 							this.combatData.summary[maneuverProperty] = this.#addCombatModifier(this.combatData.summary[maneuverProperty], maneuver.system[maneuverProperty], maneuverProperty);
