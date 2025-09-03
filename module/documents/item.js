@@ -135,7 +135,7 @@ export class Tribe8Item extends Item {
 		const actor = this.parent;
 
 		// Intercept dumb Gear inputs
-		if (request == 'update' && this.isPhysicalItem) {
+		if (request == 'update' && this.isPhysicalItem && data?.system) {
 			if (Object.hasOwn(data.system, 'storage')) {
 				if (data.system.storage == this.id) {
 					throw new RangeError(game.i18n.localize("tribe8.errors.circular-container"));
@@ -150,7 +150,7 @@ export class Tribe8Item extends Item {
 				}
 			}
 		}
-		if (request == 'update' && this.type == 'weapon') {
+		if (request == 'update' && this.type == 'weapon' && data?.system) {
 			let rangesKey = Object.hasOwn(data.system, "==ranges") ? '==ranges' : 'ranges';
 			if (Object.hasOwn(data.system, rangesKey)) {
 				if (data.system[rangesKey].length > 1 && data.system[rangesKey].includes('ranged')) {
@@ -196,7 +196,7 @@ export class Tribe8Item extends Item {
 				throw new ReferenceError(game.i18n.localize("tribe8.errors.unowned-specialization"));
 			}
 			// Does this Specialization already exist?
-			const targetSkill = actor.getEmbeddedDocument("Item", data.system.skill);
+			const targetSkill = actor.getEmbeddedDocument("Item", data.system?.skill);
 			if (!targetSkill) {
 				throw new ReferenceError(game.i18n.localize("tribe8.errors.skill-not-exist"));
 			}

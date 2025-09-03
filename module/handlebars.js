@@ -176,9 +176,9 @@ Handlebars.registerHelper('setVar',
 	 * Set an arbitrary value to an arbitrary variable name that a
 	 * template can use from that point forward.
 	 *
-	 * @param  {string} name
-	 * @param  {mixed} value
-	 * @param {object} options
+	 * @param  {string} name       The name by which the variable is referenced
+	 * @param  {mixed}  value      The value to be set into the variable
+	 * @param  {object} options    Handlebars options object
 	 * @return {void}
 	 */
 	function (name, value, options) {
