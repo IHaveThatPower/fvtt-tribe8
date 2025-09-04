@@ -19,7 +19,6 @@ export class Tribe8SkillModel extends Tribe8ItemModel {
 			),
 			combatCategory: new fields.StringField({
 				hint: "tribe8.item.skill.combatCategory.hint",
-				gmOnly: true,
 				required: false,
 				nullable: true,
 				choices: Object.keys(CONFIG.Tribe8.COMBAT_SKILLS)

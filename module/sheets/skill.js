@@ -84,6 +84,10 @@ export class Tribe8SkillSheet extends Tribe8ItemSheet {
 
 		// Get the normal submit stuff, now with the specializations removed
 		const data = super._prepareSubmitData(event, form, formData, updateData);
+		if (Object.hasOwn(data.system || {}, 'combatCategory')) {
+			data.system['==combatCategory'] = data.system.combatCategory ? data.system.combatCategory : null; // `${data.system.combatCategory}`;
+			delete data.system.combatCategory;
+		}
 
 		// Bold eDieDelta back on
 		if (eDieDelta)
