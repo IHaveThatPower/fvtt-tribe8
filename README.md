@@ -40,13 +40,13 @@ This is a rough, ever-changing list that depicts in approximate priority order w
 
 ### Short Term
 - Combat tab
-  - DataModel for Armor-type Items
-- Equipment tab
-  - User-driven sorting
+  - Add Armor to display
+- Implement basic SilCORE dice mechanics
 - Character artwork editing support
 - Item artwork editing support
+- Equipment tab
+  - User-driven sorting
 - Finalize character sheet layout
-- Implement basic SilCORE dice mechanics
 
 ### Longer Term
 - Fully localize!

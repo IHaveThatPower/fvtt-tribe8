@@ -1198,6 +1198,10 @@ div.item-sheet h3 {
 		display: grid;
 		grid-template-columns: 1fr 3rem 4rem 4rem 5rem 2rem 1.5rem;
 	}
+	.equipment div.gear-list.armor-list div.gear-item-row {
+		display: grid;
+		grid-template-columns: 1fr 3rem 2.5rem 4rem 1.5rem;
+	}
 	.equipment div.gear-list div.gear-item-row>div {
 		overflow: hidden;
 		text-align: center;
@@ -1210,6 +1214,11 @@ div.item-sheet h3 {
 	.equipment div.gear-list div.gear-item-row>div:first-child {
 		background: none;
 		text-align: left;
+	}
+	.equipment div.gear-list div.gear-item-row div.identity {
+		display: grid;
+		grid-template-columns: min-content 1fr;
+		column-gap: 0.4rem;
 	}
 	.equipment div.gear-list div.gear-item-row.gear-list-header {
 		color: var(--color-medium-gray);
@@ -1282,6 +1291,16 @@ div.item-sheet h3 {
 		font-size: revert;
 		flex-grow: 1;
 		align-content: center;
+	}
+	.combat-pane.attributes .attribute-block.selected div.name {
+		background: var(--color-warm-3);
+		border-top-color: var(--color-warm-1);
+		border-right-color: var(--color-warm-1);
+	}
+	.combat-pane.attributes .attribute-block.selected div.value {
+		background: var(--color-warm-2);
+		border-bottom-color: var(--color-warm-1);
+		border-left-color: var(--color-warm-1);
 	}
 	.combat-pane .properties .property-value input {
 		grid-area: 1/1;
@@ -1708,5 +1727,37 @@ div.item-sheet h3 {
 	div.property.range button.selected {
 		border: 2px inset;
 		background: var(--color-medium-gray);
+	}
+
+	div.property.coverage {
+		display: flex;
+		flex-flow: row wrap;
+		align-content: center;
+	}
+	div.property.coverage div.property-name {
+		order: unset;
+		flex: 0 0 100%;
+	}
+	div.property.coverage div.property-value {
+		display: flex;
+		flex-direction: row;
+		align-items: center;
+	}
+	div.property.coverage div.property-value button {
+		--property-button-size: 1rem;
+		height: var(--property-button-size);
+		min-height: var(--property-button-size);
+		width: var(--property-button-size);
+		border-radius: var(--property-button-size);
+		border: 0;
+		margin-left: 0.25rem;
+		margin-right: 0.4rem;
+	}
+	div.property.coverage div.add-coverage {
+		margin-top: 0.4rem;
+		display: grid;
+		grid-template-columns: 1fr min-content;
+		align-items: center;
+		flex: 0 0 fit-content;
 	}
 }

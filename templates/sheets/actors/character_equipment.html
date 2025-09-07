@@ -23,9 +23,18 @@
 	</div>
 	<div class="gear-list armor-list">
 		<h2><span>{{localize "TYPES.Item.armor-plural"}}</span><button name="add-armor" data-action="addNewItem" type="button"><i class="fa fa-solid fa-plus"></i></button></h2>
+		<div class="gear-item-row gear-list-header">
+			<div class="identity">{{!-- TODO: Add sorting controls to all of these --}}
+				<div class="name">{{localize "tribe8.item.name"}}</div>
+			</div>
+			<div class="qty"><span title="{{localize "tribe8.item.gear.qty.full"}}">{{localize "tribe8.item.gear.qty.short"}}</span></div>
+			<div class="ar"><span title="{{localize "tribe8.item.armor.ar.full"}}"><i class="fa fa-solid fa-shield-halved"></i></span></div>
+			<div class="enc"><span title="{{localize "tribe8.item.armor.enc.full"}}"><i class="fa fa-solid fa-scale-unbalanced-flip"></i></span></div>
+			<div class="carried"><span title="{{localize "tribe8.item.armor.carried.full"}}"><i class="fa fa-solid fa-shirt"></i></span></div><!-- TODO: (UI) Worn toggle -->
+		</div>
 		{{#each armor.sortedIDs as |armorID|}}
 		{{#with (lookup ../armor armorID)}}
-		Armor
+		{{> "systems/tribe8/templates/sheets/actors/partials/armor.html"}}
 		{{/with}}
 		{{/each}}
 		{{#if (not armor.sortedIDs.length)}}

@@ -1,0 +1,14 @@
+<div class="gear armor draggable{{#if (mod @index 2)}} gear-alt{{/if}}" data-item-id="{{id}}" data-container-depth="{{depth}}" data-index="{{@index}}">
+	<div class="gear-item-row" data-item-id="{{id}}">
+		<div class="identity" data-action="editItem">
+			<div class="name">
+				{{~name~}}
+			</div>
+			<div class="specific">({{#if system.coverage}}{{system.coverage}}{{else}}<em>coverage missing</em>{{/if}})</div>
+		</div>
+		<div class="qty" data-action="editItem">{{#if system.qty}}{{system.qty}}{{else}}1{{/if}}</div>
+		<div class="ar" data-action="editItem">{{#if system.ar}}{{system.ar}}{{else}}0{{/if}}</div>
+		<div class="enc" data-action="editItem">{{#if system.partial}}*{{else}}{{system.enc}}{{/if}}</div>
+		<div class="carried" data-action="toggleCarried">{{#if system.carried}}C{{/if}}</div><!-- TODO: (UI) Carried toggle -->
+	</div>
+</div>

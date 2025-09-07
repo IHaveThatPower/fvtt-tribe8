@@ -191,6 +191,7 @@ Handlebars.registerHelper('setVar',
 foundry.applications.handlebars.loadTemplates(
 	[
 		// Character sheet parts
+		"sheets/actors/partials/armor.html",
 		"sheets/actors/partials/attributes.html",
 		"sheets/actors/partials/basic_info.html",
 		"sheets/actors/partials/gear.html",

@@ -330,6 +330,28 @@
 					"current.hint": "The current amount of ammo loaded into this Weapon",
 					"capacity.hint": "The ammo capacity of this Weapon before it needs to be reloaded"
 				}
+			},
+			"armor": {
+				"ar.hint": "The AR of this (piece of) Armor",
+				"conceal.no": "No",
+				"conceal.somewhat": "Somewhat",
+				"conceal.yes": "Yes",
+				"conceal.hint": "The degree to which this Armor can be concealed",
+				"coverage": {
+					"chest":      "Chest",
+					"face":       "Face",
+					"forearms":   "Forearms",
+					"full":       "Full",
+					"hands":      "Hands",
+					"head":       "Head",
+					"hips":       "Hips",
+					"lower legs": "Lower Legs",
+					"neck":       "Neck",
+					"shoulders":  "Shoulders"
+				},
+				"enc.hint": "The whole number Encumbrance value of this (piece of) Armor",
+				"notes.hint": "Notes relevant to this Armor, such as penalties to Notice or Stealth",
+				"partial.hint": "This piece of Armor does not have an individual ENC, but three such pieces equal 1 ENC"
 			}
 		},
 		"errors": {

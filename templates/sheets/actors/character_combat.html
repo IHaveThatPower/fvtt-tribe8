@@ -148,6 +148,18 @@
 		<em>None</em>
 		{{/if}}
 	</div>
+	<div class="combat-pane attributes primary-attributes">
+		<h2><span>Attributes</span></h2>
+		{{#each document.system.attributes.primary as |data att|}}
+		<div class="attribute-block{{#if (eq @root.combatData.useAttribute att)}} selected{{/if}}" data-attribute="{{att}}" data-action="chooseAttribute">
+			<div class="name" title="{{localize (concat "tribe8.actor.character.attributes.primary." att ".full")}}">{{localize (concat "tribe8.actor.character.attributes.primary." att ".short")}}</div>
+			<div class="value">{{data.value}}</div>
+		</div>
+		{{#if (eq @index 4)}}
+		<hr />
+		{{/if}}
+		{{/each}}
+	</div>
 	<div class="combat-pane situational">
 		<h2><span>Situational Modifiers</span></h2>
 		<div class="properties">

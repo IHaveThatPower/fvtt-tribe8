@@ -241,3 +241,28 @@ Tribe8.fumble = [
 	"medium",
 	"high"
 ];
+
+/**
+ * Valid choices for armor coverage
+ */
+Tribe8.armorCoverage = [
+	"chest", // Index 0 is treated as default by the Armor Model
+	"face",
+	"forearms",
+	"full",
+	"hands",
+	"head",
+	"hips",
+	"lower legs",
+	"neck",
+	"shoulders"
+];
+
+/**
+ * Valid choices for armor concealability
+ */
+Tribe8.armorConcealable = [
+	"no", // Index 0 is treated as default by the Armor Model
+	"somewhat",
+	"yes"
+];

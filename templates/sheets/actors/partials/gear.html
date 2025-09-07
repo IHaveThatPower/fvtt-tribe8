@@ -2,6 +2,8 @@
 	<div class="gear-item-row" data-item-id="{{id}}">
 		<div class="identity" data-action="editItem">
 			<div class="name">
+				{{~#if (eq type "weapon")}}{{#if (eq system.category "melee")}}<i class="fa fa-solid fa-hand-fist"></i>{{/if}}{{#if (eq system.category "ranged")}}<i class="fa fa-solid fa-gun"></i>{{/if}}{{/if~}}
+				{{~#if (eq type "armor")}}<i class="fa fa-solid fa-shield-halved"></i>{{/if~}}
 				{{~name~}}
 			</div>
 		</div>

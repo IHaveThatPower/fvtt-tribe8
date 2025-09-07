@@ -20,10 +20,10 @@
 		<dt class="points-type edie">EDie</dt>
 		<dd class="points-value edie">
 			<dl class="points">
-				<dt class="points-type edie-total{{#if (lt document.system.edie.total 0)}} over{{/if}}">Total</dt>
-				<dd class="points-value edie-total{{#if (lt document.system.edie.total 0)}} over{{/if}}">{{document.system.edie.total}}</dd>
-				<dt class="points-type edie-xp{{#if (lt document.system.edie.fromXP 0)}} over{{/if}}">From XP</dt>
-				<dd class="points-value edie-xp{{#if (lt document.system.edie.fromXP 0)}} over{{/if}}">{{document.system.edie.fromXP}}</dd>
+				<dt class="points-type edie-total{{#if (lt document.system.edieTotal 0)}} over{{/if}}">Total</dt>
+				<dd class="points-value edie-total{{#if (lt document.system.edieTotal 0)}} over{{/if}}">{{document.system.edieTotal}}</dd>
+				<dt class="points-type edie-xp{{#if (lt document.system.edieFromXP 0)}} over{{/if}}">From XP</dt>
+				<dd class="points-value edie-xp{{#if (lt document.system.edieFromXP 0)}} over{{/if}}">{{document.system.edieFromXP}}</dd>
 				<dt class="points-type edie-other">Other</dt>
 				<dd class="points-value edie-other"><button name="edie.dec" data-action="decrementEdie" type="button">-</button><input type="number" name="system.edie" value="{{document.system.edie}}" /><button name="edie.inc" data-action="incrementEdie" type="button">+</button></dd>
 			</dl>

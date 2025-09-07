@@ -19,6 +19,7 @@ export class Tribe8CharacterSheet extends Tribe8Application(ActorSheetV2) {
 			addNewItem:       Tribe8CharacterSheet.action_addNewItem,
 			useEminence:      Tribe8CharacterSheet.action_useEminence,
 			combatCalculator: Tribe8CharacterSheet.action_combatCalculator,
+			chooseAttribute:  Tribe8CharacterSheet.action_chooseAttribute,
 		}
 	}
 
@@ -244,6 +245,11 @@ export class Tribe8CharacterSheet extends Tribe8Application(ActorSheetV2) {
 		this.combatData.summary.initiative = 0;
 		this.combatData.summary.defense = 0;
 
+		if (this.combatData.useAttribute) {
+			for (let prop of ['initiative', 'accuracy', 'parry', 'defense']) {
+				this.combatData.summary[prop] = this.#addCombatModifier(this.combatData.summary[prop], this.document.system.attributes.primary[this.combatData.useAttribute]?.value, prop);
+			}
+		}
 		const useSkill = (this.combatData.useCombatSkill ? this.document.getEmbeddedDocument("Item", this.combatData.useCombatSkill) : {});
 		if (this.combatData.useWeapon) {
 			const weapon = this.document.getEmbeddedDocument("Item", this.combatData.useWeapon);
@@ -343,6 +349,8 @@ export class Tribe8CharacterSheet extends Tribe8Application(ActorSheetV2) {
 				}
 			}
 		}
+
+		// TODO: Factor in Encumbrance from Armor
 
 		// If we indicated an overall damage multiplier, include that
 		if (Object.hasOwn(this.combatData.summary, 'multiplyDamage')) {
@@ -952,7 +960,27 @@ export class Tribe8CharacterSheet extends Tribe8Application(ActorSheetV2) {
 			else
 				combatData[inputName] = inputValue;
 		}
+		// If we already had a combat data property, we need to bolt on
+		// the chosen attribute, since that doesn't carry over in the
+		// above code.
+		if (this.combatData) {
+			combatData.useAttribute = this.combatData.useAttribute;
+		}
 		this.combatData = combatData;
+		this.render();
+	}
+
+	/**
+	 * Mark a selected attribute on the Combat Calculator as the active
+	 * one.
+	 *
+	 * @param {Event}           event     The event triggered by interaction with the form element
+	 * @param {HTMLFormElement} target    The element that triggered the event
+	 * @access public
+	 */
+	static action_chooseAttribute(event, target) {
+		if (!this.combatData) this.combatData = {};
+		this.combatData.useAttribute = target.dataset?.attribute;
 		this.render();
 	}
 
