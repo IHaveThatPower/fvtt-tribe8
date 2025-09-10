@@ -26,7 +26,8 @@ export class Tribe8GearModel extends Tribe8ItemModel {
 					idOnly: true
 				}
 			),
-			carried: new fields.BooleanField({ hint: "tribe8.item.gear.carried.hint", required: true, initial: false })
+			carried: new fields.BooleanField({ hint: "tribe8.item.gear.carried.hint", required: true, initial: true }),
+			equipped: new fields.BooleanField({ hint: "tribe8.item.gear.equipped.hint", required: true, initial: false })
 		};
 	}
 

@@ -20,7 +20,17 @@
 	</div>
 	{{/if}}
 	{{/each}}
-	<h3>{{localize "tribe8.actor.character.movement.name"}}</h3>
+	<h3>
+		<span>{{localize "tribe8.actor.character.movement.name"}}</span>
+		<span>
+			{{~#if document.movementReduction.injury~}}
+			<i class="fa fa-solid fa-droplet"></i>
+			{{~/if~}}
+			{{~#if document.movementReduction.load~}}
+			<i class="fa fa-solid fa-weight-hanging"></i>
+			{{~/if~}}
+		</span>
+	</h3>
 	<div class="move-rates">
 	{{#each document.system.movement}}
 		<div class="attribute-block move-rate">

@@ -334,6 +334,7 @@ div.item-sheet h3 {
 		overflow: hidden;
 		display: grid;
 		grid-template-columns: 1fr 1fr;
+		height: 100%;
 	}
 	h2 {
 		display: grid;
@@ -460,6 +461,14 @@ div.item-sheet h3 {
 	}
 	div.secondary-attributes {
 		margin-bottom: 0.4rem;
+	}
+	div.secondary-attributes h3 span {
+		display: inline-block;
+	}
+	div.secondary-attributes h3 span:nth-child(2) {
+		margin-left: 0.4rem;
+		font-size: 0.8rem;
+		vertical-align: middle;
 	}
 
 	--attribute-block-top-corners: 0.5rem;
@@ -1137,6 +1146,9 @@ div.item-sheet h3 {
 		grid-template-columns: min-content min-content;
 		gap: 0.5rem;
 	}
+	.equipment h2 span {
+		white-space: nowrap;
+	}
 	.equipment div.gear-list h2 {
 		border-image: var(--border-header-right-shorttail);
 		column-span: all;
@@ -1149,7 +1161,12 @@ div.item-sheet h3 {
 	.equipment div.armor-list h2 {
 		justify-content: end;
 		border-image: var(--border-header-left);
+		grid-template-columns: repeat(3, min-content);
 		justify-self: end;
+	}
+	.equipment .armor-list h2 span:nth-child(2),
+	.combat .combat-pane.armor h2 span:nth-child(2) {
+		font-size: 1rem;
 	}
 	.equipment div.weapons-list, .equipment div.armor-list {
 		margin-top: 1rem;
@@ -1157,7 +1174,7 @@ div.item-sheet h3 {
 	div.character-sheet.equipment>div {
 		min-height: 5rem;
 	}
-	div.character-sheet.equipment>div:last-child {
+	div.character-sheet.equipment>div.gear-list:not(.armor-list, .weapons-list) {
 		grid-column: 1 / span 2;
 		column-count: 2;
 		column-fill: auto; /* Down, then across */
@@ -1196,7 +1213,7 @@ div.item-sheet h3 {
 	}
 	.equipment div.gear-list div.gear-item-row {
 		display: grid;
-		grid-template-columns: 1fr 3rem 4rem 4rem 5rem 2rem 1.5rem;
+		grid-template-columns: 1fr 3rem 4rem 4rem 5rem 2rem 1.5rem 1.5rem;
 	}
 	.equipment div.gear-list.armor-list div.gear-item-row {
 		display: grid;
@@ -1220,7 +1237,8 @@ div.item-sheet h3 {
 		grid-template-columns: min-content 1fr;
 		column-gap: 0.4rem;
 	}
-	.equipment div.gear-list div.gear-item-row.gear-list-header {
+	.equipment div.gear-list .gear-item-row.gear-list-header,
+	.combat li.header {
 		color: var(--color-medium-gray);
 		background: var(--color-label-background);
 	}
@@ -1229,7 +1247,82 @@ div.item-sheet h3 {
 		/* cursor: pointer; */
 		cursor: not-allowed;
 	}
+	.character-sheet.equipment>.load-slider {
+		height: 2rem;
+		width: 100%;
+		border-radius: 0.5rem;
+		overflow: hidden;
+		grid-column: 1 / span 2;
+		align-self: end;
+		min-height: unset;
+		display: flex;
+		flex-flow: row;
+		position: relative;
+	}
+	.equipment .load-slider>div {
+		position: relative;
+	}
+	.equipment .load-slider .unladen {
+		flex: 1 1 50%;
+		background: color-mix(in srgb, darkgreen, transparent 80%);
+		height: 100%;
+	}
+	.equipment .load-slider .unladen-used {
+		background: darkgreen;
+		height: 100%;
+	}
+	.equipment .load-slider .laden {
+		flex: 1 1 25%;
+		background: color-mix(in srgb, darkgoldenrod, transparent 80%);
+		height: 100%;
+	}
+	.equipment .load-slider .laden-used {
+		background: darkgoldenrod;
+		height: 100%;
+	}
+	.equipment .load-slider .burdened {
+		flex: 1 1 25%;
+		background: color-mix(in srgb, maroon, transparent 80%);
+		height: 100%;
+	}
+	.equipment .load-slider .burdened-used {
+		background: maroon;
+		height: 100%;
+	}
+	.equipment .load-slider .overload {
+		flex: 0 0 0;
+		background: color-mix(in srgb, darkred, transparent 80%);
+		height: 100%;
+	}
+	.equipment .load-slider .overload-used {
+		background: red;
+		height: 100%;
+	}
 
+	/* Variables used by the load-value stylers */
+	--threshold-translate: translate(-50%, 0);
+	--threshold-translate-first: translate(0.25rem, 0);
+	--threshold-translate-last: translate(calc(-100% - 0.25rem), 0);
+
+	.equipment .load-slider .load-value {
+		position: absolute;
+		bottom: 0;
+		transform: var(--threshold-translate); /* translate(-50%, 0); */
+		color: color-mix(in srgb, var(--color-text-emphatic), transparent 33.33%);
+		white-space: nowrap;
+	}
+	.equipment .load-slider .load-value.unladen-threshold {
+		transform: var(--threshold-translate-first); /* translate(0.25rem, 0); */
+	}
+	.equipment .load-slider .load-value.overload-threshold {
+		transform: var(--threshold-translate-last); /* translate(calc(-100% - 0.25rem), 0); */
+	}
+	.equipment .load-slider .load-value.current-load {
+		align-self: center;
+		top: 0;
+		bottom: unset;
+		color: var(--color-text-emphatic);
+	}
 
 	/**
 	 * Character Sheet Combat Tool
@@ -1251,10 +1344,19 @@ div.item-sheet h3 {
 		grid-template-columns: repeat(2, min-content);
 		border-image: var(--border-header-right);
 	}
-	.combat .combat-pane.armor h2,
-	.combat .combat-pane.injuries h2 {
+	.combat .combat-pane h2.right-column {
 		justify-content: end;
 		border-image: var(--border-header-left);
+	}
+	.combat .combat-pane.armor h2 {
+		grid-template-columns: repeat(4, min-content);
+		align-items: end;
+	}
+	.combat .combat-pane.armor h2 span {
+		white-space: nowrap;
+	}
+	.combat .combat-pane.armor h2 button+span {
+		margin-left: 0.4rem;
 	}
 	.combat .combat-pane.armor {
 		flex: 0 0 25%;
@@ -1311,6 +1413,9 @@ div.item-sheet h3 {
 		column-count: 2;
 		margin: 0.5rem 0 0;
 	}
+	.combat-pane.armor ul {
+		column-count: 1;
+	}
 	.combat-pane li  {
 		display: flex;
 		flex-flow: row;
@@ -1319,24 +1424,77 @@ div.item-sheet h3 {
 		gap: 0.2rem;
 		margin-bottom: 0;
 	}
+	.combat-pane.armor li {
+		display: grid;
+		grid-template-columns: 1fr repeat(5, 2rem);
+		font-size: 1rem;
+	}
+	.combat-pane.armor li.header {
+		font-size: revert;
+	}
 	.combat-pane li input {
 		flex: 0 0 min-content;
 	}
 	.combat-pane li div.identity {
 		width: unset;
 	}
-	.combat-pane div.injuries {
-		align-items: end;
+	.combat-pane.armor li div {
+		text-align: center;
 	}
-	.combat-pane div.injuries h2 {
-		align-items: end;
+	.combat-pane.armor li div.identity {
+		display: grid;
+		grid-template-columns: min-content 1fr;
+		column-gap: 0.4rem;
+		text-align: left;
 	}
-	.combat-pane div.injuries h2 span:last-child::before {
+	.combat-pane.injuries {
+		flex-flow: row wrap;
+		align-items: start;
+	}
+	.combat-pane.injuries h2 {
+		align-items: end;
+		flex: 0 0 100%;
+	}
+	.combat-pane.injuries h2 span:last-child::before {
 		content: "";
 		margin-left: 0.75rem;
 	}
-	.combat-pane div.injuries>*:not(h2) {
-		width: 16rem;
+	.combat-pane.injuries h3 {
+		border-image: var(--border-header-right);
+	}
+	.combat-pane.injuries .shock-pane h3 {
+		border-image: var(--border-header-left);
+	}
+	.combat-pane.injuries>*:not(h2) {
+		flex: 1 1 50%;
+		display: flex;
+		flex-flow: row wrap;
+	}
+	.combat-pane.injuries .injury-block.injury-values {
+		flex: 1 0 fit-content;
+		display
+	}
+	.combat-pane.injuries .injury-block.injury-values .header {
+		font-size: 95%;
+	}
+	.combat-pane.injuries .injury-block.injury-values .injury-value {
+		font-size: 1.2rem;
+		height: 1.25rem;
+		line-height: 1.25rem;
+	}
+	.combat-pane.injuries .injury-block.injury-values .injury-value input {
+		font-size: 1.2rem;
+	}
+	.combat-pane.injuries .shock-pane h3 {
+		text-align: right;
+	}
+	.combat-pane.injuries .shock-pane .shock {
+		flex: 1 0 100%;
+		justify-content: end;
+	}
+	.combat-pane.injuries .shock-pane .shock .shock-state {
+		height: 1.9rem;
+		flex: 0 0 1.9rem;
 	}
 }
 
@@ -1474,12 +1632,20 @@ div.item-sheet h3 {
 	div.specify,
 	div.ranked,
 	div.granted,
-	div.carried {
+	div.carried,
+	div.equipped {
 		text-align: left;
 		white-space: nowrap;
 		line-height: 100%;
-		flex-basis: 2rem;
+		flex: 0 0 2rem;
+		display: flex;
 		align-content: center;
+
+		label {
+			display: flex;
+			flex-flow: column;
+			justify-content: center;
+		}
 	}
 	div.ranked input,
 	div.specify input,

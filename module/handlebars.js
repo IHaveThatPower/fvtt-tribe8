@@ -16,10 +16,10 @@ Handlebars.registerHelper('add',
 	 */
 	function (a, b) {
 		a = Number(a);
-		if (typeof a !== "number")
+		if (typeof a !== "number" || isNaN(a))
 			throw new TypeError("The first addend must be a number");
 		b = Number(b);
-		if (typeof b !== "number")
+		if (typeof b !== "number" || isNaN(b))
 			throw new TypeError("The second addend must be a number");
 		return a + b;
 	}
@@ -36,10 +36,10 @@ Handlebars.registerHelper('sub',
 	 */
 	function (a, b) {
 		a = Number(a);
-		if (typeof a !== "number")
+		if (typeof a !== "number" || isNaN(a))
 			throw new TypeError("The minuend must be a number");
 		b = Number(b);
-		if (typeof b !== "number")
+		if (typeof b !== "number" || isNaN(b))
 			throw new TypeError("The subtrahend must be a number");
 		return a - b;
 	}
@@ -56,10 +56,10 @@ Handlebars.registerHelper('mult',
 	 */
 	function (a, b) {
 		a = Number(a);
-		if (typeof a !== "number")
+		if (typeof a !== "number" || isNaN(a))
 			throw new TypeError("The multiplicand must be a number");
 		b = Number(b);
-		if (typeof b !== "number")
+		if (typeof b !== "number" || isNaN(b))
 			throw new TypeError("The multiplier must be a number");
 		return a * b;
 	}
@@ -76,10 +76,10 @@ Handlebars.registerHelper('mod',
 	 */
 	function (a, b) {
 		a = Number(a);
-		if (typeof a !== "number")
+		if (typeof a !== "number" || isNaN(a))
 			throw new TypeError("The dividend must be a number");
 		b = Number(b);
-		if (typeof b !== "number")
+		if (typeof b !== "number" || isNaN(b))
 			throw new TypeError("The divisor must be a number");
 		return a % b;
 	}

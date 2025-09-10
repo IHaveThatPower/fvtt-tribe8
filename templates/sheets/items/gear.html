@@ -4,7 +4,11 @@
 		{{#if document.isEmbedded}}
 		<div class="carried">
 			<input type="checkbox" name="system.carried" title="{{localize "tribe8.item.gear.carried.hint"}}" value="true"{{#if document.system.carried}} checked{{/if}} />
-			<label for="system.carried" title="{{localize "tribe8.item.gear.carried.hint"}}">{{localize "tribe8.item.gear.carried.short"}}</label>
+			<label for="system.carried" title="{{localize "tribe8.item.gear.carried.hint"}}"><i class="fa fa-solid fa-suitcase"></i></label>
+		</div>
+		<div class="equipped">
+			<input type="checkbox" name="system.equipped" title="{{localize "tribe8.item.gear.equipped.hint"}}" value="true"{{#if document.system.equipped}} checked{{/if}} />
+			<label for="system.equipped" title="{{localize "tribe8.item.gear.equipped.hint"}}"><i class="fa fa-solid fa-hand"></i></label>
 		</div>
 		{{/if}}
 	</div>

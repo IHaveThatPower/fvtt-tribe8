@@ -92,6 +92,7 @@
 			<input type="radio" name="combatData.useWeapon" value="{{id}}" data-action="combatCalculator"{{#if (eq @root.combatData.useWeapon id)}} checked{{/if}} />
 			<div class="identity" data-action="editItem">
 				<div class="name">{{name}}</div>
+				<div class="specific">({{localize "tribe8.item.gear.complexity.summary" cpx=system.complexity}})</div>
 			</div>
 		</li>
 		{{/with}}
@@ -240,9 +241,80 @@
 		</div>
 	</div>
 	<div class="combat-pane armor">
-		<h2><span>{{localize "TYPES.Item.armor-plural"}}</span><button name="add-armor" data-action="addNewItem" type="button"><i class="fa fa-solid fa-plus"></i></button></h2>
+		<h2>
+			<span>{{localize "TYPES.Item.armor-plural"}}</span>
+			<span>({{localize "tribe8.item.armor.enc.summary" enc=document.system.encumbrance}})</span>
+			<button name="add-armor" data-action="addNewItem" type="button"><i class="fa fa-solid fa-plus"></i></button>
+			<span>/ Thresholds</span>
+		</h2>
+		<ul>
+			<li class="header">
+				<div class="identity">
+					<div class="name">Description/Coverage</div>
+				</div>
+				<div class="ar">AR</div>
+				<div class="threshold-fw">FW</div>
+				<div class="threshold-dw">DW</div>
+				<div class="threshold-id">ID</div>
+				<div class="enc">ENC</div>
+			</li>
+		{{#each armor.sortedIDs as |armorId|}}
+		{{#with (lookup ../armor armorId)}}
+		{{#if system.equipped}}
+			<li data-item-id="{{id}}">
+				<div class="identity" data-action="editItem">
+					<div class="name">{{name}}</div>
+					<div class="specific">({{#if system.coverage}}{{system.coverage}}{{else}}<em>coverage missing</em>{{/if}})</div>
+				</div>
+				<div class="ar">{{#if system.ar}}{{system.ar}}{{else}}0{{/if}}</div>
+				<div class="threshold-fw">{{add @root.document.system.attributes.secondary.physical.thresholds.flesh.value system.ar}}</div>
+				<div class="threshold-dw">{{add @root.document.system.attributes.secondary.physical.thresholds.deep.value system.ar}}</div>
+				<div class="threshold-id">{{add @root.document.system.attributes.secondary.physical.thresholds.death.value system.ar}}</div>
+				<div class="enc">{{#if system.partial}}*{{else}}{{system.enc}}{{/if}}</div>
+			</li>
+		{{/if}}
+		{{/with}}
+		{{/each}}
+			<li>
+				<div class="identity">
+					<div class="name">Unarmored</div>
+				</div>
+				<div class="ar">&mdash;</div>
+				<div class="threshold-fw">{{@root.document.system.attributes.secondary.physical.thresholds.flesh.value}}</div>
+				<div class="threshold-dw">{{@root.document.system.attributes.secondary.physical.thresholds.deep.value}}</div>
+				<div class="threshold-id">{{@root.document.system.attributes.secondary.physical.thresholds.death.value}}</div>
+				<div class="enc">&mdash;</div>
+			</li>
+		</ul>
 	</div>
 	<div class="combat-pane injuries">
-		{{> "systems/tribe8/templates/sheets/actors/partials/injuries.html"}}
+		<h2><span>Injuries</span>{{#if document.system.actionPenalty}}<span title="{{localize "tribe8.actor.character.injuries.penalty.full"}}">{{document.system.actionPenalty}}</span>{{/if}}</h2>
+		<div class="wounds-pane">
+			<h3>Wounds</h3>
+			{{#each document.system.wounds}}
+			<div class="injury-block injury-values">
+				<div class="header">{{lookup (lookup @root.document.system.attributes.secondary.physical.thresholds @key) "name"}}</div>
+				<div class="injury-value severity-{{@key}}">
+					<input type="number" name="{{@root.tab.id}}.system.wounds.{{@key}}" value="{{this}}" min=0 max=99 title="Current number of {{#with (lookup @root.document.system.attributes.secondary.physical.thresholds @key)}}{{this.name}}s{{/with}}" />
+				</div>
+			</div>
+			{{/each}}
+		</div>
+		<div class="shock-pane">
+			<h3><span>{{localize "tribe8.actor.character.attributes.secondary.physical.shock.full"}}</span></h3>
+			<div class="shock">
+			{{#with document.system.attributes.secondary.physical.shock as | shock |}}
+			{{#repeat shock.value false}}
+				<div class="shock-state">
+					{{~#if (gt this (sub shock.value @root.document.system.shock))~}}
+					<i class="fa fa-solid fa-skull wounded"></i>
+					{{~else~}}
+					<i class="fa fa-solid fa-heart healthy"></i>
+					{{~/if~}}
+				</div>
+			{{/repeat}}
+			{{/with}}
+			</div>
+		</div>
 	</div>
 </div>

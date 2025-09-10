@@ -350,7 +350,12 @@ export class Tribe8CharacterSheet extends Tribe8Application(ActorSheetV2) {
 			}
 		}
 
-		// TODO: Factor in Encumbrance from Armor
+		// Factor in Encumbrance from Armor
+		if (this.document.system.encumbrance < 0) {
+			for (let prop of ['accuracy', 'parry', 'defense']) {
+				this.combatData.summary[prop] = this.#addCombatModifier(this.combatData.summary[prop], this.document.system.encumbrance, prop);
+			}
+		}
 
 		// If we indicated an overall damage multiplier, include that
 		if (Object.hasOwn(this.combatData.summary, 'multiplyDamage')) {
@@ -676,6 +681,76 @@ export class Tribe8CharacterSheet extends Tribe8Application(ActorSheetV2) {
 			}
 		});
 		this.element.querySelectorAll('div.shock-state i').forEach((i) => { shockScaler.observe(i); });
+
+		// Flip the justify-content property on headers in the Combat
+		// tab, based on which column we think they're in.
+		const that = this;
+		const headerAligner = new ResizeObserver((headers) => {
+			const sheetSize = that.element.offsetWidth;
+			for (const header of headers) {
+				const headerPos = header.target.offsetLeft / sheetSize;
+				if (headerPos > 0.15)
+					header.target.classList.add('right-column');
+				else
+					header.target.classList.remove('right-column');
+			}
+		});
+		this.element.querySelectorAll('div.combat-pane h2').forEach((h) => { headerAligner.observe(h); });
+
+		// Set the size of the equipment load sliders
+		const usedLoad = this.document.system.carriedWeight / this.document.system.deadlift[0] * 100;
+		const loadThresholds = CONFIG.Tribe8.loadThresholds;
+		const thresholdList = Object.keys(loadThresholds);
+		for (let t = 0; t < thresholdList.length; t++) {
+			const thresholdName = loadThresholds[thresholdList[t]].descriptor;
+			const thresholdStart = Number(thresholdList[t]);
+			const thresholdEnd = (() => {
+				if (thresholdStart == 100) {
+					if (usedLoad > thresholdStart)
+						return usedLoad;
+					return thresholdStart;
+				}
+				return Number(thresholdList[t+1] ?? thresholdList[thresholdList.length - 1]);
+			})();
+			const thresholdSpan = Math.max(thresholdEnd - thresholdStart, 0)
+			let thresholdUsed = 0;
+			if (usedLoad >= thresholdEnd) thresholdUsed = 100;
+			else {
+				thresholdUsed = Math.max((usedLoad - thresholdStart) / thresholdSpan * 100, 0);
+			}
+			console.log(
+				"Name:", thresholdName,
+				"Starts:", thresholdStart,
+				"Ends:", thresholdEnd,
+				"Span:", thresholdSpan,
+				"Used:", thresholdUsed
+			);
+
+			// Find the corresponding element segment
+			const segment = this.element.querySelector(`div.${thresholdName}`);
+			segment.style.flex = `1 1 ${thresholdSpan}%`;
+			const el = this.element.querySelector(`div.${thresholdName}-used`);
+			el.style.width = `${thresholdUsed}%`;
+			const elValue = this.element.querySelector(`div.load-value.${thresholdName}-threshold`);
+			elValue.style.left = `0px`;
+			// If we're on overload and exceeding it, remove the normal
+			// translate amount that keeps it "inside" the bar
+			if (thresholdStart == 100 && thresholdEnd > 100) {
+				elValue.style.transform = 'var(--threshold-translate)';
+			}
+			elValue.innerHTML = game.i18n.format(
+				`tribe8.item.gear.weight.amount`,
+				{amount: Math.round(this.document.system.deadlift[0] * thresholdStart) / 100}
+			);
+		}
+		// Position the current carried weight text
+		const loadEl = this.element.querySelector(`div.load-value.current-load`);
+		loadEl.style.left = `${Math.min(usedLoad, 100)}%`;
+		loadEl.style.right = 'unset';
+		// If we've exceeded overload, translate to stay inside the bar
+		if (usedLoad > 100) {
+			loadEl.style.transform = 'var(--threshold-translate-last)';
+		}
 
 		super._onRender(context, options);
 	}

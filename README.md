@@ -39,8 +39,6 @@ At present, no stock Items (i.e. Skills, Perks, Flaws, Combat Maneuvers, Aspects
 This is a rough, ever-changing list that depicts in approximate priority order what's on the list of yet-to-be-implemented features.
 
 ### Short Term
-- Combat tab
-  - Add Armor to display
 - Implement basic SilCORE dice mechanics
 - Character artwork editing support
 - Item artwork editing support

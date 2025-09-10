@@ -374,6 +374,36 @@ export class Tribe8Item extends Item {
 	}
 
 	/**
+	 * Determine whether or not the current item counts as "carried",
+	 * regardless of whether or not it's properly marked.
+	 *
+	 * @return {bool} Whether or not the item is carried
+	 * @access        public
+	 */
+	get isCarried() {
+		// Trivial cases
+		if (!this.isEmbedded) return false;
+		if (this.system.carried || this.system.equipped) return true;
+
+		// Check the path
+		const path = this.constructor.#pathToActor(this);
+		path.pop(); // Remove the Actor
+		path.shift(); // Remove the Item itself
+		if (!path.length) return false; // Nothing left? There's our answer
+
+		for (let parentItemId of path) {
+			const parentItem = this.parent.getEmbeddedDocument("Item", parentItemId);
+			if (!parentItem) {
+				console.error(`Item.${parentItemId} was not found on Actor.${this.parent.id}, despite being indicated as storage for Item.${this.id}`);
+				return false;
+			}
+			if (parentItem.isCarried) return true; // If at any point, the parent is carried, we return true
+		}
+		// No parent item marked carried, so this one's not either
+		return false;
+	}
+
+	/**
 	 * Item sort comparison meta-function
 	 *
 	 * @param  {Tribe8Item} a    The first comparison item

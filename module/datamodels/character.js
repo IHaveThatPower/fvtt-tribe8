@@ -144,6 +144,124 @@ export class Tribe8CharacterModel extends foundry.abstract.TypeDataModel {
 	}
 
 	/**
+	 * Get a character's deadlift capability, based on their Str
+	 *
+	 * @return {Array<int>} An array of lower and upper bounds on the deadlift in kg
+	 * @access              public
+	 */
+	get deadlift() {
+		const str = this.attributes.secondary.physical.str.value;
+		return [this.constructor.#bldToMass(str), this.constructor.#bldToMass(str+1)];
+	}
+
+	/**
+	 * Get the current weight of all Gear a character has on them.
+	 *
+	 * @return {number} The total of all Gear weights
+	 * @access          public
+	 */
+	get carriedWeight() {
+		if (!this.parent) return 0;
+
+		const allItems = this.parent.getGear();
+		if (allItems.length == 0) return 0;
+
+		let carried = 0;
+		for (let item of allItems) {
+			if (item.isCarried) {
+				// If weight is null, we can safely cast it to 0
+				let weight = Number(item.system.weight);
+				if (isNaN(weight)) weight = 0;
+				// If quantity is null, we need to ensure we make it at least 1
+				let qty = (typeof item.system.qty === 'number' ? Number(item.system.qty) : 1);
+				if (isNaN(qty)) qty = 1;
+				carried += weight * qty;
+			}
+		}
+		return Math.round(carried * 100) / 100;
+	}
+
+	/**
+	 * Given a BLD (or STR) value, convert it into the lower limit of
+	 * the corresponding mass range.
+	 *
+	 * TODO: This really seems like it should be some kind of library function
+	 *
+	 * @param  {int}       value    The value to be converted
+	 * @return {number}             The resulting lower-limit bound
+	 * @throws {TypeError}          When the value supplied is not (or cannot be converted into) a number
+	 * @access                      private
+	 */
+	static #bldToMass(value) {
+		value = Number(value);
+		if (isNaN(value)) throw new TypeError("Value to be converted to Mass must be a number");
+
+		// Below -6, we're logarithmic
+		if (value < -6) return Math.pow(10, 6 + value);
+
+		// From -7 to -5, we're quadratic
+		if (value < -4) return Math.pow(value, 2) * 0.5 + 10.5 * value + 50;
+
+		// From -5 to -3, we're linear
+		if (value < -3) return 15 * value + 85;
+
+		// From -3 to +1, we're linear with a shallower slope
+		if (value < 1) return 10 * value + 70;
+
+		// We now enter into the realm of approximation
+		// From +1 to +6, we pretty exactly follow a 4th-order polynomial
+		if (value < 7) {
+			const a = 5/48;
+			const b = -(35/72);
+			const c = 35/16;
+			const d = 670/63;
+			const e = 67.5;
+			return Math.round(a * Math.pow(value, 4) + b * Math.pow(value, 3) + c * Math.pow(value, 2) + d * value + e, 0);
+		}
+
+		// From +7 to +9, a 3rd-order polynomial
+		if (value < 10) {
+			const a = 80/3;
+			const b = -540;
+			const c = 3793 + 1/3;
+			const d = -8840;
+			return Math.round(a * Math.pow(value, 3) + b * Math.pow(value, 2) + c * value + d, 0);
+		}
+
+		// From +9 to +11, we suddenly go linear
+		if (value < 12) return 2000 * value - 17000;
+
+		// And finally, we're quadratic for the final stretch up to +15.
+		// Beyond this, we don't have anything else, so this holds beyond +15.
+		return Math.round(2500 * Math.pow(value, 2) - 52500 * value + 280000, 0);
+	}
+
+	/**
+	 * Get total encumbrance of the current actor, based on their
+	 * equipped armor
+	 *
+	 * @return {int} The character's encumbrance penalty
+	 * @access       public
+	 */
+	get encumbrance() {
+		if (!this.parent) return 0; // Need an Actor document parent
+
+		// Gather up all the items
+		const allArmor = this.parent.getGear({type: 'armor'});
+		if (allArmor.length == 0) return 0;
+
+		let encumbrance = 0;
+
+		// Separate out any equipped armor specifically
+		const armorWorn = allArmor.filter((i) => i.system.equipped);
+		for (let armor of armorWorn) {
+			encumbrance += armor.system.encumbrance; // Partial will return 1/3
+		}
+		// Round down
+		return Math.floor(encumbrance);
+	}
+
+	/**
 	 * Remap any legacy data to the new model format, prior to
 	 * attempting to load it.
 	 *
@@ -349,6 +467,38 @@ export class Tribe8CharacterModel extends foundry.abstract.TypeDataModel {
 		for (let rate of Object.keys(this.movement))
 			this.movement[rate] *= movementBasis;
 
+		// On the actor, store any penalties to movement we might have
+		if (this.parent) {
+			this.parent.movementReduction = {
+				'load': false,
+				'injury': false
+			}
+		}
+
+		// Apply penalties from carried load
+		const deadlift = this.deadlift[0];
+		const loadThresholds = CONFIG.Tribe8.loadThresholds;
+		for (let threshold in loadThresholds) {
+			const loadThreshold = Number(threshold) / 100;
+			if (isNaN(loadThreshold)) {
+				console.error("Load threshold could not be converted to a percentage");
+				continue;
+			}
+			if (this.carriedWeight >= (deadlift * loadThreshold)) {
+				const multipliers = loadThresholds[threshold];
+				for (let speed in multipliers) {
+					if (speed === 'descriptor') continue;
+					const multiplier = Number(multipliers[speed]);
+					if (isNaN(multiplier)) {
+						console.error("Load threshold speed multiplier was not a number");
+						continue;
+					}
+					this.movement[speed] *= Number(multipliers[speed]);
+					this.parent.movementReduction.load = true;
+				}
+			}
+		}
+
 		// Apply any penalties from wounds.
 		if (this.wounds.deep > 0 || this.wounds.flesh > 0) {
 			((currentWounds, movementRates) => {
@@ -365,6 +515,9 @@ export class Tribe8CharacterModel extends foundry.abstract.TypeDataModel {
 							// Apply any multipliers we find in the reference table to our existing rates
 							for (let rate of Object.keys(injuredRates)) {
 								movementRates[rate] *= injuredRates[rate];
+								if (this.parent) {
+									this.parent.movementReduction.injury = true;
+								}
 							}
 							return;
 						}

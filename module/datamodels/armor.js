@@ -36,7 +36,7 @@ export class Tribe8ArmorModel extends Tribe8GearModel {
 				required: true,
 				initial: false,
 				hint: "tribe8.item.armor.partial.hint"
-			}), // TODO: Partial armor might have an * value, which counts as 1/3 of an Enc, rounded down
+			}),
 			conceal: new fields.StringField({
 				required: true,
 				initial: CONFIG.Tribe8.armorConcealable[0],
@@ -50,5 +50,17 @@ export class Tribe8ArmorModel extends Tribe8GearModel {
 				hint: "tribe8.item.armor.notes.hint"
 			})
 		};
+	}
+
+	/**
+	 * If armor is marked as "partial", return an encumbrance value
+	 * equal to 1/3.
+	 *
+	 * @return {number} The mathematical value of the armor's ENC
+	 * @access          public
+	 */
+	get encumbrance() {
+		if (this.partial) return (1/3);
+		return this.enc;
 	}
 }

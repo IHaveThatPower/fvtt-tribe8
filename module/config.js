@@ -266,3 +266,26 @@ Tribe8.armorConcealable = [
 	"somewhat",
 	"yes"
 ];
+
+/**
+ * Load thresholds (percentages) that cause carried gear to impede
+ * movement. These are cumulative.
+ */
+Tribe8.loadThresholds = {
+	0: {
+		descriptor: 'unladen',
+	},
+	50: {
+		sprinting: 0,
+		running: 0,
+		descriptor: 'laden'
+	},
+	75: {
+		jogging: 0,
+		descriptor: 'burdened'
+	},
+	100: {
+		walking: 0,
+		descriptor: 'overload'
+	}
+};

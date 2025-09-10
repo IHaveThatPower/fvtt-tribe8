@@ -22,8 +22,6 @@ export class Tribe8ArmorSheet extends Tribe8GearSheet {
 	get title() {
 		let key = 'title';
 		key += (this.document.parent ? '.owned' : '.unowned');
-		// NOTE: Shares title format with Gear
-		// TODO: Append coverage?
 		return game.i18n.format(`tribe8.item.gear.${key}`, {item: this.document.name, owner: this.document.parent?.name});
 	}
 
@@ -74,7 +72,7 @@ export class Tribe8ArmorSheet extends Tribe8GearSheet {
 		const submittingElement = event.submitter ?? event.target;
 		if (submittingElement.nodeName == 'SELECT' && submittingElement.name == 'coverage-select')
 			return;
-		return await super._processSubmitData(event, form, submitData, options);
+		await super._processSubmitData(event, form, submitData, options);
 	}
 
 	/**

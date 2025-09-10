@@ -210,7 +210,8 @@
 				"weight": {
 					"full": "Weight (kg)",
 					"short": "Wt. (kg)",
-					"hint": "The Weight for one unit of this Gear"
+					"hint": "The Weight for one unit of this Gear",
+					"amount": "{amount} kg"
 				},
 				"value": {
 					"hint": "The Value of one unit of this Gear",
@@ -237,7 +238,8 @@
 				"complexity": {
 					"full": "Complexity",
 					"short": "Cpx",
-					"hint": "The Complexity requirement to use, or fully use, this Gear"
+					"hint": "The Complexity requirement to use, or fully use, this Gear",
+					"summary": "Cpx {cpx}"
 				},
 				"storage": {
 					"full": "Container/Carrier",
@@ -245,9 +247,14 @@
 					"hint": "Another piece of Gear on or in which this Gear belongs"
 				},
 				"carried": {
-					"full": "Carried/Worn",
-					"short": "C?",
-					"hint": "Whether or not this Gear is carried by/worn on the Character who possesses it"
+					"full": "Carried",
+					"short": "C",
+					"hint": "Whether or not this Gear is physically on the Character who possesses it"
+				},
+				"equipped": {
+					"full": "Equipped",
+					"short": "E",
+					"hint": "Whether or not this Gear is being used or worn by the Character who possesses it"
 				},
 				"totalWeight": {
 					"full": "Total Weight (kg) of this Gear and any contents",
@@ -350,6 +357,7 @@
 					"shoulders":  "Shoulders"
 				},
 				"enc.hint": "The whole number Encumbrance value of this (piece of) Armor",
+				"enc.summary": "ENC {enc}",
 				"notes.hint": "Notes relevant to this Armor, such as penalties to Notice or Stealth",
 				"partial.hint": "This piece of Armor does not have an individual ENC, but three such pieces equal 1 ENC"
 			}
