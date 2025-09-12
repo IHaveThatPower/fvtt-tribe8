@@ -15,7 +15,7 @@
 		</div>
 		{{#each weapons.sortedIDs as |weaponID|}}
 		{{#with (lookup ../weapons weaponID)}}
-		{{> "systems/tribe8/templates/sheets/actors/partials/weapon.html"}}
+		{{> "systems/tribe8/templates/sheets/actors/partials/weapon.hbs"}}
 		{{/with}}
 		{{/each}}
 		{{#if (not weapons.sortedIDs.length)}}
@@ -35,7 +35,7 @@
 		</div>
 		{{#each armor.sortedIDs as |armorID|}}
 		{{#with (lookup ../armor armorID)}}
-		{{> "systems/tribe8/templates/sheets/actors/partials/armor.html"}}
+		{{> "systems/tribe8/templates/sheets/actors/partials/armor.hbs"}}
 		{{/with}}
 		{{/each}}
 		{{#if (not armor.sortedIDs.length)}}
@@ -62,7 +62,7 @@
 		<details class="collapsible-gear-container" open>
 			<summary class="container">
 			{{/if}}
-				{{> "systems/tribe8/templates/sheets/actors/partials/gear.html"}}
+				{{> "systems/tribe8/templates/sheets/actors/partials/gear.hbs"}}
 			{{#if system.isContainer}}
 			</summary>
 			<blockquote class="contained">

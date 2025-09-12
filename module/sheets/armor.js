@@ -10,7 +10,7 @@ export class Tribe8ArmorSheet extends Tribe8GearSheet {
 	}
 
 	static PARTS = {
-		form: { template: 'systems/tribe8/templates/sheets/items/armor.html' }
+		form: { template: 'systems/tribe8/templates/sheets/items/armor.hbs' }
 	}
 
 	/**

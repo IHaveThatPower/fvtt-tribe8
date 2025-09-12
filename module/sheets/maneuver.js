@@ -7,7 +7,7 @@ export class Tribe8ManeuverSheet extends Tribe8ItemSheet {
 	}
 
 	static PARTS = {
-		form: { template: 'systems/tribe8/templates/sheets/items/maneuver.html' }
+		form: { template: 'systems/tribe8/templates/sheets/items/maneuver.hbs' }
 	}
 
 	static COMBAT_MODIFIER_FIELDS = ['accuracy', 'initiative', 'defense', 'parry', 'damage'];

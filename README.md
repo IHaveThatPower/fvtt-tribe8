@@ -42,6 +42,7 @@ This is a rough, ever-changing list that depicts in approximate priority order w
 - Implement basic SilCORE dice mechanics
 - Character artwork editing support
 - Item artwork editing support
+- Player-side initiative editing / manual roll input support
 - Equipment tab
   - User-driven sorting
 - Finalize character sheet layout

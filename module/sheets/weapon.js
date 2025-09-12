@@ -9,7 +9,7 @@ export class Tribe8WeaponSheet extends Tribe8GearSheet {
 	}
 
 	static PARTS = {
-		form: { template: 'systems/tribe8/templates/sheets/items/weapon.html' }
+		form: { template: 'systems/tribe8/templates/sheets/items/weapon.hbs' }
 	}
 
 	/**

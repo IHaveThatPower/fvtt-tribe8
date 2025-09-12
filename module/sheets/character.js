@@ -25,9 +25,9 @@ export class Tribe8CharacterSheet extends Tribe8Application(ActorSheetV2) {
 
 	static PARTS = {
 		tabs: { template: 'templates/generic/tab-navigation.hbs' },
-		main: { template: 'systems/tribe8/templates/sheets/actors/character_main.html' },
-		equipment: { template: 'systems/tribe8/templates/sheets/actors/character_equipment.html' },
-		combat: { template: 'systems/tribe8/templates/sheets/actors/character_combat.html' }
+		main: { template: 'systems/tribe8/templates/sheets/actors/character_main.hbs' },
+		equipment: { template: 'systems/tribe8/templates/sheets/actors/character_equipment.hbs' },
+		combat: { template: 'systems/tribe8/templates/sheets/actors/character_combat.hbs' }
 	}
 
 	static TABS = {
