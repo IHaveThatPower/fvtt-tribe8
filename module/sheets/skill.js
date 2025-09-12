@@ -14,7 +14,7 @@ export class Tribe8SkillSheet extends Tribe8ItemSheet {
 	}
 
 	static PARTS = {
-		form: { template: 'systems/tribe8/templates/sheets/items/skill.html' }
+		form: { template: 'systems/tribe8/templates/sheets/items/skill.hbs' }
 	}
 
 	static DEFAULT_ICON = "systems/tribe8/icons/skill.svg";

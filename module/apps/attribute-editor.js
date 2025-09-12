@@ -18,7 +18,7 @@ export class Tribe8AttributeEditor extends Tribe8Application(DocumentSheetV2) {
 	}
 
 	static PARTS = {
-		form: { template: 'systems/tribe8/templates/apps/attributes-editor.html' }
+		form: { template: 'systems/tribe8/templates/apps/attributes-editor.hbs' }
 	}
 
 	/**

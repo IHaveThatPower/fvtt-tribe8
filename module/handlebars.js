@@ -191,24 +191,24 @@ Handlebars.registerHelper('setVar',
 foundry.applications.handlebars.loadTemplates(
 	[
 		// Character sheet parts
-		"sheets/actors/partials/armor.html",
-		"sheets/actors/partials/attributes.html",
-		"sheets/actors/partials/basic_info.html",
-		"sheets/actors/partials/gear.html",
-		"sheets/actors/partials/injuries.html",
-		"sheets/actors/partials/magic.html",
-		"sheets/actors/partials/magic_aspects.html",
-		"sheets/actors/partials/maneuvers.html",
-		"sheets/actors/partials/pf.html",
-		"sheets/actors/partials/points.html",
-		"sheets/actors/partials/portrait.html",
-		"sheets/actors/partials/skills.html",
-		"sheets/actors/partials/weapon.html",
+		"sheets/actors/partials/armor.hbs",
+		"sheets/actors/partials/attributes.hbs",
+		"sheets/actors/partials/basic_info.hbs",
+		"sheets/actors/partials/gear.hbs",
+		"sheets/actors/partials/injuries.hbs",
+		"sheets/actors/partials/magic.hbs",
+		"sheets/actors/partials/magic_aspects.hbs",
+		"sheets/actors/partials/maneuvers.hbs",
+		"sheets/actors/partials/pf.hbs",
+		"sheets/actors/partials/points.hbs",
+		"sheets/actors/partials/portrait.hbs",
+		"sheets/actors/partials/skills.hbs",
+		"sheets/actors/partials/weapon.hbs",
 
 		// Shared Item sheet parts
-		"sheets/items/partials/gearCommonProperties.html",
-		"sheets/items/partials/buttons.html",
-		"sheets/items/partials/description.html"
+		"sheets/items/partials/gearCommonProperties.hbs",
+		"sheets/items/partials/buttons.hbs",
+		"sheets/items/partials/description.hbs"
 	]
 	.map((t) => `systems/tribe8/templates/${t}`)
 );
