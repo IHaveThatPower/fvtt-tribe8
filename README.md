@@ -39,13 +39,13 @@ At present, no stock Items (i.e. Skills, Perks, Flaws, Combat Maneuvers, Aspects
 This is a rough, ever-changing list that depicts in approximate priority order what's on the list of yet-to-be-implemented features.
 
 ### Short Term
-- Implement basic SilCORE dice mechanics
 - Character artwork editing support
 - Item artwork editing support
 - Player-side initiative editing / manual roll input support
 - Equipment tab
   - User-driven sorting
 - Finalize character sheet layout
+- Deal with various TODO items
 
 ### Longer Term
 - Fully localize!

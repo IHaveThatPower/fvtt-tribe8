@@ -697,6 +697,7 @@ export class Tribe8CharacterSheet extends Tribe8Application(ActorSheetV2) {
 		});
 		this.element.querySelectorAll('div.combat-pane h2').forEach((h) => { headerAligner.observe(h); });
 
+		// TODO: Probably should break this out
 		// Set the size of the equipment load sliders
 		const usedLoad = this.document.system.carriedWeight / this.document.system.deadlift[0] * 100;
 		const loadThresholds = CONFIG.Tribe8.loadThresholds;

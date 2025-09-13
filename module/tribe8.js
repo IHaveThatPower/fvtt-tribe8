@@ -2,6 +2,7 @@ import { Tribe8 } from './config.js';
 /* Documents */
 import { Tribe8Actor } from './documents/actor.js';
 import { Tribe8Item } from './documents/item.js';
+import { Tribe8Combatant } from './documents/combatant.js';
 /* Sheets */
 import { Tribe8CharacterSheet } from './sheets/character.js';
 import { Tribe8ItemSheet } from './sheets/item.js';
@@ -28,6 +29,9 @@ import { Tribe8GearModel } from './datamodels/gear.js';
 import { Tribe8WeaponModel } from './datamodels/weapon.js';
 import { Tribe8ArmorModel } from './datamodels/armor.js';
 import * as initHandlebars from './handlebars.js';
+/* Other Stuff */
+import { SilhouetteDie } from './dice/die.js';
+import { Tribe8Roll } from './dice/roll.js';
 
 /* -------------------------------------------- */
 /*  Foundry VTT Initialization                  */
@@ -63,11 +67,17 @@ Hooks.once('init', function() {
 
 	// Define initiative for the system.
 	CONFIG.Combat.initiative = {
-		formula: null, // TODO: (Later) Initiative is a ranked Combat Sense roll, but that requires actually implementing dice mechanics
+		formula: "(@combatSense)sd + @system.attributes.primary.per.value",
 		decimals: 0
 	};
 
 	// Define custom Entity classes
+	CONFIG.Dice.rolls = [
+		Tribe8Roll
+	];
+	for (let d of SilhouetteDie.DENOMINATION_VARIATIONS) {
+		CONFIG.Dice.terms[d] = SilhouetteDie;
+	}
 	CONFIG.Actor.documentClass = Tribe8Actor;
 	CONFIG.Actor.dataModels = {
 		character: Tribe8CharacterModel
@@ -87,6 +97,7 @@ Hooks.once('init', function() {
 		weapon: Tribe8WeaponModel,
 		armor: Tribe8ArmorModel,
 	};
+	CONFIG.Combatant.documentClass = Tribe8Combatant;
 
 	// Register sheet application classes
 	const { Actors, Items } = foundry.documents.collections;

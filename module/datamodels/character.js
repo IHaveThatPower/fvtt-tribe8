@@ -475,6 +475,7 @@ export class Tribe8CharacterModel extends foundry.abstract.TypeDataModel {
 			}
 		}
 
+		// TODO: Probably should break these out
 		// Apply penalties from carried load
 		const deadlift = this.deadlift[0];
 		const loadThresholds = CONFIG.Tribe8.loadThresholds;
@@ -499,6 +500,7 @@ export class Tribe8CharacterModel extends foundry.abstract.TypeDataModel {
 			}
 		}
 
+		// TODO: Probably should break these out
 		// Apply any penalties from wounds.
 		if (this.wounds.deep > 0 || this.wounds.flesh > 0) {
 			((currentWounds, movementRates) => {
