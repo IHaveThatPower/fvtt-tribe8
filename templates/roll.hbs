@@ -3,8 +3,8 @@
     <div class="dice-flavor">{{flavor}}</div>
     {{/if}}
     <div class="dice-result">
-        <div class="dice-formula">{{formula}}</div>
+        <div class="dice-formula{{#if unskilled}} unskilled{{/if}}">{{formula}}</div>
         {{{tooltip}}}
-        <h4 class="dice-total{{#if fumble}} fumble{{/if}}">{{total}}</h4>
+        <h4 class="dice-total{{#if fumbled}} fumble{{else}}{{#if multisix}} multisix{{/if}}{{#if allsix}} allsix{{/if}}{{/if}}">{{total}}</h4>
     </div>
 </div>

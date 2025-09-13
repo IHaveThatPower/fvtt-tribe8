@@ -1,4 +1,4 @@
-.tribe8 {
+:root {
 	--font-header: "Chainprinter", "Font Awesome 6 Pro", monospace;
 
 	/**
@@ -29,6 +29,11 @@
 	--color-system-shock-wounded: rgb(59 43 43);
 	--color-trauma-inactive: var(--color-medium-gray);
 	--color-trauma-active: var(--color-text-emphatic);
+	--color-multisix: #006c00;
+	--color-background-multisix: rgba(0, 109, 0, 0.2);
+	--color-allsix: green;
+	--color-fumble: red;
+	--color-unskilled: rgb(255, 92, 0, 0.2);
 
 	/* Alt rows */
 	--color-background-alt: color-mix(in srgb, var(--color-text-emphatic), transparent 95%);
@@ -194,6 +199,24 @@ div.item-sheet h3 {
 	height: 0;
 	margin: 0;
 	margin-bottom: 0.25rem;
+}
+
+/**
+ * Silhouette Dice
+ */
+div.dice-roll h4.dice-total.fumble {
+	color: var(--color-fumble);
+}
+div.dice-roll h4.dice-total.multisix {
+	border-color: var(--color-multisix);
+	border-width: 2px;
+	background: var(--color-background-multisix);
+}
+div.dice-roll h4.dice-total.allsix {
+	color: var(--color-allsix)
+}
+div.dice-roll .dice-formula.unskilled {
+	background: var(--color-unskilled);
 }
 
 /**

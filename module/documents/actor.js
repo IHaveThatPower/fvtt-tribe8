@@ -423,6 +423,17 @@ export class Tribe8Actor extends Actor {
 	}
 
 	/**
+	 * Return a data object which defines the data schema against which
+	 * dice rolls can be evaluated.
+	 *
+	 * @return {object} The data used to evaluate rolls
+	 * @access public
+	 */
+	getRollData() {
+		return {system: this.system, items: this.getItems()};
+	}
+
+	/**
 	 * Perform any source data migration steps that need to be done
 	 * at the Actor level to account for changes to overall design.
 	 *
