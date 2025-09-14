@@ -1,23 +1,24 @@
 <form>
-	<div class="form-group">
-		<label>Formula</label>
+	<div class="form-group formula">
+		<label>Base Roll</label>
 		<input type="text" name="formula" value="{{formula}}" disabled>
 	</div>
-	<div class="form-group">
-		<input type="text" name="bonus" value="" placeholder="Situational bonus?" />
+	<div class="form-group bonus">
+		<input type="text" name="bonus" value="" placeholder="Situational bonuses?" />
 	</div>
-	<div class="form-group">
-		<label>Raw Manual Roll</label>
-		<input type="number" name="manual" placeholder="Optional: physical dice roll result (no mods)" title="If desired, input the result of your physical die roll here.
-Do not include any modifiers; Foundry will add those, or use the field above.">
-	</div>
-	</div>
-	<div class="form-group">
-		<label>Roll Mode</label>
-		<select name="rollMode">
-			{{#each rollModes}}
-			<option value="{{@key}}"{{#if (eq @key currentRollMode)}} selected{{/if}}>{{localize this.label}}</option>
-			{{/each}}
-		</select>
+	<div class="roll-configuration">
+		<div class="form-group manual">
+			<label>Raw Manual Roll</label>
+			<input type="number" name="manual" placeholder="Optional: physical roll result (no mods)" title="If desired, input the result of your physical die roll here.
+	Do not include any modifiers; Foundry will add those, or use the field above.">
+		</div>
+		<div class="form-group mode">
+			<label>Roll Mode</label>
+			<select name="rollMode">
+				{{#each rollModes}}
+				<option value="{{@key}}"{{#if (eq @key currentRollMode)}} selected{{/if}}>{{localize this.label}}</option>
+				{{/each}}
+			</select>
+		</div>
 	</div>
 </form>

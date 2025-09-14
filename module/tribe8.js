@@ -68,7 +68,7 @@ Hooks.once('init', function() {
 
 	// Define initiative for the system.
 	CONFIG.Combat.initiative = {
-		formula: "(@combatSense)sd + @system.attributes.primary.per.value",
+		formula: "(@combatSense)ds + @system.attributes.primary.per.value",
 		decimals: 0
 	};
 
@@ -76,9 +76,7 @@ Hooks.once('init', function() {
 	CONFIG.Dice.rolls = [
 		Tribe8Roll
 	];
-	for (let d of SilhouetteDie.DENOMINATION_VARIATIONS) {
-		CONFIG.Dice.terms[d] = SilhouetteDie;
-	}
+	CONFIG.Dice.terms[SilhouetteDie.DENOMINATION] = SilhouetteDie;
 	CONFIG.Actor.documentClass = Tribe8Actor;
 	CONFIG.Actor.dataModels = {
 		character: Tribe8CharacterModel

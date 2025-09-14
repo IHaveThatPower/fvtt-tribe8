@@ -33,6 +33,7 @@ export class Tribe8CombatTracker extends CombatTracker {
 		combatant.clearInitiativeOverride();
 		const context = {
 			combatant: combatant,
+			formula: combatant.getInitiativeRoll().formula,
 			rollModes: CONFIG.Dice.rollModes,
 			currentRollMode: game.settings.get("core", "rollMode")
 		};
@@ -40,6 +41,7 @@ export class Tribe8CombatTracker extends CombatTracker {
 		const self = this;
 		const response = await DialogV2.wait({
 			window: { title: "Roll Initiative" },
+			classes: ["tribe8", "initiative-dialog"],
 			content: content,
 			modal: true,
 			buttons: [

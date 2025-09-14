@@ -1,4 +1,4 @@
-:root {
+body.system-tribe8 {
 	--font-header: "Chainprinter", "Font Awesome 6 Pro", monospace;
 
 	/**
@@ -159,6 +159,10 @@
 		var(--color-text-emphatic) 95%,
 		transparent
 	) 1;
+
+	/* Radii */
+	--attribute-block-top-corners: 0.5rem;
+	--attribute-block-bottom-corners: 0.75rem;
 }
 
 div.character-sheet h2,
@@ -323,7 +327,7 @@ div.dice-roll .dice-formula.unskilled {
 .tribe8.sheet.actor.character, .tribe8.tribe8app.attributes {
 	height: 100%;
 
-	nav {
+	nav.tabs {
 		font-family: var(--font-header);
 		position: absolute;
 		top: 0;
@@ -494,8 +498,6 @@ div.dice-roll .dice-formula.unskilled {
 		vertical-align: middle;
 	}
 
-	--attribute-block-top-corners: 0.5rem;
-	--attribute-block-bottom-corners: 0.75rem;
 	div.attribute-block {
 		display: flex;
 		flex-flow: column nowrap;
@@ -1948,5 +1950,82 @@ div.dice-roll .dice-formula.unskilled {
 		grid-template-columns: 1fr min-content;
 		align-items: center;
 		flex: 0 0 fit-content;
+	}
+}
+
+/**
+ * Initiative Dialog
+ */
+.tribe8.initiative-dialog {
+	.dialog-content.standard-form {
+		gap: 0.4rem;
+	}
+	.form-group:not(.formula) {
+		flex-flow: column;
+		gap: 0;
+		align-items: start;
+	}
+	.form-group>* {
+		flex: 2 0 2rem;
+	}
+	.form-group label {
+		color: var(--color-label-text);
+		background: var(--color-label-background);
+		line-height: 1rem;
+		font-variant: small-caps;
+		border-top: 1px solid;
+		border-radius: var(--attribute-block-top-corners) var(--attribute-block-top-corners) 0 0;
+		width: 100%;
+		display: block;
+		flex: 0 0 min-content;
+		white-space: nowrap;
+		padding: 0 0.4rem;
+	}
+	.form-group.formula label {
+		order: 2;
+		font-style: italic;
+		color: var(--color-medium-gray);
+		background: revert;
+		font-weight: normal;
+		font-size: 90%;
+		text-align: right;
+		border: none;
+		font-variant: normal;
+		flex: 1 0 fit-content;
+		padding: revert;
+    }
+	.form-group.formula input {
+		order: 1;
+		background: none;
+		border: none;
+		text-align: left;
+		line-height: 1rem;
+		height: 1rem;
+		padding: 0;
+	}
+	.roll-configuration {
+		margin-top: 0.8rem;
+		padding: 0.8rem 0.4rem 0.4rem 0.4rem;
+		border: 1px inset var(--color-medium-gray);
+		border-top: 0;
+		border-bottom: 0;
+		border-radius: var(--attribute-block-bottom-corners);
+		display: flex;
+		flex-flow: column;
+		gap: 0.6rem;
+		position: relative;
+	}
+	.roll-configuration::before {
+		content: "Configuration"; /* TODO: How to localize this? */
+		color: var(--color-medium-gray);
+		position: absolute;
+		display: block;
+		top: -0.6rem;
+		font-variant: small-caps;
+		font-weight: bold;
+		font-size: 1rem;
+		left: 0;
+		width: 100%;
+		text-align: center;
 	}
 }

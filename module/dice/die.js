@@ -1,17 +1,13 @@
 const { Die, DiceTerm } = foundry.dice.terms;
 
 export class SilhouetteDie extends Die {
-	static DENOMINATION = "sd";
-	static DENOMINATION_VARIATIONS = ["sd", "ds", "s"];
+	static DENOMINATION = "s";
 
 	static MODIFIERS = {
 		kl: "unskilled",
 		u:  "unskilled",
 		us: "unskilled"
 	};
-
-	static REGEXP = new RegExp(`^([0-9]+)?(?:[sS][dD]|[dD][sS]|[sS](?![dD]))${this.MODIFIERS_REGEXP_STRING}?${this.FLAVOR_REGEXP_STRING}?$`);
-	static SERIALIZE_ATTRIBUTES = ["number", "modifiers", "results", "method"];
 
 	/**
 	 * Override the base DieTerm constructor, because we *always* have
@@ -96,9 +92,9 @@ export class SilhouetteDie extends Die {
 			for (let i of hideIndices) {
 				displayModifiers.splice(i, 1);
 			}
-			return `0sd${displayModifiers.join("")}`;
+			return `0ds${displayModifiers.join("")}`;
 		}
-		return `${this._number}sd${this.modifiers.join("")}`;
+		return `${this._number}ds${this.modifiers.join("")}`;
 	}
 
 	/**
@@ -159,21 +155,6 @@ export class SilhouetteDie extends Die {
 			}
 		}
 		return data;
-	}
-
-	/**
-	 * Parse a given formula string into constituent components. We need
-	 * this because Peggy doesn't understand our two-character
-	 * denomination.
-	 *
-	 * @param  {string} formula    The formula for the term
-	 * @return {object}            The parsed properties for the term
-	 * @access public
-	 */
-	static parse(formula) {
-		const matches = formula.match(this.REGEXP);
-		if (!matches) return {};
-		return {number: matches[1], modifiers: matches[2], flavor: matches[3]};
 	}
 
 	/**
