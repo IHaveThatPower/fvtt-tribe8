@@ -33,7 +33,7 @@
 	--color-background-multisix: rgba(0, 109, 0, 0.2);
 	--color-allsix: green;
 	--color-fumble: red;
-	--color-unskilled: rgb(255, 92, 0, 0.2);
+	--color-unskilled: rgb(255, 200, 0, 0.25);
 
 	/* Alt rows */
 	--color-background-alt: color-mix(in srgb, var(--color-text-emphatic), transparent 95%);

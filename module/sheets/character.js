@@ -719,13 +719,6 @@ export class Tribe8CharacterSheet extends Tribe8Application(ActorSheetV2) {
 			else {
 				thresholdUsed = Math.max((usedLoad - thresholdStart) / thresholdSpan * 100, 0);
 			}
-			console.log(
-				"Name:", thresholdName,
-				"Starts:", thresholdStart,
-				"Ends:", thresholdEnd,
-				"Span:", thresholdSpan,
-				"Used:", thresholdUsed
-			);
 
 			// Find the corresponding element segment
 			const segment = this.element.querySelector(`div.${thresholdName}`);

@@ -31,6 +31,7 @@ import { Tribe8ArmorModel } from './datamodels/armor.js';
 import * as initHandlebars from './handlebars.js';
 /* Other Stuff */
 import { SilhouetteDie } from './dice/die.js';
+import { Tribe8CombatTracker } from './apps/combat-tracker.js';
 import { Tribe8Roll } from './dice/roll.js';
 
 /* -------------------------------------------- */
@@ -98,6 +99,7 @@ Hooks.once('init', function() {
 		armor: Tribe8ArmorModel,
 	};
 	CONFIG.Combatant.documentClass = Tribe8Combatant;
+	CONFIG.ui.combat = Tribe8CombatTracker;
 
 	// Register sheet application classes
 	const { Actors, Items } = foundry.documents.collections;

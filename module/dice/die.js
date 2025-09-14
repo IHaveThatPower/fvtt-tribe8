@@ -141,6 +141,27 @@ export class SilhouetteDie extends Die {
 	}
 
 	/**
+	 * Render the tooltip HTML for a Roll instance
+	 *
+	 * @return {object} The data object used to render the default tooltip template for this DiceTerm
+	 * @access public
+	 */
+	getTooltipData() {
+		const data = super.getTooltipData();
+
+		// We need to modify "rolls" to account for situations where
+		// the number of dice we rolls mismatches the number we "should"
+		// have (i.e. when a manual result is used to override, as for
+		// initiative)
+		if (data.rolls.length < this.number) {
+			for (let r = data.rolls.length; r < this.number; r++) {
+				data.rolls.push({result: "?", classes: "unused-die"})
+			}
+		}
+		return data;
+	}
+
+	/**
 	 * Parse a given formula string into constituent components. We need
 	 * this because Peggy doesn't understand our two-character
 	 * denomination.

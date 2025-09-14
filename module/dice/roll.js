@@ -11,7 +11,7 @@ export class Tribe8Roll extends Roll {
 	 * The HTML template path used to render a complete Roll object to the chat log
 	 * @type {string}
 	 */
-	static CHAT_TEMPLATE = "systems/tribe8/templates/roll.hbs";
+	static CHAT_TEMPLATE = "systems/tribe8/templates/dice/roll.hbs";
 
 	/**
 	 * We implement our own parse method, but in order for it to kick
@@ -55,11 +55,8 @@ export class Tribe8Roll extends Roll {
 
 		// If it did both, the total is always just 1
 		if (fumbled && unskilled) {
-			console.log("Fumbled and unskilled, setting total to 1");
 			result._total = 1;
-			console.log("Result now", result);
 		}
-
 		return result;
 	}
 
