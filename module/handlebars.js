@@ -187,6 +187,38 @@ Handlebars.registerHelper('setVar',
 	}
 );
 
+Handlebars.registerHelper('gearSortControls',
+	/**
+	 * Generate class and dataset properties for a header row on the
+	 * Gear tab, for sorting
+	 *
+	 * @param  {object} [options={}]    Handlebars options object, the hash property of which contains the named arguments we care about
+	 * @return {string}                 A string containing class and data-* properties.
+	 */
+	function(options = {}) {
+		const classes = [];
+		const dataset = {};
+
+		// Extract from hash
+		const {column, section, sorting} = options.hash;
+		const sortKey = `sort-${section}`;
+
+		// Handle classes
+		classes.push(Handlebars.escapeExpression(column));
+		if (sorting && sorting[sortKey]?.by == column) classes.push("sorting");
+
+		// Handle dataset
+		dataset.action = `sort-${section}`;
+		dataset['sort-property'] = Handlebars.escapeExpression(column);
+		dataset['sort-direction'] = sorting && sorting[sortKey]?.by == column && sorting[sortKey]?.dir == "desc" ? "desc" : "asc";
+
+		// Assemble properties
+		const classString = `class="${classes.join(" ")}"`;
+		const dataString = Object.keys(dataset).map((key) => `data-${key}="${dataset[key]}"`).join(" ");
+		return new Handlebars.SafeString(`${classString} ${dataString}`);
+	}
+);
+
 // Load supplemental templates
 foundry.applications.handlebars.loadTemplates(
 	[
@@ -203,6 +235,7 @@ foundry.applications.handlebars.loadTemplates(
 		"sheets/actors/partials/points.hbs",
 		"sheets/actors/partials/portrait.hbs",
 		"sheets/actors/partials/skills.hbs",
+		"sheets/actors/partials/toggle.hbs",
 		"sheets/actors/partials/weapon.hbs",
 
 		// Shared Item sheet parts

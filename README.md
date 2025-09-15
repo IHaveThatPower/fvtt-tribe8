@@ -39,8 +39,7 @@ At present, no stock Items (i.e. Skills, Perks, Flaws, Combat Maneuvers, Aspects
 This is a rough, ever-changing list that depicts in approximate priority order what's on the list of yet-to-be-implemented features.
 
 ### Short Term
-- Traits tab: toggle for sorting skills by level vs. name
-- Equipment tab: user-driven sorting by column, while still maintaining hierarchy
+- Add on-sheet toggles for "Equipped" and "Carried"
 - Finalize character sheet layout
 - Deal with various remaining TODO items
 

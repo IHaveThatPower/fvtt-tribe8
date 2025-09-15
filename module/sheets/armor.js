@@ -125,7 +125,6 @@ export class Tribe8ArmorSheet extends Tribe8GearSheet {
 		// Which index are we removing from the coverage list?
 		const removeCoverage = target.parentNode?.dataset?.editId;
 		if (typeof removeCoverage == 'undefined') return;
-		console.log("Removing coverage", removeCoverage);
 
 		// Get the current coverage list
 		const currentCoverage = [...this.document.system.coverage];

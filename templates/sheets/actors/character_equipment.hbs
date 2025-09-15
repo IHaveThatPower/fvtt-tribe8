@@ -2,16 +2,30 @@
 	<div class="gear-list weapons-list">
 		<h2><span>{{localize "TYPES.Item.weapon-plural"}}</span><button name="add-weapon" data-action="addNewItem" type="button"><i class="fa fa-solid fa-plus"></i></button></h2>
 		<div class="gear-item-row gear-list-header">
-			<div class="identity">{{!-- TODO: Add sorting controls to all of these --}}
+			<div {{gearSortControls column="identity" section="weapons" sorting=sorting}}>
 				<div class="name">{{localize "tribe8.item.name"}}</div>
 			</div>
-			<div class="qty"><span title="{{localize "tribe8.item.gear.qty.full"}}">{{localize "tribe8.item.gear.qty.short"}}</span></div>
-			<div class="weight"><span title="{{localize "tribe8.item.gear.weight.full"}}"><i class="fa fa-solid fa-weight-hanging"></i></span></div>
-			<div class="total-weight"><span title="{{localize "tribe8.item.gear.totalWeight.full"}}">&Sigma;<i class="fa fa-solid fa-weight-hanging"></i></span></div>
-			<div class="value"><span title="{{localize "tribe8.item.gear.value.full"}}">{{localize "tribe8.item.gear.value.short"}}</span></div>
-			<div class="complexity"><span title="{{localize "tribe8.item.gear.complexity.full"}}">{{localize "tribe8.item.gear.complexity.short"}}</span></div>
-			<div class="carried"><span title="{{localize "tribe8.item.gear.carried.full"}}"><i class="fa fa-solid fa-suitcase"></i></span></div><!-- TODO: (UI) Carried toggle -->
-			<div class="equipped"><span title="{{localize "tribe8.item.gear.equipped.full"}}"><i class="fa fa-solid fa-hand"></i></span></div><!-- TODO: (UI) Equipped toggle -->
+			<div {{gearSortControls column="qty" section="weapons" sorting=sorting}}>
+				<span title="{{localize "tribe8.item.gear.qty.full"}}">{{localize "tribe8.item.gear.qty.short"}}</span>
+			</div>
+			<div {{gearSortControls column="weight" section="weapons" sorting=sorting}}>
+				<span title="{{localize "tribe8.item.gear.weight.full"}}"><i class="fa fa-solid fa-weight-hanging"></i></span>
+			</div>
+			<div {{gearSortControls column="total-weight" section="weapons" sorting=sorting}}>
+				<span title="{{localize "tribe8.item.gear.totalWeight.full"}}">&Sigma;<i class="fa fa-solid fa-weight-hanging"></i></span>
+			</div>
+			<div {{gearSortControls column="value" section="weapons" sorting=sorting}}>
+				<span title="{{localize "tribe8.item.gear.value.full"}}">{{localize "tribe8.item.gear.value.short"}}</span>
+			</div>
+			<div {{gearSortControls column="complexity" section="weapons" sorting=sorting}}>
+				<span title="{{localize "tribe8.item.gear.complexity.full"}}">{{localize "tribe8.item.gear.complexity.short"}}</span>
+			</div>
+			<div {{gearSortControls column="carried" section="weapons" sorting=sorting}}>
+				<span title="{{localize "tribe8.item.gear.carried.full"}}"><i class="fa fa-solid fa-suitcase"></i></span>
+			</div><!-- TODO: (UI) Carried toggle -->
+			<div {{gearSortControls column="equipped" section="weapons" sorting=sorting}}>
+				<span title="{{localize "tribe8.item.gear.equipped.full"}}"><i class="fa fa-solid fa-hand"></i></span>
+			</div><!-- TODO: (UI) Equipped toggle -->
 		</div>
 		{{#each weapons.sortedIDs as |weaponID|}}
 		{{#with (lookup ../weapons weaponID)}}
@@ -25,13 +39,21 @@
 	<div class="gear-list armor-list">
 		<h2><span>{{localize "TYPES.Item.armor-plural"}}</span><span>({{localize "tribe8.item.armor.enc.summary" enc=document.system.encumbrance}})</span><button name="add-armor" data-action="addNewItem" type="button"><i class="fa fa-solid fa-plus"></i></button></h2>
 		<div class="gear-item-row gear-list-header">
-			<div class="identity">{{!-- TODO: Add sorting controls to all of these --}}
+			<div {{gearSortControls column="identity" section="armor" sorting=sorting}}>
 				<div class="name">{{localize "tribe8.item.name"}}</div>
 			</div>
-			<div class="qty"><span title="{{localize "tribe8.item.gear.qty.full"}}">{{localize "tribe8.item.gear.qty.short"}}</span></div>
-			<div class="ar"><span title="{{localize "tribe8.item.armor.ar.full"}}"><i class="fa fa-solid fa-shield-halved"></i></span></div>
-			<div class="enc"><span title="{{localize "tribe8.item.armor.enc.full"}}"><i class="fa fa-solid fa-scale-unbalanced-flip"></i></span></div>
-			<div class="equipped"><span title="{{localize "tribe8.item.armor.equipped.full"}}"><i class="fa fa-solid fa-shirt"></i></span></div><!-- TODO: (UI) Worn toggle -->
+			<div {{gearSortControls column="qty" section="armor" sorting=sorting}}>
+				<span title="{{localize "tribe8.item.gear.qty.full"}}">{{localize "tribe8.item.gear.qty.short"}}</span>
+			</div>
+			<div {{gearSortControls column="ar" section="armor" sorting=sorting}}>
+				<span title="{{localize "tribe8.item.armor.ar.full"}}"><i class="fa fa-solid fa-shield-halved"></i></span>
+			</div>
+			<div {{gearSortControls column="enc" section="armor" sorting=sorting}}>
+				<span title="{{localize "tribe8.item.armor.enc.full"}}"><i class="fa fa-solid fa-scale-unbalanced-flip"></i></span>
+			</div>
+			<div {{gearSortControls column="equipped" section="armor" sorting=sorting}}>
+				<span title="{{localize "tribe8.item.armor.equipped.full"}}"><i class="fa fa-solid fa-shirt"></i></span>
+			</div><!-- TODO: (UI) Worn toggle -->
 		</div>
 		{{#each armor.sortedIDs as |armorID|}}
 		{{#with (lookup ../armor armorID)}}
@@ -45,16 +67,30 @@
 	<div class="gear-list">
 		<h2><span>{{localize "TYPES.Item.gear-plural"}}</span><button name="add-gear" data-action="addNewItem" type="button"><i class="fa fa-solid fa-plus"></i></button></h2>
 		<div class="gear-item-row gear-list-header">
-			<div class="identity">{{!-- TODO: Add sorting controls to all of these --}}
+			<div {{gearSortControls column="identity" section="gear" sorting=sorting}}>
 				<div class="name">{{localize "tribe8.item.name"}}</div>
 			</div>
-			<div class="qty"><span title="{{localize "tribe8.item.gear.qty.full"}}">{{localize "tribe8.item.gear.qty.short"}}</span></div>
-			<div class="weight"><span title="{{localize "tribe8.item.gear.weight.full"}}"><i class="fa fa-solid fa-weight-hanging"></i></span></div>
-			<div class="total-weight"><span title="{{localize "tribe8.item.gear.totalWeight.full"}}">&Sigma;<i class="fa fa-solid fa-weight-hanging"></i></span></div>
-			<div class="value"><span title="{{localize "tribe8.item.gear.value.full"}}">{{localize "tribe8.item.gear.value.short"}}</span></div>
-			<div class="complexity"><span title="{{localize "tribe8.item.gear.complexity.full"}}">{{localize "tribe8.item.gear.complexity.short"}}</span></div>
-			<div class="carried"><span title="{{localize "tribe8.item.gear.carried.full"}}"><i class="fa fa-solid fa-suitcase"></i></span></div><!-- TODO: (UI) Carried toggle -->
-			<div class="equipped"><span title="{{localize "tribe8.item.gear.equipped.full"}}"><i class="fa fa-solid fa-hand"></i></span></div><!-- TODO: (UI) Worn toggle -->
+			<div {{gearSortControls column="qty" section="gear" sorting=sorting}}>
+				<span title="{{localize "tribe8.item.gear.qty.full"}}">{{localize "tribe8.item.gear.qty.short"}}</span>
+			</div>
+			<div {{gearSortControls column="weight" section="gear" sorting=sorting}}>
+				<span title="{{localize "tribe8.item.gear.weight.full"}}"><i class="fa fa-solid fa-weight-hanging"></i></span>
+			</div>
+			<div {{gearSortControls column="total-weight" section="gear" sorting=sorting}}>
+				<span title="{{localize "tribe8.item.gear.totalWeight.full"}}">&Sigma;<i class="fa fa-solid fa-weight-hanging"></i></span>
+			</div>
+			<div {{gearSortControls column="value" section="gear" sorting=sorting}}>
+				<span title="{{localize "tribe8.item.gear.value.full"}}">{{localize "tribe8.item.gear.value.short"}}</span>
+			</div>
+			<div {{gearSortControls column="complexity" section="gear" sorting=sorting}}>
+				<span title="{{localize "tribe8.item.gear.complexity.full"}}">{{localize "tribe8.item.gear.complexity.short"}}</span>
+			</div>
+			<div {{gearSortControls column="carried" section="gear" sorting=sorting}}>
+				<span title="{{localize "tribe8.item.gear.carried.full"}}"><i class="fa fa-solid fa-suitcase"></i></span>
+			</div><!-- TODO: (UI) Carried toggle -->
+			<div {{gearSortControls column="equipped" section="gear" sorting=sorting}}>
+				<span title="{{localize "tribe8.item.gear.equipped.full"}}"><i class="fa fa-solid fa-hand"></i></span>
+			</div><!-- TODO: (UI) Worn toggle -->
 		</div>
 		{{#each gear.sortedIDs as |gearID|}}
 		{{#with (lookup ../gear gearID)}}

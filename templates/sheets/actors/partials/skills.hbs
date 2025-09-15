@@ -1,4 +1,10 @@
-<h2><span>Skills</span><button name="add-skill" data-action="addNewItem" type="button"><i class="fa fa-solid fa-plus"></i></button></h2>
+<h2 class="skills">
+	<span>
+		<span class="header-label">Skills</span>
+		{{> "systems/tribe8/templates/sheets/actors/partials/toggle.hbs" toggleRight=sorting.sort-skills action="sort-skills" leftName="Name" rightName="Level"}}
+	</span>
+	<button name="add-skill" data-action="addNewItem" type="button"><i class="fa fa-solid fa-plus"></i></button>
+</h2>
 <div class="skills">
 	{{#if (not skills)}}
 	<em>None</em>

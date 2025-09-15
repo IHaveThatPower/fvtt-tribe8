@@ -57,7 +57,6 @@ export class Tribe8ItemSheet extends Tribe8Application(ItemSheetV2) {
 	 */
 	async _onFirstRender(context, options) {
 		// Artwork context menu
-		console.log("Creating context menu...");
 		this._createContextMenu(() => {
 				return [
 					{
@@ -74,7 +73,7 @@ export class Tribe8ItemSheet extends Tribe8Application(ItemSheetV2) {
 					},
 					{
 						name: "Edit Item Artwork", // TODO: Localize
-						icon: '<i class="fa-solid fa-image"></i>', // TODO: Edit icon
+						icon: '<i class="fa-solid fa-file-pen"></i>',
 						condition: this.document.isOwner,
 						callback: el => {
 							this.options.actions['editImage']?.call(this, undefined, el);

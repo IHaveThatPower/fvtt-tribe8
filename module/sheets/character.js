@@ -19,7 +19,12 @@ export class Tribe8CharacterSheet extends Tribe8Application(ActorSheetV2) {
 			addNewItem:       Tribe8CharacterSheet.action_addNewItem,
 			useEminence:      Tribe8CharacterSheet.action_useEminence,
 			combatCalculator: Tribe8CharacterSheet.action_combatCalculator,
-			chooseAttribute:  Tribe8CharacterSheet.action_chooseAttribute
+			chooseAttribute:  Tribe8CharacterSheet.action_chooseAttribute,
+			'sort-skills':    Tribe8CharacterSheet.action_sortToggle,
+			'sort-maneuvers': Tribe8CharacterSheet.action_sortToggle,
+			'sort-weapons':   Tribe8CharacterSheet.action_sortColumn,
+			'sort-armor':     Tribe8CharacterSheet.action_sortColumn,
+			'sort-gear':      Tribe8CharacterSheet.action_sortColumn
 		}
 	}
 
@@ -79,6 +84,19 @@ export class Tribe8CharacterSheet extends Tribe8Application(ActorSheetV2) {
 		// Who's the player for this?
 		if (this.document.playerOwner)
 			context.playerName = game.users.get(this.document.playerOwner)?.name;
+
+		// Do we have any user-specific flags related to this shet?
+		const userFlags = game.user.getFlag('tribe8', `sheetPrefs.${this.document.id}`);
+
+		// Setup our user-driven sorting stuff
+		context.sorting = {};
+		if (userFlags) {
+			for (let sortType of Object.keys(userFlags).filter((f) => f.match(/^sort-/)))
+				context.sorting[sortType] = userFlags[sortType];
+		}
+		// Set defaults for which toggle is active for Skills and Maneuvers
+		if (!context.sorting['sort-skills']) context.sorting['sort-skills'] = 'right';
+		if (!context.sorting['sort-maneuvers']) context.sorting['sort-maneuvers'] = 'right';
 
 		// Prepare specific Skill categories
 		context.hasCombatSkills = this.document.getSkills({categories: ['combat'], count: true})
@@ -192,6 +210,9 @@ export class Tribe8CharacterSheet extends Tribe8Application(ActorSheetV2) {
 		];
 		for (let itemGroup of itemSortGroups) {
 			let contextTarget = context[itemGroup];
+			// If we had a dot-separated key, recursively descend into
+			// the context object to find the actual target to be
+			// sorted
 			const itemGroupParts = itemGroup.split('.');
 			if (itemGroupParts.length > 1) {
 				contextTarget = context;
@@ -203,14 +224,29 @@ export class Tribe8CharacterSheet extends Tribe8Application(ActorSheetV2) {
 					contextTarget = contextTarget[contextProp];
 				}
 			}
+			// If what we found has a length, sort it
 			if (contextTarget && Object.keys(contextTarget).length) {
 				const firstElement = Object.values(contextTarget)[0];
 				if (firstElement?.constructor?.cmp) {
+					// If we're sorting gear, set a transient property
+					// on each item to prevent type-specific sorting
+					if (itemGroup === 'gear') {
+						Object.values(contextTarget).map((i) => {
+							if (i.id) i.sortingAsGear = true;
+							return i;
+						});
+					}
 					contextTarget.sortedIDs = Object.values(contextTarget).sort(firstElement.constructor.cmp).map((i) => i.id);
+					// Now clear off the transient property.
+					if (itemGroup === 'gear') {
+						Object.values(contextTarget).map((i) => {
+							if (i.id) delete i.sortingAsGear;
+							return i;
+						});
+					}
 				}
 			}
 		}
-		// TODO: (UI) Support different user-driven sort methods for gear
 	}
 
 	/**
@@ -1078,6 +1114,74 @@ export class Tribe8CharacterSheet extends Tribe8Application(ActorSheetV2) {
 		if (!this.combatData) this.combatData = {};
 		this.combatData.useAttribute = target.dataset?.attribute;
 		this.render();
+	}
+
+	/**
+	 * Set a flag to either sort a character's collections either by
+	 * a "left" or "right" toggle value for this user.
+	 *
+	 * @param {Event}           event     The event triggered by interaction with the form element
+	 * @param {HTMLFormElement} target    The element that triggered the event
+	 * @access public
+	 */
+	static action_sortToggle(event, target) {
+		const sortAction = target.dataset.action;
+		if (!sortAction) return; // Don't continue if we don't know what we're doing
+
+		const flagKey = `sheetPrefs.${this.document.id}.${sortAction}`;
+		// Our default setting is "right" (i.e. by level)
+		let setTo = 'right';
+		if (Array.from(target.classList).includes('right')) {
+			// If the toggle _was_ set to right, flip it to left
+			setTo = 'left';
+		}
+		// Setup an event listener for when the animation finishes
+		// before triggering a re-render
+		const that = this;
+		target.addEventListener('transitionend', () => that.render(), true);
+
+		// Set the flag, then once the flag is set, add the class, which
+		// will in turn fire our event listener once the animation
+		// finishes
+		game.user.setFlag('tribe8', flagKey, setTo).then(() => {
+			if (setTo == 'left') target.classList.remove('right');
+			else target.classList.add('right');
+		});
+	}
+
+	/**
+	 * Set a flag to sort a set of items by a particular column for
+	 * this sheet for this user.
+	 *
+	 * @param {Event}           event     The event triggered by interaction with the form element
+	 * @param {HTMLFormElement} target    The element that triggered the event
+	 * @access public
+	 */
+	static action_sortColumn(event, target) {
+		// What are we doing?
+		const column = target.dataset.sortProperty;
+		let direction = target.dataset.sortDirection; // We might flip this
+
+		// Do we have current sorting setup?
+		const sortKey = `sheetPrefs.${this.document.id}.${target.dataset.action}`;
+		const sortingCurr = game.user.getFlag('tribe8', sortKey);
+		if (sortingCurr) {
+			// Not the first time we're sorting this sheet by this column, so see if we need to flip anything
+			if (sortingCurr.by == column && sortingCurr.dir == direction) {
+				direction = (direction == "desc" ? "asc" : "desc");
+			}
+		}
+
+		// Assemble a new sorting property
+		const sorting = {};
+		sorting.by = column;
+		sorting.dir = direction;
+
+		// Update the flag, then re-render
+		const that = this;
+		game.user.setFlag('tribe8', sortKey, sorting).then(() => {
+			that.render();
+		});
 	}
 
 	/**

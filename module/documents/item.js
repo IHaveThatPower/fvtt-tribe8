@@ -424,13 +424,20 @@ export class Tribe8Item extends Item {
 			return Tribe8Item.#cmpEminence(a, b);
 		if (a.type === 'totem')
 			return Tribe8Item.#cmpTotem(a, b);
-		if (a.type === 'weapon' && b.type === 'weapon')
-			return Tribe8Item.#cmpWeapon(a, b);
-		if (a.type === 'armor' && b.type === 'armor')
-			return Tribe8Item.#cmpArmor(a, b);
-		// Special case for all physical item types, which can sort
+		// Special case for all physical item types, which can cross-sort
 		const canSortGear = (a.isPhysicalItem && b.isPhysicalItem);
-		if (canSortGear) return Tribe8Item.#cmpGear(a, b);
+		if (canSortGear) {
+			// If either item has a transient property on it for sorting
+			// as gear, don't use the type-specific sorts for this call
+			if (!a.sortingAsGear && !b.sortingAsGear) {
+				console.log("Using type-specific sorting for a ", a.type);
+				if (a.type === 'weapon' && b.type === 'weapon')
+					return Tribe8Item.#cmpWeapon(a, b);
+				if (a.type === 'armor' && b.type === 'armor')
+					return Tribe8Item.#cmpArmor(a, b);
+			}
+			return Tribe8Item.#cmpGear(a, b);
+		}
 		// General-purpose fallback
 		return Tribe8Item.#cmpFallback(a, b);
 	}
@@ -467,11 +474,23 @@ export class Tribe8Item extends Item {
 		if (a.type != 'skill' || b.type != 'skill')
 			throw new Error("Cannot use Skill comparison function to sort non-Skill items");
 
-		if (a.system.level > b.system.level) return -1;
-		if (a.system.level < b.system.level) return 1;
+		// If the user is viewing a character for which they have
+		// specified an override sorting value, we skip the particulars
+		// if skill sorting.
+		let doLevelSort = true;
+		if (a.isEmbedded && b.isEmbedded && a.parent.id == b.parent.id) {
+			const sortFlagKey = `sheetPrefs.${a.parent.id}.sort-skills`;
+			const sortFlag = game.user.getFlag('tribe8', sortFlagKey);
+			if (sortFlag && sortFlag == 'left') doLevelSort = false;
+		}
 
-		if (a.system.cpx > b.system.cpx) return -1;
-		if (a.system.cpx < b.system.cpx) return 1;
+		if (doLevelSort) {
+			if (a.system.level > b.system.level) return -1;
+			if (a.system.level < b.system.level) return 1;
+
+			if (a.system.cpx > b.system.cpx) return -1;
+			if (a.system.cpx < b.system.cpx) return 1;
+		}
 
 		return Tribe8Item.#cmpFallback(a, b);
 	}
@@ -518,41 +537,54 @@ export class Tribe8Item extends Item {
 		if (a.type != 'maneuver' || b.type != 'maneuver')
 			throw new Error("Cannot use Maneuver comparison function to sort non-Maneuver items");
 
-		// 0-complexity (Free) maneuvers are always sorted after non-0 maneuvers
-		if (a.system.complexity == 0 && b.system.complexity != 0) return 1;
-		if (a.system.complexity != 0 && b.system.complexity == 0) return -1;
+		// If the user is viewing a character for which they have
+		// specified an override sorting value, we skip the particulars
+		// if maneuver sorting.
+		let doNameSort = false;
+		if (a.isEmbedded && b.isEmbedded && a.parent.id == b.parent.id) {
+			const sortFlagKey = `sheetPrefs.${a.parent.id}.sort-maneuvers`;
+			const sortFlag = game.user.getFlag('tribe8', sortFlagKey);
+			if (sortFlag && sortFlag == 'left') doNameSort = true;
+		}
 
-		// If the skills don't match, we need to first consult their sorting algorithm
-		// Of course, this is irrelevant if they're both complexity 0
-		if (a.system.complexity != 0 && b.system.complexity != 0 && a.system.skill != b.system.skill)
-		{
-			// Identify the relevant skills to our a and b
-			const aSkill = a.parent?.getEmbeddedDocument("Item", a.system.skill);
-			const bSkill = b.parent?.getEmbeddedDocument("Item", b.system.skill);
-			if (aSkill && !bSkill) return -1;
-			if (!aSkill && bSkill) return 1;
-			if (aSkill && bSkill) {
-				let skillCmp;
-				if ((skillCmp = Tribe8Item.cmp(aSkill, bSkill)) != 0)
-					return skillCmp;
+		if (!doNameSort) {
+			// 0-complexity (Free) maneuvers are always sorted after non-0 maneuvers
+			if (a.system.complexity == 0 && b.system.complexity != 0) return 1;
+			if (a.system.complexity != 0 && b.system.complexity == 0) return -1;
+
+			// If the skills don't match, we need to first consult their sorting algorithm
+			// Of course, this is irrelevant if they're both complexity 0
+			if (a.system.complexity != 0 && b.system.complexity != 0 && a.system.skill != b.system.skill)
+			{
+				// Identify the relevant skills to our a and b
+				const aSkill = a.parent?.getEmbeddedDocument("Item", a.system.skill);
+				const bSkill = b.parent?.getEmbeddedDocument("Item", b.system.skill);
+				if (aSkill && !bSkill) return -1;
+				if (!aSkill && bSkill) return 1;
+				if (aSkill && bSkill) {
+					let skillCmp;
+					if ((skillCmp = Tribe8Item.cmp(aSkill, bSkill)) != 0)
+						return skillCmp;
+				}
 			}
+
+			// If the skills match, *now* we can sort our maneuvers
+			if (a.system.granted && !b.system.granted) return -1;
+			if (!a.system.granted && b.system.granted) return 1;
+			if (a.system.fromCpx || b.system.fromCpx) {
+				let aFromCpx = a.system.fromCpx;
+				let bFromCpx = b.system.fromCpx;
+				if (aFromCpx && a.usesPoints)
+					aFromCpx = false;
+				if (bFromCpx && b.usesPoints)
+					bFromCpx = false;
+				if (aFromCpx && !bFromCpx) return -1;
+				if (!aFromCpx && bFromCpx) return 1;
+			}
+			if (a.system.complexity > b.system.complexity) return -1;
+			if (a.system.complexity < b.system.complexity) return 1;
 		}
 
-		// If the skills match, *now* we can sort our maneuvers
-		if (a.system.granted && !b.system.granted) return -1;
-		if (!a.system.granted && b.system.granted) return 1;
-		if (a.system.fromCpx || b.system.fromCpx) {
-			let aFromCpx = a.system.fromCpx;
-			let bFromCpx = b.system.fromCpx;
-			if (aFromCpx && a.usesPoints)
-				aFromCpx = false;
-			if (bFromCpx && b.usesPoints)
-				bFromCpx = false;
-			if (aFromCpx && !bFromCpx) return -1;
-			if (!aFromCpx && bFromCpx) return 1;
-		}
-		if (a.system.complexity > b.system.complexity) return -1;
-		if (a.system.complexity < b.system.complexity) return 1;
 		return Tribe8Item.#cmpFallback(a, b);
 	}
 
@@ -657,11 +689,81 @@ export class Tribe8Item extends Item {
 			const actor = a.parent;
 			aPath.splice(0, spliceCount);
 			bPath.splice(0, spliceCount);
-			// If we just found ourselves, then actor *is* the common parent, so use the Fallback
+			// If we didn't find the same items we're already comparing,
+			// we can actually compare them.
 			if (aPath[0] != a.id || bPath[0] != b.id) {
 				const aCmp = (aPath[0] == a.id ? a : actor.getEmbeddedDocument("Item", aPath[0]));
 				const bCmp = (bPath[0] == b.id ? b : actor.getEmbeddedDocument("Item", bPath[0]));
 				return this.#cmpGear(aCmp, bCmp);
+			}
+			// If we just found ourselves, then actor *is* the common
+			// parent, so bail out and use the Fallback
+		}
+
+		// If the user has a specific sort column defined, adhere to it
+		if (a.isEmbedded && b.isEmbedded && a.parent.id == b.parent.id) {
+			// Does the user have a specific sorting preference set for
+			// this sheet?
+			const sortFlagKey = ['sheetPrefs', a.parent.id];
+			// If the items are of the same type, use the type-specific
+			// sort option. Otherwise, just use the standard gear sort.
+			if (!a.sortingAsGear && !b.sortingAsGear && a.type == b.type) {
+				sortFlagKey.push(`sort-${a.type == "weapon" ? "weapons" : a.type}`);
+			}
+			else sortFlagKey.push('sort-gear');
+			const sortFlag = game.user.getFlag('tribe8', sortFlagKey.join('.'));
+
+			// Identity is the equivalent of name, but if we're sorting
+			// descending, flip the argument order.
+			if (sortFlag?.by == "identity" && sortFlag?.dir == "desc")
+				return Tribe8Item.#cmpFallback(b, a);
+			switch (sortFlag?.by) {
+				// DataModel Number
+				case 'qty':
+				case 'weight':
+				case 'complexity':
+				case 'ar':
+				case 'enc':
+					if (sortFlag.dir == "desc") {
+						if (a.system[sortFlag.by] > b.system[sortFlag.by]) return -1;
+						if (a.system[sortFlag.by] < b.system[sortFlag.by]) return 1;
+					}
+					if (a.system[sortFlag.by] < b.system[sortFlag.by]) return -1;
+					if (a.system[sortFlag.by] > b.system[sortFlag.by]) return 1;
+					break;
+				// DataModel Boolean
+				case 'carried':
+				case 'equipped':
+					if (sortFlag.dir == "desc") {
+						if (a.system[sortFlag.by] && !b.system[sortFlag.by]) return 1;
+						if (!a.system[sortFlag.by] && b.system[sortFlag.by]) return -1;
+					}
+					if (a.system[sortFlag.by] && !b.system[sortFlag.by]) return -1;
+					if (!a.system[sortFlag.by] && b.system[sortFlag.by]) return 1;
+					break;
+				// DataModel Mapped String
+				case 'value': {
+					const aValue = CONFIG.Tribe8.gearValueOptions.indexOf(a.system.value);
+					const bValue = CONFIG.Tribe8.gearValueOptions.indexOf(b.system.value);
+					if (sortFlag.dir == "desc") {
+						if (aValue > bValue) return -1;
+						if (aValue < bValue) return 1;
+					}
+					if (aValue < bValue) return -1;
+					if (aValue > bValue) return 1;
+					break;
+				}
+				// Document Number
+				case 'total-weight':
+					if (sortFlag.dir == "desc") {
+						if (a.totalWeight > b.totalWeight) return -1;
+						if (a.totalWeight < b.totalWeight) return 1;
+					}
+					if (a.totalWeight > b.totalWeight) return 1;
+					if (a.totalWeight < b.totalWeight) return -1;
+					break;
+				default:
+					break;
 			}
 		}
 
@@ -911,12 +1013,10 @@ export class Tribe8Item extends Item {
 					const oldSpecNameSlug = CONFIG.Tribe8.slugify(oldSpec.name);
 					// Do we have any specializations that match?
 					if (currSpecs.map((s) => CONFIG.Tribe8.slugify(s.name)).indexOf(oldSpecNameSlug) > -1) {
-						// console.log(`A '${oldSpec.name}' Specialization already exists for the ${this.name} Skill`);
 						continue;
 					}
 					// Are we already creating this?
 					if (specsToCreate.map((s) => CONFIG.Tribe8.slugify(s.name)).indexOf(oldSpecNameSlug) > -1) {
-						// console.log(`A '${oldSpec.name}' Specialization is already going to be created for the ${this.name} Skill`);
 						continue;
 					}
 					specsToCreate.push({type: 'specialization', name: oldSpec.name, system: {points: oldSpec.points.toUpperCase(), skill: this.id}});

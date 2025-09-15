@@ -332,6 +332,47 @@ div.dice-roll .dice-formula.unskilled {
 		position: relative;
 		box-sizing: border-box;
 	}
+
+	span.toggle {
+		display: flex;
+		flex-flow: row;
+		--toggle-width: 2rem;
+		--toggle-height: 0.75rem;
+		--toggle-height-radius: calc(var(--toggle-height) / 2 );
+		align-items: end;
+		justify-content: center;
+		gap: 0.4rem;
+		cursor: pointer;
+
+		span.toggle-option {
+			font-size: calc(max(60%, 0.8rem));
+			display: inline-block;
+		}
+		span.toggle-widget {
+			display: inline-block;
+			width: var(--toggle-width);
+			height: var(--toggle-height);
+			border-radius: var(--toggle-height-radius);
+			background: var(--color-medium-gray);
+			position: relative;
+			margin-bottom: calc(var(--toggle-height) / 10);
+		}
+		span.toggle-widget::before {
+			content: "";
+			position: absolute;
+			border-radius: var(--toggle-height-radius);
+			width: var(--toggle-height);
+			height: var(--toggle-height);
+			background: var(--color-text-emphatic);
+			right: calc(var(--toggle-width) - var(--toggle-height));
+			border: calc(var(--toggle-height-radius) / 2) outset;
+			transition: right 0.5s ease-in-out;
+			box-shadow: 0 0 4px 3px rgba(0, 0, 0, 0.75);
+		}
+	}
+	span.toggle.right span.toggle-widget::before {
+		right: 0;
+	}
 }
 
 /**
@@ -387,6 +428,11 @@ div.dice-roll .dice-formula.unskilled {
 		overflow: hidden;
 		white-space: nowrap;
 		text-overflow: ellipsis;
+	}
+	h2.skills>span:first-child {
+		display: flex;
+		flex-flow: row;
+		gap: 0.4rem;
 	}
 	h2 button {
 		min-height: 0;
@@ -1079,6 +1125,9 @@ div.dice-roll .dice-formula.unskilled {
 		div.maneuver div.points-type:last-child {
 			border-radius: 0 0.4rem 0 0;
 		}
+		span.toggle {
+			width: 100%;
+		}
 	}
 	div.injuries {
 		display: flex;
@@ -1286,10 +1335,12 @@ div.dice-roll .dice-formula.unskilled {
 		color: var(--color-medium-gray);
 		background: var(--color-label-background);
 	}
+	.equipment div.gear-list div.gear-item-row.gear-list-header div.sorting {
+		background: var(--color-background-alt-bright);
+	}
 	.equipment div.gear-list div.gear-item-row.gear-list-header>div:hover {
 		font-weight: bold;
-		/* cursor: pointer; */
-		cursor: not-allowed;
+		cursor: pointer;
 	}
 	.character-sheet.equipment>.load-slider {
 		height: 2rem;
