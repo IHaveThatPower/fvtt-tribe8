@@ -1,5 +1,8 @@
 <div class="item-sheet maneuver">
 	<div class="identity">
+		<div class="artwork">
+			<img src="{{document.img}}" alt="{{document.name}}" data-action="editImage">
+		</div>
 		<div class="name"><input type="text" name="name" value="{{document.name}}" size=12></div>
 		{{#if (and document.isEmbedded (not document.system.free))}}
 		<div class="specific">

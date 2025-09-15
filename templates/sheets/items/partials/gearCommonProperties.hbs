@@ -40,19 +40,30 @@
 		</span>
 	</div>
 </div>
-{{#if otherGear.length}}
-<div class="property storage">
-	<div class="property-name"><label for="system.storage" title="{{localize "tribe8.item.gear.storage.short"}}"><i class="fa fa-solid fa-box-archive"></i></label></div>
-	<div class="property-input">
-		<select name="system.storage" title="{{localize "tribe8.item.gear.storage.hint"}}">
-			<option value=""></option>
-			{{#each otherGear}}
-			<option value="{{this.id}}"{{#if (eq this.id ../document.system.storage)}} selected{{/if}}>
-				{{~#repeat (sub this.depth 1)}}&nbsp;&nbsp;&nbsp;&nbsp;{{/repeat~}}
-				{{~this.name}}{{#if this.system.isContainer}}*{{/if~}}
-			</option>
-			{{/each}}
-		</select>
+<div class="storage-and-carrying">
+	<div class="property storage">
+		<div class="property-name"><label for="system.storage" title="{{localize "tribe8.item.gear.storage.short"}}"><i class="fa fa-solid fa-box-archive"></i></label></div>
+		<div class="property-input">
+			<select name="system.storage" title="{{localize "tribe8.item.gear.storage.hint"}}">
+				<option value=""></option>
+				{{#each otherGear}}
+				<option value="{{this.id}}"{{#if (eq this.id ../document.system.storage)}} selected{{/if}}>
+					{{~#repeat (sub this.depth 1)}}&nbsp;&nbsp;&nbsp;&nbsp;{{/repeat~}}
+					{{~this.name}}{{#if this.system.isContainer}}*{{/if~}}
+				</option>
+				{{/each}}
+			</select>
+		</div>
 	</div>
+	{{#if document.isEmbedded}}
+	<div class="carried">
+		<input type="checkbox" name="system.carried" title="{{localize "tribe8.item.gear.carried.hint"}}" value="true"{{#if document.system.carried}} checked{{/if}} />
+		<label for="system.carried" title="{{localize "tribe8.item.gear.carried.hint"}}"><i class="fa fa-solid fa-suitcase"></i></label>
+	</div>
+	<div class="equipped">
+		<input type="checkbox" name="system.equipped" title="{{localize "tribe8.item.gear.equipped.hint"}}" value="true"{{#if document.system.equipped}} checked{{/if}} />
+		<label for="system.equipped" title="{{localize "tribe8.item.gear.equipped.hint"}}"><i class="fa fa-solid fa-hand"></i></label>
+	</div>
+	{{/if}}
 </div>
-{{/if}}
+

@@ -19,7 +19,7 @@ export class Tribe8CharacterSheet extends Tribe8Application(ActorSheetV2) {
 			addNewItem:       Tribe8CharacterSheet.action_addNewItem,
 			useEminence:      Tribe8CharacterSheet.action_useEminence,
 			combatCalculator: Tribe8CharacterSheet.action_combatCalculator,
-			chooseAttribute:  Tribe8CharacterSheet.action_chooseAttribute,
+			chooseAttribute:  Tribe8CharacterSheet.action_chooseAttribute
 		}
 	}
 
@@ -62,6 +62,8 @@ export class Tribe8CharacterSheet extends Tribe8Application(ActorSheetV2) {
 	 */
 	async _prepareContext(options) {
 		const context = await super._prepareContext(options);
+
+		context.portrait = !this.usingDefaultArtwork ? this.document.img : undefined;
 
 		// Define a little helper function on our context to handle all
 		// the various things we need to ensure exist along the way
@@ -841,41 +843,66 @@ export class Tribe8CharacterSheet extends Tribe8Application(ActorSheetV2) {
 	 * @access protected
 	 */
 	async _onFirstRender(context, options) {
-		// TODO: Create context menus
-		// Invocation of createContextMenu.
-		// First arg is the handler that should hand back an array of
-		// objects that have all the data needed for a menu item
-		// this._createContextMenu(() => ['Option 1', 'Option 2', 'Option 3'], 'div.portrait');
-
-		// Structure for a handler's response
-		/*
-		return [{
-			name: "SIDEBAR.CharArt",
-			icon: '<i class="fa-solid fa-image"></i>',
-			condition: li => {
-				const actor = this.collection.get(li.dataset.entryId);
-				const { img } = actor.constructor.getDefaultArtwork(actor._source);
-				return actor.img !== img;
+		// Portrait context menu
+		this._createContextMenu(() => {
+				return [
+					{
+						name: "Show Character Artwork", // TODO: Localize
+						icon: '<i class="fa-solid fa-image"></i>',
+						callback: () => {
+							const actor = this.document;
+							new foundry.applications.apps.ImagePopout({
+								src: actor.img,
+								uuid: actor.uuid,
+								window: { title: actor.name }
+							}).render({ force: true });
+						}
+					},
+					{
+						name: "Edit Character Artwork", // TODO: Localize
+						icon: '<i class="fa-solid fa-file-pen"></i>',
+						condition: this.document.isOwner,
+						callback: el => {
+							this.options.actions['editImage']?.call(this, undefined, el);
+						}
+					},
+					{
+						name: "Show Token Artwork", // TODO: Localize
+						icon: '<i class="fa-solid fa-image"></i>',
+						callback: () => {
+							const actor = this.document;
+							if (actor.prototypeToken?.texture?.src) {
+								new foundry.applications.apps.ImagePopout({
+									src: actor.prototypeToken.texture.src,
+									uuid: actor.uuid,
+									window: { title: actor.name }
+								}).render({ force: true });
+							}
+							else
+								foundry.ui.notifications.warn("No prototype token image found");
+						}
+					},
+					{
+						name: "Configure Prototype Token", // TODO: Localize
+						icon: '<i class="fa-solid fa-file-pen"></i>',
+						condition: this.document.isOwner,
+						callback: el => {
+							this.options.actions['configurePrototypeToken']?.call(this, undefined, el);
+						}
+					}
+				];
 			},
-			callback: li => {
-				const actor = this.collection.get(li.dataset.entryId);
-				new foundry.applications.apps.ImagePopout({
-					src: actor.img,
-					uuid: actor.uuid,
-					window: { title: actor.name }
-				}).render({ force: true });
-			}
-		},
-		...
-		*/
+			'div.portrait'
+		);
 		super._onFirstRender(context, options);
 	}
 
 	/**
 	 * Increment edie "other" amount
 	 *
-	 * @param {Event}           event     The event triggered by interaction with the form element
-	 * @param {HTMLFormElement} target    The element that triggered the event
+	 * @param  {Event}           event     The event triggered by interaction with the form element
+	 * @param  {HTMLFormElement} target    The element that triggered the event
+	 * @return {void}
 	 * @access public
 	 */
 	static action_incrementEdie(event, target) {

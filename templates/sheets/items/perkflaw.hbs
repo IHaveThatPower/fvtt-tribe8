@@ -1,5 +1,8 @@
 <div class="item-sheet pf">
 	<div class="identity">
+		<div class="artwork">
+			<img src="{{document.img}}" alt="{{document.name}}" data-action="editImage">
+		</div>
 		<div class="name"><input type="text" name="system.name" value="{{document.system.name}}" size=12></div>
 		{{#if document.system.specify}}
 		<div class="specific"><input type="text" name="system.specific" value="{{document.system.specific}}" placeholder="Specify" size=12></div>

@@ -169,6 +169,7 @@ div.character-sheet h2,
 div.item-sheet h2,
 div.item-sheet div.name,
 div.item-sheet div.specific,
+div.item-sheet div.artwork,
 div.character-sheet h3,
 div.item-sheet h3 {
 	width: 100%;
@@ -188,7 +189,8 @@ div.item-sheet h3 {
 	margin-bottom: 0;
 }
 div.item-sheet div.name,
-div.item-sheet div.specific {
+div.item-sheet div.specific,
+div.item-sheet div.artwork {
 	margin-top: 0;
 }
 div.character-sheet h3,
@@ -263,6 +265,18 @@ div.dice-roll .dice-formula.unskilled {
 	div.name input[type=text],
 	div.specific input[type=text] {
 		padding: 0;
+	}
+	div.identity div.artwork {
+		min-height: 2rem;
+		flex: 0 0 2rem;
+		border: none;
+		cursor: pointer;
+	}
+	div.identity div.artwork img {
+		width: 100%;
+		height: 100%;
+		object-fit: contain;
+		max-height: 2rem;
 	}
 
 	div.value {
@@ -474,6 +488,11 @@ div.dice-roll .dice-formula.unskilled {
 		font-family: var(--font-header);
 		text-transform: uppercase;
 	}
+	div.portrait div.content img {
+		width: 100%;
+		height: 100%;
+		object-fit: contain;
+	}
 
 	div.primary-attributes, div.secondary-attributes {
 		display: flex;
@@ -576,7 +595,7 @@ div.dice-roll .dice-formula.unskilled {
 		}
 		div.identity {
 			display: grid;
-			grid-template-columns: 1fr min-content;
+			grid-template-columns: min-content 1fr min-content;
 		}
 		div.identity div.specific {
 			text-align: right;
@@ -783,7 +802,7 @@ div.dice-roll .dice-formula.unskilled {
 		}
 		div.identity {
 			display: grid;
-			grid-template-columns: auto 1fr;
+			grid-template-columns: min-content auto 1fr;
 			gap: 0.25rem;
 			align-items: center;
 			width: unset;
@@ -1740,16 +1759,9 @@ div.dice-roll .dice-formula.unskilled {
 		border: revert;
 		min-width: revert;
 	}
-	div.property.storage {
-		width: 100%;
-		display: grid;
-		grid-template-columns: min-content 1fr;
-	}
+
 	div.property div.property-name {
 		text-align: center;
-	}
-	div.property.storage div.property-name {
-		text-align: left;
 	}
 	div.property:not(.storage) div.property-name {
 		order: 2;
@@ -1765,6 +1777,21 @@ div.dice-roll .dice-formula.unskilled {
 	}
 	div.property select {
 		padding: 0;
+	}
+	div.storage-and-carrying {
+		width: 100%;
+		display: grid;
+		grid-template-columns: 1fr min-content min-content;
+		align-items: center;
+		gap: 0.4rem;
+	}
+	div.property.storage {
+		width: 100%;
+		display: grid;
+		grid-template-columns: min-content 1fr;
+	}
+	div.property.storage div.property-name {
+		text-align: left;
 	}
 	span.input-sizer::after {
 		padding: 0 0.5rem;

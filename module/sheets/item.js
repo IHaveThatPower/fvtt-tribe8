@@ -49,6 +49,45 @@ export class Tribe8ItemSheet extends Tribe8Application(ItemSheetV2) {
 	}
 
 	/**
+	 * When we first render, create context menus.
+	 *
+	 * @param {object} context    The rendering context
+	 * @param {object} options    Supplemental rendering options
+	 * @access protected
+	 */
+	async _onFirstRender(context, options) {
+		// Artwork context menu
+		console.log("Creating context menu...");
+		this._createContextMenu(() => {
+				return [
+					{
+						name: "Show Item Artwork", // TODO: Localize
+						icon: '<i class="fa-solid fa-image"></i>',
+						callback: () => {
+							const item = this.document;
+							new foundry.applications.apps.ImagePopout({
+								src: item.img,
+								uuid: item.uuid,
+								window: { title: item.name }
+							}).render({ force: true });
+						}
+					},
+					{
+						name: "Edit Item Artwork", // TODO: Localize
+						icon: '<i class="fa-solid fa-image"></i>', // TODO: Edit icon
+						condition: this.document.isOwner,
+						callback: el => {
+							this.options.actions['editImage']?.call(this, undefined, el);
+						}
+					}
+				];
+			},
+			'div.artwork'
+		);
+		super._onFirstRender(context, options);
+	}
+
+	/**
 	 * Delete existing item
 	 *
 	 * @param {Event} event    The event triggered by interaction with the form element

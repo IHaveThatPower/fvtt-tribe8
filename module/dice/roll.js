@@ -1,5 +1,4 @@
 const { Roll } = foundry.dice;
-import { SilhouetteDie } from './die.js';
 
 /**
  * 0d6 => 2d6kl

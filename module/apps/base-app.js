@@ -18,6 +18,12 @@ export function Tribe8Application(BaseApplication) {
 		static MIN_TOP = 0;
 		static MIN_LEFT = 0;
 
+		static DEFAULT_OPTIONS = {
+			actions: {
+				editImage: Tribe8Application.action_editImage
+			}
+		};
+
 		/**
 		 * Directly inherit from parent
 		 *
@@ -26,6 +32,20 @@ export function Tribe8Application(BaseApplication) {
 		 */
 		constructor(...args) {
 		  super(...args);
+		}
+
+		/**
+		 * Whether or not the document this application represents is
+		 * using the default artwork for its type.
+		 *
+		 * @return {bool} If the artwork is default, or has been customized
+		 * @access public
+		 */
+		get usingDefaultArtwork() {
+			const defaultArtwork = this.document.constructor.getDefaultArtwork?.(this.document._source) ?? {};
+			const defaultImage = foundry.utils.getProperty(defaultArtwork, 'img');
+			if (this.document.img === defaultImage) return true;
+			return false;
 		}
 
 		/**
@@ -56,6 +76,64 @@ export function Tribe8Application(BaseApplication) {
 			});
 
 			await super._onRender(context, options);
+		}
+
+		/**
+		 * Handle editing an image via the file browser.
+		 *
+		 * @param  {Event}         event     The event that triggered this action
+		 * @param  {HTMLElement}   target    The action target.
+		 * @return {Promise<void>}           Nothing is actually returned, but this is asynchronous
+		 * @access protected
+		 */
+		static async action_editImage(event, target) {
+			if (!this.document) throw new ReferenceError(`Could not identify document`);
+
+			// What image are we editing on that document?
+			const current = foundry.utils.getProperty(this.document._source, 'img');
+			const defaultArtwork = this.document.constructor.getDefaultArtwork?.(this.document._source) ?? {};
+			const defaultImage = foundry.utils.getProperty(defaultArtwork, 'img');
+
+			// Pop the filepicker!
+			const fp = new CONFIG.ux.FilePicker({
+				current,
+				type: "image", // TODO: Video support?
+				redirectToRoot: defaultImage ? [defaultImage] : [],
+				callback: path => {
+					// Swap it in for the user immediately
+					const isVideo = foundry.helpers.media.VideoHelper.hasVideoExtension(path);
+					if (((target instanceof HTMLVideoElement) && isVideo) || ((target instanceof HTMLImageElement) && !isVideo)) {
+						target.src = path;
+					}
+					else {
+						const repl = document.createElement(isVideo ? "video" : "img");
+						if (isVideo) Object.assign(repl, {
+							autoplay: true, muted: true, disablePictureInPicture: true, loop: true, playsInline: true
+						});
+						repl.src = path;
+						const artContainer = target.querySelector('div.content') ?? target.parentNode.querySelector('div.artwork');
+						artContainer.replaceChildren(repl);
+					}
+					// Now submit the change
+					this._onEditPortrait('img', path);
+				  }
+			});
+			await fp.browse();
+		}
+
+		/**
+		 * Update a document's artwork
+		 *
+		 * @param  {string} attr    The attribute being edited
+		 * @param  {string} path    The path to update the attribute with
+		 * @return {void}
+		 * @access protected
+		 */
+		async _onEditPortrait(attr, path) {
+			if (attr.startsWith("token.")) await this.token.update({[attr.slice(6)]: path}); // TODO: Does this actually work?
+			else {
+				await this.document.update({[attr]: path});
+			}
 		}
 
 		/**
