@@ -66,11 +66,11 @@ export class Tribe8GearModel extends Tribe8ItemModel {
 	 * @access public
 	 */
 	static migrateData(data) {
-		if (!isNaN(Number(data.value))) {
+		if (Object.hasOwn(data, "value") && !isNaN(Number(data.value))) {
 			data.valueThreshold = Math.max(Number(data.value) + 0, 1);
 			data.value = null;
 		}
-		if (isNaN(data.valueThreshold))
+		if (Object.hasOwn(data, "valueThreshold") && isNaN(data.valueThreshold))
 			data.valueThreshold = 1;
 		return super.migrateData(data);
 	}

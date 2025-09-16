@@ -149,6 +149,12 @@ export class Tribe8Item extends Item {
 						throw new RangeError(game.i18n.localize("tribe8.errors.quantity-on-container"));
 				}
 			}
+			if (Object.hasOwn(data.system, "carried") && data.system.carried == false) {
+				data.system.equipped = false;
+			}
+			if (Object.hasOwn(data.system, "equipped") && data.system.equipped == true) {
+				data.system.carried = true;
+			}
 		}
 		if (request == 'update' && this.type == 'weapon' && data?.system) {
 			let rangesKey = Object.hasOwn(data.system, "==ranges") ? '==ranges' : 'ranges';
@@ -430,7 +436,6 @@ export class Tribe8Item extends Item {
 			// If either item has a transient property on it for sorting
 			// as gear, don't use the type-specific sorts for this call
 			if (!a.sortingAsGear && !b.sortingAsGear) {
-				console.log("Using type-specific sorting for a ", a.type);
 				if (a.type === 'weapon' && b.type === 'weapon')
 					return Tribe8Item.#cmpWeapon(a, b);
 				if (a.type === 'armor' && b.type === 'armor')

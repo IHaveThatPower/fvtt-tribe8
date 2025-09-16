@@ -75,12 +75,12 @@ export class Tribe8ManeuverModel extends Tribe8ItemModel {
 			data.allowedTypes = Object.keys(data.allowedTypes);
 		}
 		// Old "Complexity 0" free maneuver pattern
-		if (data.complexity == 0) {
+		if (Object.hasOwn(data, "complexity") && data.complexity == 0) {
 			data.complexity = 1;
 			data.free = true;
 		}
 		// Clean up values for free maneuvers
-		if (data.free) {
+		if (Object.hasOwn(data, "free") && data.free) {
 			data.skill = undefined;
 			data.granted = false;
 			data.fromCpx = false;

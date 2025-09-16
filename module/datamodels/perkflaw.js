@@ -86,7 +86,7 @@ export class Tribe8PerkFlawModel extends Tribe8ItemModel {
 	 */
 	static migrateData(data) {
 		foundry.abstract.Document._addDataFieldMigration(data, "system.cost", "system.baseCost");
-		if (data.points && data.points.length) {
+		if (Object.hasOwn(data, "points") && data.points.length) {
 			for (let r = 0; r < data.points.length; r++) {
 				data.points[r] = data.points[r].toUpperCase();
 			}

@@ -126,17 +126,19 @@ export class Tribe8WeaponModel extends Tribe8GearModel {
 	 * @access public
 	 */
 	static migrateData(data) {
-		if (data.ranges?.length > 1 && data.ranges?.includes("ranged"))
-			data.ranges = ["ranged"];
-		if (data.ranges?.includes("ranged") && data.category == "melee")
-			data.category = "ranged";
-		if (data.ranges?.includes("close") && data.category == "ranged")
-			data.category = "melee";
-		if (data.accuracy?.constructor.name != "Array")
+		if (Object.hasOwn(data, "ranges")) {
+			if (data.ranges?.length > 1 && data.ranges?.includes("ranged"))
+				data.ranges = ["ranged"];
+			if (data.ranges?.includes("ranged") && data.category == "melee")
+				data.category = "ranged";
+			if (data.ranges?.includes("close") && data.category == "ranged")
+				data.category = "melee";
+		}
+		if (Object.hasOwn(data, "accuracy") && data.accuracy?.constructor.name != "Array")
 			data.accuracy = [data.accuracy];
-		if (data.parry?.constructor.name != "Array")
+		if (Object.hasOwn(data, "parry") && data.parry?.constructor.name != "Array")
 			data.parry = [data.parry];
-		if (data.damage?.constructor.name != "Array") {
+		if (Object.hasOwn(data, "damage") && data.damage?.constructor.name != "Array") {
 			if (data.damage?.match('/')) {
 				// First, split it up into its constituent parts
 				data.damage = data.damage.split('/');

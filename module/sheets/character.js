@@ -1178,9 +1178,8 @@ export class Tribe8CharacterSheet extends Tribe8Application(ActorSheetV2) {
 		sorting.dir = direction;
 
 		// Update the flag, then re-render
-		const that = this;
 		game.user.setFlag('tribe8', sortKey, sorting).then(() => {
-			that.render();
+			this.render();
 		});
 	}
 

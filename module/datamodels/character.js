@@ -270,13 +270,11 @@ export class Tribe8CharacterModel extends foundry.abstract.TypeDataModel {
 	 * @access public
 	 */
 	static migrateData(data) {
-		if (typeof data.edie !== 'number') {
+		if (Object.hasOwn(data, "edie") && typeof data.edie !== 'number') {
 			if (data.edie?.fromBonus) data.edie = data.edie.fromBonus;
 			else data.edie = 0;
 		}
-		if (isNaN(data.points?.xp?.total) || data.points.xp.total === null) {
-			if (!Object.hasOwn(data, 'points')) data.points = {};
-			if (!Object.hasOwn(data.points, 'xp')) data.points.xp = {};
+		if (Object.hasOwn(data, "points") && Object.hasOwn(data.points, "xp") && Object.hasOwn(data.points.xp, "total") && isNaN(data.points.xp.total) || data.points.xp.total === null) {
 			data.points.xp.total = 0;
 		}
 		return super.migrateData(data);

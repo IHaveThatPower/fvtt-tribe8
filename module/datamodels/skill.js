@@ -144,12 +144,14 @@ export class Tribe8SkillModel extends Tribe8ItemModel {
 	 */
 	static migrateData(data) {
 		// Fix points object
-		if (data.points && typeof data.points != 'object') data.points = {};
+		if (Object.hasOwn(data, "points") && typeof data.points != 'object') data.points = {};
 		// Fix edie object
-		if (data.points?.edie && typeof data.points.edie != 'object') data.points.edie = {};
-		// Initialize edie values
-		if (data.points?.edie && !Object.hasOwn(data.points.edie, "fromBonus")) data.points.edie.fromBonus = 0;
-		if (data.points?.edie && !Object.hasOwn(data.points.edie, "fromXP")) data.points.edie.fromXP = 0;
+		if (Object.hasOwn(data, "points") && Object.hasOwn(data.points, "edie")) {
+			if (data.points?.edie && typeof data.points.edie != 'object') data.points.edie = {};
+			// Initialize edie values
+			if (data.points?.edie && !Object.hasOwn(data.points.edie, "fromBonus")) data.points.edie.fromBonus = 0;
+			if (data.points?.edie && !Object.hasOwn(data.points.edie, "fromXP")) data.points.edie.fromXP = 0;
+		}
 
 		return super.migrateData(data);
 	}
