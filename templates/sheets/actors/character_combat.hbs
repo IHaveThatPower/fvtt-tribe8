@@ -88,6 +88,7 @@
 		<ul>
 		{{#each weapons.sortedIDs as |weaponId|}}
 		{{#with (lookup ../weapons weaponId)}}
+		{{#if system.equipped}}
 		<li data-item-id="{{id}}">
 			<input type="radio" name="combatData.useWeapon" value="{{id}}" data-action="combatCalculator"{{#if (eq @root.combatData.useWeapon id)}} checked{{/if}} />
 			<div class="identity" data-action="editItem">
@@ -95,6 +96,7 @@
 				<div class="specific">({{localize "tribe8.item.gear.complexity.summary" cpx=system.complexity}})</div>
 			</div>
 		</li>
+		{{/if}}
 		{{/with}}
 		{{/each}}
 		</ul>

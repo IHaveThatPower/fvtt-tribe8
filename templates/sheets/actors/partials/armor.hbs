@@ -9,6 +9,8 @@
 		<div class="qty" data-action="editItem">{{#if system.qty}}{{system.qty}}{{else}}1{{/if}}</div>
 		<div class="ar" data-action="editItem">{{#if system.ar}}{{system.ar}}{{else}}0{{/if}}</div>
 		<div class="enc" data-action="editItem">{{#if system.partial}}*{{else}}{{system.enc}}{{/if}}</div>
-		<div class="equipped" data-action="toggleEquipped">{{#if system.equipped}}C{{/if}}</div><!-- TODO: (UI) Worn toggle -->
+		<div class="equipped dot-checkbox">
+			<input type="checkbox" name="equipped[{{id}}]" data-action="toggle-equipped" data-item-id="{{id}}" title="{{localize "tribe8.item.gear.equipped.hint"}}"{{#if system.equipped}} checked{{/if}}>
+		</div>
 	</div>
 </div>

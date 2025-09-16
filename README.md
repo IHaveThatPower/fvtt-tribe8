@@ -39,7 +39,6 @@ At present, no stock Items (i.e. Skills, Perks, Flaws, Combat Maneuvers, Aspects
 This is a rough, ever-changing list that depicts in approximate priority order what's on the list of yet-to-be-implemented features.
 
 ### Short Term
-- Add on-sheet toggles for "Equipped" and "Carried"
 - Finalize character sheet layout
 - Deal with various remaining TODO items
 

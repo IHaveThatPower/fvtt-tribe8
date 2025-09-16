@@ -13,18 +13,20 @@ export class Tribe8CharacterSheet extends Tribe8Application(ActorSheetV2) {
 			contentClasses: ["tribe8", "character", "sheet", "actor"]
 		},
 		actions: {
-			incrementEdie:    Tribe8CharacterSheet.action_incrementEdie,
-			decrementEdie:    Tribe8CharacterSheet.action_decrementEdie,
-			editItem:         Tribe8CharacterSheet.action_editItem,
-			addNewItem:       Tribe8CharacterSheet.action_addNewItem,
-			useEminence:      Tribe8CharacterSheet.action_useEminence,
-			combatCalculator: Tribe8CharacterSheet.action_combatCalculator,
-			chooseAttribute:  Tribe8CharacterSheet.action_chooseAttribute,
-			'sort-skills':    Tribe8CharacterSheet.action_sortToggle,
-			'sort-maneuvers': Tribe8CharacterSheet.action_sortToggle,
-			'sort-weapons':   Tribe8CharacterSheet.action_sortColumn,
-			'sort-armor':     Tribe8CharacterSheet.action_sortColumn,
-			'sort-gear':      Tribe8CharacterSheet.action_sortColumn
+			incrementEdie:     Tribe8CharacterSheet.action_incrementEdie,
+			decrementEdie:     Tribe8CharacterSheet.action_decrementEdie,
+			editItem:          Tribe8CharacterSheet.action_editItem,
+			addNewItem:        Tribe8CharacterSheet.action_addNewItem,
+			useEminence:       Tribe8CharacterSheet.action_useEminence,
+			combatCalculator:  Tribe8CharacterSheet.action_combatCalculator,
+			chooseAttribute:   Tribe8CharacterSheet.action_chooseAttribute,
+			'sort-skills':     Tribe8CharacterSheet.action_sortToggle,
+			'sort-maneuvers':  Tribe8CharacterSheet.action_sortToggle,
+			'sort-weapons':    Tribe8CharacterSheet.action_sortColumn,
+			'sort-armor':      Tribe8CharacterSheet.action_sortColumn,
+			'sort-gear':       Tribe8CharacterSheet.action_sortColumn,
+			'toggle-carried':  Tribe8CharacterSheet.action_toggleGearState,
+			'toggle-equipped': Tribe8CharacterSheet.action_toggleGearState
 		}
 	}
 
@@ -54,6 +56,9 @@ export class Tribe8CharacterSheet extends Tribe8Application(ActorSheetV2) {
 	 * @access public
 	 */
 	get title() {
+		if (this.token) {
+			return `Token: ${this.document.name}`;
+		}
 		return this.document.name;
 	}
 
@@ -907,23 +912,27 @@ export class Tribe8CharacterSheet extends Tribe8Application(ActorSheetV2) {
 						icon: '<i class="fa-solid fa-image"></i>',
 						callback: () => {
 							const actor = this.document;
-							if (actor.prototypeToken?.texture?.src) {
+							const texture = (this.token ? this.token.texture : this.document.prototypeToken);
+							if (texture?.src) {
 								new foundry.applications.apps.ImagePopout({
-									src: actor.prototypeToken.texture.src,
+									src: texture.src,
 									uuid: actor.uuid,
 									window: { title: actor.name }
 								}).render({ force: true });
 							}
 							else
-								foundry.ui.notifications.warn("No prototype token image found");
+								foundry.ui.notifications.warn("No token image found");
 						}
 					},
 					{
-						name: "Configure Prototype Token", // TODO: Localize
+						name: (this.token ? "Configure Token" : "Configure Prototype Token"), // TODO: Localize
 						icon: '<i class="fa-solid fa-file-pen"></i>',
 						condition: this.document.isOwner,
 						callback: el => {
-							this.options.actions['configurePrototypeToken']?.call(this, undefined, el);
+							if (this.token)
+								this.token.sheet.render(true);
+							else
+								this.options.actions['configurePrototypeToken']?.call(this, undefined, el);
 						}
 					}
 				];
@@ -1181,6 +1190,22 @@ export class Tribe8CharacterSheet extends Tribe8Application(ActorSheetV2) {
 		game.user.setFlag('tribe8', sortKey, sorting).then(() => {
 			this.render();
 		});
+	}
+
+	/**
+	 * Toggle the equipped/carried state of an item.
+	 *
+	 * @param {Event}           event     The event triggered by interaction with the form element
+	 * @param {HTMLFormElement} target    The element that triggered the event
+	 * @access public
+	 */
+	static action_toggleGearState(event, target) {
+		event.stopPropagation();
+		event.preventDefault();
+		const property = target.dataset.action.split('-')[1];
+		const item = this.#getItemFromTarget(target);
+		const newState = item.system[property] ? false : true;
+		item.update({[`system.${property}`]: newState}).then(() => { this.render(); });
 	}
 
 	/**

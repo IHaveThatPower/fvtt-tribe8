@@ -97,7 +97,7 @@ export function Tribe8Application(BaseApplication) {
 			// Pop the filepicker!
 			const fp = new CONFIG.ux.FilePicker({
 				current,
-				type: "image", // TODO: Video support?
+				type: "image", // TODO: (Future) Video support?
 				redirectToRoot: defaultImage ? [defaultImage] : [],
 				callback: path => {
 					// Swap it in for the user immediately
@@ -130,10 +130,8 @@ export function Tribe8Application(BaseApplication) {
 		 * @access protected
 		 */
 		async _onEditPortrait(attr, path) {
-			if (attr.startsWith("token.")) await this.token.update({[attr.slice(6)]: path}); // TODO: Does this actually work?
-			else {
-				await this.document.update({[attr]: path});
-			}
+			if (this.token) await this.token.update({[attr]: path});
+			else await this.document.update({[attr]: path});
 		}
 
 		/**

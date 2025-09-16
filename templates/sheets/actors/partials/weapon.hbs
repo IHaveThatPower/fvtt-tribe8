@@ -21,7 +21,11 @@
 			{{~/if}}
 		</div>
 		<div class="complexity" data-action="editItem">{{system.complexity}}</div>
-		<div class="carried" data-action="toggleCarried">{{#if system.carried}}C{{/if}}</div><!-- TODO: (UI) Carried toggle -->
-		<div class="equipped" data-action="toggleEquipped">{{#if system.equipped}}C{{/if}}</div><!-- TODO: (UI) Equipped toggle -->
+		<div class="carried dot-checkbox">
+			<input type="checkbox" name="carried[{{id}}]" data-action="toggle-carried" data-item-id="{{id}}" title="{{localize "tribe8.item.gear.carried.hint"}}"{{#if system.carried}} checked{{/if}}>
+		</div>
+		<div class="equipped dot-checkbox">
+			<input type="checkbox" name="equipped[{{id}}]" data-action="toggle-equipped" data-item-id="{{id}}" title="{{localize "tribe8.item.gear.equipped.hint"}}"{{#if system.equipped}} checked{{/if}}>
+		</div>
 	</div>
 </div>

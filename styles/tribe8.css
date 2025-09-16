@@ -333,6 +333,29 @@ div.dice-roll .dice-formula.unskilled {
 		box-sizing: border-box;
 	}
 
+	.dot-checkbox input[type="checkbox"] {
+		margin: 0;
+		height: 1rem;
+		width: 1rem;
+		appearance: none;
+		border: 1px solid var(--color-button-border);
+		border-radius: 40%;
+		background: none;
+	}
+	.dot-checkbox input[type="checkbox"] {
+		border-color: var(--color-button-border-hover);
+	}
+	.dot-checkbox input[type="checkbox"]:checked {
+		background: none;
+		background-image: var(--background-eminence-checked);
+	}
+	.dot-checkbox input[type="checkbox"]::before {
+		display: none;
+	}
+	.dot-checkbox input[type="checkbox"]::after {
+		display: none;
+	}
+
 	span.toggle {
 		display: flex;
 		flex-flow: row;
@@ -695,28 +718,6 @@ div.dice-roll .dice-formula.unskilled {
 			text-align: right;
 			padding: 0.1rem 0 0.1rem 0.1rem;
 			box-sizing: content-box;
-		}
-		div.eminence div.used input[type="checkbox"] {
-			margin: 0;
-			height: 1rem;
-			width: 1rem;
-			appearance: none;
-			border: 1px solid var(--color-button-border);
-			border-radius: 40%;
-			background: none;
-		}
-		div.eminence div.used input[type="checkbox"] {
-			border-color: var(--color-button-border-hover);
-		}
-		div.eminence div.used input[type="checkbox"]:checked {
-			background: none;
-			background-image: var(--background-eminence-checked);
-		}
-		div.eminence div.used input[type="checkbox"]::before {
-			display: none;
-		}
-		div.eminence div.used input[type="checkbox"]::after {
-			display: none;
 		}
 		div.aspect  {
 			display: flex;
