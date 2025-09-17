@@ -4,24 +4,24 @@
 			<img src="{{document.img}}" alt="{{document.name}}" data-action="editImage">
 		</div>
 		<div class="name"><input type="text" name="name" value="{{document.name}}" size=12 title="Name of the Totem"></div>
-		<div class="specific"><input type="text" name="system.totemType" value="{{document.system.totemType}}" size=12 title="Type of Totem (e.g. Spirit, Fatima, Z'bri lord, etc.)"></div>
+		<div class="specific"><input type="text" name="system.totemType" value="{{document.system.totemType}}" size=12 title="{{localize "tribe8.item.totem.specific.hint"}}"></div>
 	</div>
 	<div class="costs">
 		<div class="cost-field cost-field-checkbox">
 			<input type="radio" id="system.points.cp" name="system.points" value="CP"{{#if (eq document.system.points "CP")}} checked{{/if}}>
-			<label for="system.points.cp">CP</label>
+			<label for="system.points.cp">{{localize "tribe8.actor.character.points.cp.short"}}</label>
 		</div>
 		<div class="cost-field cost-field-checkbox">
 			<input type="radio" id="system.points.xp" name="system.points" value="XP"{{#if (eq document.system.points "XP")}} checked{{/if}} />
-			<label for="system.points.xp">XP</label>
+			<label for="system.points.xp">{{localize "tribe8.actor.character.points.xp.short"}}</label>
 		</div>
 		<div class="fromCpx cost-field cost-field-checkbox">
-			<input type="checkbox" name="system.fromCpx" value=true{{# if document.system.fromCpx}} checked{{/if}} title="Mark this as a free Totems from Ritual Skill Complexity" />
-			<label for="system.fromCpx" title="Mark this as a free Totems from Ritual Skill Complexity">Cpx</label>
+			<input type="checkbox" name="system.fromCpx" value=true{{# if document.system.fromCpx}} checked{{/if}} title="{{localize "tribe8.item.totem.fromCpx.hint"}}" />
+			<label for="system.fromCpx" title="{{localize "tribe8.item.totem.fromCpx.hint"}}>Cpx</label>
 		</div>
 		<div class="granted cost-field cost-field-checkbox">
-			<input type="checkbox" name="system.granted" value=true{{#if document.system.granted}} checked{{/if}} title="Check if the Weaver granted this for free" />
-			<label for="system.granted" title="Check if the Weaver granted this for free">F?</label>
+			<input type="checkbox" name="system.granted" value=true{{#if document.system.granted}} checked{{/if}} title="{{localize "tribe8.item.totem.granted.hint"}}" />
+			<label for="system.granted" title="{{localize "tribe8.item.totem.granted.hint"}}">F?</label>
 		</div>
 	</div>
 	{{> "systems/tribe8/templates/sheets/items/partials/description.hbs"}}

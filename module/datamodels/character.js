@@ -1,4 +1,5 @@
 const fields = foundry.data.fields;
+import { Tribe8 } from '../config.js';
 
 export class Tribe8CharacterModel extends foundry.abstract.TypeDataModel {
 	/**
@@ -11,49 +12,70 @@ export class Tribe8CharacterModel extends foundry.abstract.TypeDataModel {
 	 */
 	static defineSchema() {
 		return {
-			tribe: new fields.StringField({hint: "Tribe into which the character was born or most directly identifies", blank: true, trim: true}),
-			role: new fields.StringField({hint: "Role this character plays in their Cell", blank: true, trim: true}),
+			tribe: new fields.StringField({hint: "tribe8.actor.character.tribe.hint", blank: true, trim: true}),
+			role: new fields.StringField({hint: "tribe8.actor.character.role.hint", blank: true, trim: true}),
 			attributes: new fields.SchemaField({
 				primary: new fields.SchemaField(
 					Object.fromEntries(
-						Object.keys(CONFIG.Tribe8.attributes.primary).map((a) => {
+						Object.keys(Tribe8.attributes.primary).map((a) => {
 							return [
 								a,
-								new fields.SchemaField(Tribe8PrimaryAttribute(CONFIG.Tribe8.attributes.primary[a], a))
+								new fields.SchemaField(Tribe8PrimaryAttribute(Tribe8.attributes.primary[a], a))
 							];
 						})
 					)
 				),
 				secondary: new fields.SchemaField({
 					physical: new fields.SchemaField({
-						str: new fields.SchemaField(Tribe8SecondaryAttribute('Strength', 'str')),
-						hea: new fields.SchemaField(Tribe8SecondaryAttribute('Health', 'hea')),
-						sta: new fields.SchemaField(Tribe8SecondaryAttribute('Stamina', 'sta')),
+						str: new fields.SchemaField(Tribe8SecondaryAttribute(
+							"tribe8.actor.character.attributes.secondary.physical.str.full",
+							"tribe8.actor.character.attributes.secondary.physical.str.short"
+						)),
+						hea: new fields.SchemaField(Tribe8SecondaryAttribute(
+							"tribe8.actor.character.attributes.secondary.physical.hea.full",
+							"tribe8.actor.character.attributes.secondary.physical.hea.short"
+						)),
+						sta: new fields.SchemaField(Tribe8SecondaryAttribute(
+							"tribe8.actor.character.attributes.secondary.physical.sta.full",
+							"tribe8.actor.character.attributes.secondary.physical.sta.short"
+						)),
 						thresholds: new fields.SchemaField({
-							flesh: new fields.SchemaField(Tribe8SecondaryAttribute('Flesh Wound', 'FW')),
-							deep: new fields.SchemaField(Tribe8SecondaryAttribute('Deep Wound', 'DW')),
-							death: new fields.SchemaField(Tribe8SecondaryAttribute('Instant Death', 'ID'))
+							flesh: new fields.SchemaField(Tribe8SecondaryAttribute(
+								"tribe8.actor.character.attributes.secondary.physical.thresholds.flesh.full",
+								"tribe8.actor.character.attributes.secondary.physical.thresholds.flesh.short"
+							)),
+							deep: new fields.SchemaField(Tribe8SecondaryAttribute(
+								"tribe8.actor.character.attributes.secondary.physical.thresholds.deep.full",
+								"tribe8.actor.character.attributes.secondary.physical.thresholds.deep.short"
+							)),
+							death: new fields.SchemaField(Tribe8SecondaryAttribute(
+								"tribe8.actor.character.attributes.secondary.physical.thresholds.death.full",
+								"tribe8.actor.character.attributes.secondary.physical.thresholds.death.short"
+							))
 						}),
 						shock: new fields.SchemaField({
-							...Tribe8SecondaryAttribute('System Shock', 'SS')
+							...Tribe8SecondaryAttribute(
+								"tribe8.actor.character.attributes.secondary.physical.shock.full",
+								"tribe8.actor.character.attributes.secondary.physical.shock.short"
+							)
 						})
 					})
 				})
 			}),
 			wounds: new fields.SchemaField({
-				flesh: new fields.NumberField({hint: "Number of Flesh Wounds sustained", initial: 0, required: true}),
-				deep: new fields.NumberField({hint: "Number of Deep Wounds sustained", initial: 0, required: true})
+				flesh: new fields.NumberField({hint: "tribe8.actor.character.wounds.flesh.hint", initial: 0, required: true}),
+				deep: new fields.NumberField({hint: "tribe8.actor.character.wounds.deep.hint", initial: 0, required: true})
 			}),
 			points: new fields.SchemaField({
 				cp: new fields.SchemaField({
-					attributes: new fields.NumberField({initial: 30, required: true, hint: "Number of initial character points that can be spent on attributes"}),
-					general: new fields.NumberField({initial: 50, required: true, hint: "Number of additional character points that can be spent on character features other than attributes"}),
+					attributes: new fields.NumberField({initial: 30, required: true, hint: "tribe8.actor.character.points.cp.attributes.hint"}),
+					general: new fields.NumberField({initial: 50, required: true, hint: "tribe8.actor.character.points.cp.general.hint"}),
 				}),
 				xp: new fields.SchemaField({
-					total: new fields.NumberField({hint: "Number of total XP accumulated by the character", initial: 0, required: true})
+					total: new fields.NumberField({hint: "tribe8.actor.character.points.xp.hint", initial: 0, required: true})
 				}),
 			}),
-			edie: new fields.NumberField({hint: "Number of bonus EDie available, beyond unspent XP", initial: 0, required: true})
+			edie: new fields.NumberField({hint: "tribe8.actor.character.edie.hint", initial: 0, required: true})
 		};
 	}
 
@@ -96,7 +118,7 @@ export class Tribe8CharacterModel extends foundry.abstract.TypeDataModel {
 	 * @access public
 	 */
 	get cpSpentGeneral() {
-		if (!this.parent) throw new ReferenceError("Cannot determine CP spent before data model knows what Actor it belongs to");
+		if (!this.parent) throw new ReferenceError("tribe8.errors.model-actor-not-initialized");
 		return this.points.cp.generalSpent ?? 0; // This is a transient property computed by #preparePoints
 	}
 
@@ -119,7 +141,7 @@ export class Tribe8CharacterModel extends foundry.abstract.TypeDataModel {
 	 * @access public
 	 */
 	get xpSpentGeneral() {
-		if (!this.parent) throw new ReferenceError("Cannot determine XP spent before data model knows what Actor it belongs to");
+		if (!this.parent) throw new ReferenceError("tribe8.errors.model-actor-not-initialized");
 		return this.points.xp.spent ?? 0; // This is a transient property computed by #preparePoints
 	}
 
@@ -130,7 +152,7 @@ export class Tribe8CharacterModel extends foundry.abstract.TypeDataModel {
 	 * @access public
 	 */
 	get actionPenalty() {
-		return (this.wounds.flesh * CONFIG.Tribe8.woundPenalties.flesh) + (this.wounds.deep * CONFIG.Tribe8.woundPenalties.deep);
+		return (this.wounds.flesh * Tribe8.woundPenalties.flesh) + (this.wounds.deep * Tribe8.woundPenalties.deep);
 	}
 
 	/**
@@ -151,7 +173,7 @@ export class Tribe8CharacterModel extends foundry.abstract.TypeDataModel {
 	 */
 	get deadlift() {
 		const str = this.attributes.secondary.physical.str.value;
-		return [this.constructor.#bldToMass(str), this.constructor.#bldToMass(str+1)];
+		return [Tribe8.bldToMass(str), Tribe8.bldToMass(str+1)];
 	}
 
 	/**
@@ -179,61 +201,6 @@ export class Tribe8CharacterModel extends foundry.abstract.TypeDataModel {
 			}
 		}
 		return Math.round(carried * 100) / 100;
-	}
-
-	/**
-	 * Given a BLD (or STR) value, convert it into the lower limit of
-	 * the corresponding mass range.
-	 *
-	 * TODO: This really seems like it should be some kind of library function
-	 *
-	 * @param  {int}       value    The value to be converted
-	 * @return {number}             The resulting lower-limit bound
-	 * @throws {TypeError}          When the value supplied is not (or cannot be converted into) a number
-	 * @access                      private
-	 */
-	static #bldToMass(value) {
-		value = Number(value);
-		if (isNaN(value)) throw new TypeError("Value to be converted to Mass must be a number");
-
-		// Below -6, we're logarithmic
-		if (value < -6) return Math.pow(10, 6 + value);
-
-		// From -7 to -5, we're quadratic
-		if (value < -4) return Math.pow(value, 2) * 0.5 + 10.5 * value + 50;
-
-		// From -5 to -3, we're linear
-		if (value < -3) return 15 * value + 85;
-
-		// From -3 to +1, we're linear with a shallower slope
-		if (value < 1) return 10 * value + 70;
-
-		// We now enter into the realm of approximation
-		// From +1 to +6, we pretty exactly follow a 4th-order polynomial
-		if (value < 7) {
-			const a = 5/48;
-			const b = -(35/72);
-			const c = 35/16;
-			const d = 670/63;
-			const e = 67.5;
-			return Math.round(a * Math.pow(value, 4) + b * Math.pow(value, 3) + c * Math.pow(value, 2) + d * value + e, 0);
-		}
-
-		// From +7 to +9, a 3rd-order polynomial
-		if (value < 10) {
-			const a = 80/3;
-			const b = -540;
-			const c = 3793 + 1/3;
-			const d = -8840;
-			return Math.round(a * Math.pow(value, 3) + b * Math.pow(value, 2) + c * value + d, 0);
-		}
-
-		// From +9 to +11, we suddenly go linear
-		if (value < 12) return 2000 * value - 17000;
-
-		// And finally, we're quadratic for the final stretch up to +15.
-		// Beyond this, we don't have anything else, so this holds beyond +15.
-		return Math.round(2500 * Math.pow(value, 2) - 52500 * value + 280000, 0);
 	}
 
 	/**
@@ -378,8 +345,14 @@ export class Tribe8CharacterModel extends foundry.abstract.TypeDataModel {
 		// Make sure we're finding the "best" skill we can for these values
 		const skillH2H = skills['H']?.length ? skills['H'].sort(skills['H'][0].constructor.cmp)[0] : null;
 		const skillMelee = skills['M']?.length ? skills['M'].sort(skills['M'][0].constructor.cmp)[0] : null;
-		secAtts.ud = Tribe8SecondaryAttribute("Unarmed Damage", "UD");
-		secAtts.ad = Tribe8SecondaryAttribute("Armed Damage", "AD");
+		secAtts.ud = Tribe8SecondaryAttribute(
+			"tribe8.actor.character.attributes.secondary.physical.ud.full",
+			"tribe8.actor.character.attributes.secondary.physical.ud.short"
+		);
+		secAtts.ad = Tribe8SecondaryAttribute(
+			"tribe8.actor.character.attributes.secondary.physical.ad.full",
+			"tribe8.actor.character.attributes.secondary.physical.ad.short"
+		);
 		secAtts.ud.value = Math.max(3 + secAtts.str.value + priAtts.bld.value + (skillH2H?.system?.level ?? 0), 1);
 		secAtts.ad.value = Math.max(3 + secAtts.str.value + priAtts.bld.value + (skillMelee?.system?.level ?? 0), 1);
 	}
@@ -457,11 +430,11 @@ export class Tribe8CharacterModel extends foundry.abstract.TypeDataModel {
 
 		// Calculate our basis (Sprinting) rate
 		let movementBasis = fitness.value + (athletics ? athletics.system.level : 0);
-		movementBasis *= CONFIG.Tribe8.movementFormula.multiplier;
-		movementBasis += CONFIG.Tribe8.movementFormula.base;
+		movementBasis *= Tribe8.movementFormula.multiplier;
+		movementBasis += Tribe8.movementFormula.base;
 
 		// Calculate our actual rates
-		this.movement = {...CONFIG.Tribe8.movementRates};
+		this.movement = {...Tribe8.movementRates};
 		for (let rate of Object.keys(this.movement))
 			this.movement[rate] *= movementBasis;
 
@@ -473,14 +446,38 @@ export class Tribe8CharacterModel extends foundry.abstract.TypeDataModel {
 			}
 		}
 
-		// TODO: Probably should break these out
 		// Apply penalties from carried load
+		this.#applyMovementPenaltyFromLoad();
+
+		// Apply any penalties from wounds.
+		this.#applyMovementPenaltyFromInjury();
+
+		// Round the numbers a bit, if needed
+		const roundScale = 10 ** Math.min(Math.max(Tribe8.movementPrecision, 0), 4); // Enforce a hard limit of millimeter precision
+		for (let rate in this.movement) {
+			this.movement[rate] = Math.round(this.movement[rate] * roundScale) / roundScale;
+		}
+	}
+
+	/**
+	 * Apply movement penalties due to carried load.
+	 *
+	 * Called by #prepareMovement(), which prepares some of the
+	 * groundwork on which this method depends.
+	 *
+	 * @return {void}
+	 * @throws {ReferenceError} If the movement property isn't initialized
+	 * @access private
+	 * @see    #prepareMovement
+	 */
+	#applyMovementPenaltyFromLoad() {
+		if (!this.movement) throw new ReferenceError(game.i18n.format("tribe8.errors.called-before-movement-prepared", {method: '#applyMovementPenaltyFromLoad'}));
 		const deadlift = this.deadlift[0];
-		const loadThresholds = CONFIG.Tribe8.loadThresholds;
+		const loadThresholds = Tribe8.loadThresholds;
 		for (let threshold in loadThresholds) {
 			const loadThreshold = Number(threshold) / 100;
 			if (isNaN(loadThreshold)) {
-				console.error("Load threshold could not be converted to a percentage");
+				console.error(game.i18n.localize("tribe8.non-percentage-load"));
 				continue;
 			}
 			if (this.carriedWeight >= (deadlift * loadThreshold)) {
@@ -489,7 +486,7 @@ export class Tribe8CharacterModel extends foundry.abstract.TypeDataModel {
 					if (speed === 'descriptor') continue;
 					const multiplier = Number(multipliers[speed]);
 					if (isNaN(multiplier)) {
-						console.error("Load threshold speed multiplier was not a number");
+						console.error(game.i18n.localize("tribe8.load-threshold-nan"));
 						continue;
 					}
 					this.movement[speed] *= Number(multipliers[speed]);
@@ -497,40 +494,47 @@ export class Tribe8CharacterModel extends foundry.abstract.TypeDataModel {
 				}
 			}
 		}
+	}
 
-		// TODO: Probably should break these out
-		// Apply any penalties from wounds.
-		if (this.wounds.deep > 0 || this.wounds.flesh > 0) {
-			((currentWounds, movementRates) => {
-				const injuryMult = CONFIG.Tribe8.movementInjuryMultipliers;
-				// sort() works here simply because "d" comes before "f", putting the more-severe wound category first.
-				for (let type of Object.keys(this.wounds).sort()) {
-					// Each key corresponds to a number of wounds of that type at and above which the penalty applies.
-					// Sorting it in reverse means we go through in descending order, seeing which one applies.
-					const sortedWoundThresholds = Object.keys(injuryMult[type]).map(t => Number(t)).sort().reverse();
-					for (let woundThreshold of sortedWoundThresholds) {
-						// As soon as we find a threshold that matches our current wound count of this type, we're done
-						if (currentWounds[type] >= woundThreshold) {
-							const injuredRates = injuryMult[type][woundThreshold];
-							// Apply any multipliers we find in the reference table to our existing rates
-							for (let rate of Object.keys(injuredRates)) {
-								movementRates[rate] *= injuredRates[rate];
-								if (this.parent) {
-									this.parent.movementReduction.injury = true;
-								}
+	/**
+	 * Apply movement penalties due to injuries.
+	 *
+	 * Called by #prepareMovement(), which prepared some of the
+	 * groundwork on which this method depends.
+	 *
+	 * @return {void}
+	 * @throws {ReferenceError} If the movement property isn't initialized
+	 * @access private
+	 * @see    #prepareMovement
+	 */
+	#applyMovementPenaltyFromInjury() {
+		if (!this.movement) throw new ReferenceError(game.i18n.format("tribe8.errors.called-before-movement-prepared", {method: "#applyMovementPenaltyFromInjury"}));
+		if (!this.wounds) throw new ReferenceError(game.i18n.format("tribe8.errors.no-wounds-property", {actor: `Actor.${this.parent?.id}`}));
+		if (!this.wounds.deep && !this.wounds.flesh) return;
+
+		((currentWounds, movementRates) => {
+			const injuryMult = Tribe8.movementInjuryMultipliers;
+			// sort() works here simply because "d" comes before "f", putting the more-severe wound category first.
+			for (let type of Object.keys(this.wounds).sort()) {
+				// Each key corresponds to a number of wounds of that type at and above which the penalty applies.
+				// Sorting it in reverse means we go through in descending order, seeing which one applies.
+				const sortedWoundThresholds = Object.keys(injuryMult[type]).map(t => Number(t)).sort().reverse();
+				for (let woundThreshold of sortedWoundThresholds) {
+					// As soon as we find a threshold that matches our current wound count of this type, we're done
+					if (currentWounds[type] >= woundThreshold) {
+						const injuredRates = injuryMult[type][woundThreshold];
+						// Apply any multipliers we find in the reference table to our existing rates
+						for (let rate of Object.keys(injuredRates)) {
+							movementRates[rate] *= injuredRates[rate];
+							if (this.parent) {
+								this.parent.movementReduction.injury = true;
 							}
-							return;
 						}
+						return;
 					}
 				}
-			})(this.wounds, this.movement);
-		}
-
-		// Round the numbers a bit, if needed
-		const roundScale = 10 ** Math.min(Math.max(CONFIG.Tribe8.movementPrecision, 0), 4); // Enforce a hard limit of millimeter precision
-		for (let rate in this.movement) {
-			this.movement[rate] = Math.round(this.movement[rate] * roundScale) / roundScale;
-		}
+			}
+		})(this.wounds, this.movement);
 	}
 
 	/**
@@ -593,7 +597,7 @@ export class Tribe8CharacterModel extends foundry.abstract.TypeDataModel {
 					// and the viewing user is an owner, let them know
 					if (!totem.system.fromCpx) {
 						if (game.user.id == totem.parent.playerOwner) {
-							const msg = `${totem.parent.name}'s '${totem.name}' Totem is free based on their Ritual Skill's Complexity, but it is not marked as such.`;
+							const msg = game.i18n.format("tribe8.errors.unmarked-free-totem", {'actor': totem.parent.name, 'totem': totem.name});
 							if (foundry.ui?.notifications) foundry.ui.notifications.warn(msg);
 							else console.warn(msg);
 						}
@@ -676,7 +680,7 @@ export class Tribe8CharacterModel extends foundry.abstract.TypeDataModel {
 				// console.
 				if (!maneuver.system.fromCpx) {
 					if (game.user.id == maneuver.parent.playerOwner) {
-						const msg = `${maneuver.parent.name}'s '${maneuver.name} (${skill.name})' Maneuver is free due to bonus Maneuver slots, but is not marked as "from Complexity".`;
+						const msg = game.i18n.format("tribe8.errors.unmarked-free-maneuver", {'actor': maneuver.parent.name, 'maneuver': maneuver.name, 'skill': skill.name});
 						if (foundry.ui?.notifications) foundry.ui.notifications.warn(msg);
 						else console.warn(msg);
 					}
@@ -686,7 +690,7 @@ export class Tribe8CharacterModel extends foundry.abstract.TypeDataModel {
 			// user marked it as from Complexity, alert them.
 			if (maneuver.usesPoints && maneuver.system.fromCpx) {
 				if (game.user.id == maneuver.parent.playerOwner) {
-					const msg = `${maneuver.parent.name}'s '${maneuver.name} (${skill.name})' Maneuver is marked as from Complexity, but no bonus Maneuver slot was available for it.`;
+					const msg = game.i18n.format("tribe8.errors.non-free-maneuver", {'actor': maneuver.parent.name, 'maneuver': maneuver.name, 'skill': skill.name});
 					if (foundry.ui?.notifications) foundry.ui.notifications.warn(msg);
 					else console.warn(msg);
 				}
@@ -705,11 +709,11 @@ export class Tribe8CharacterModel extends foundry.abstract.TypeDataModel {
  */
 function Tribe8PrimaryAttribute(name, label) {
 	return {
-		'label': new fields.StringField({hint: "The short name used to identify this attribute on a character sheet", blank: false, initial: `${label}`, required: true}),
-		'name': new fields.StringField({hint: "The full name of this attribute", blank: false, initial: `${name}`, required: true}),
-		'value': new fields.NumberField({hint: "The current calculated value of this attribute", initial: -1, positive: false, required: true}),
-		'cp': new fields.NumberField({hint: "The number of CP invested in this attribute", initial: 0, positive: false, required: true}),
-		'xp': new fields.NumberField({hint: "The number of XP invested in this attribute", initial: 0, required: true, validate: (value) => (value >= 0) })
+		'label': new fields.StringField({hint: "tribe8.actor.character.attributes.primary.label.hint", blank: false, initial: `${label}`, required: true}),
+		'name': new fields.StringField({hint: "tribe8.actor.character.attributes.primary.name.hint", blank: false, initial: `${name}`, required: true}),
+		'value': new fields.NumberField({hint: "tribe8.actor.character.attributes.primary.value.hint", initial: -1, positive: false, required: true}),
+		'cp': new fields.NumberField({hint: "tribe8.actor.character.attributes.primary.cp.hint", initial: 0, positive: false, required: true}),
+		'xp': new fields.NumberField({hint: "tribe8.actor.character.attributes.primary.xp.hint", initial: 0, required: true, validate: (value) => (value >= 0) })
 	};
 }
 
@@ -723,8 +727,8 @@ function Tribe8PrimaryAttribute(name, label) {
  */
 function Tribe8SecondaryAttribute(name, label) {
 	return {
-		'label': new fields.StringField({hint: "The short name used to identify this attribute on a character sheet", blank: false, initial: `${label}`, required: true}),
-		'name': new fields.StringField({hint: "The full name of this attribute", blank: false, initial: `${name}`, required: true}),
-		'value': new fields.NumberField({hint: "The current calculated value of this attribute", initial: 0, required: true})
+		'label': new fields.StringField({hint: "tribe8.actor.character.attributes.secondary.label.hint", blank: false, initial: `${label}`, required: true}),
+		'name': new fields.StringField({hint: "tribe8.actor.character.attributes.secondary.name.hint", blank: false, initial: `${name}`, required: true}),
+		'value': new fields.NumberField({hint: "tribe8.actor.character.attributes.secondary.value.hint", initial: 0, required: true})
 	};
 }

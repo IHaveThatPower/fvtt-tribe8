@@ -11,31 +11,31 @@ export class Tribe8PerkFlawModel extends Tribe8ItemModel {
 	static defineSchema() {
 		return {
 			...super.defineSchema(),
-			name: new fields.StringField({hint: "The top-level name of the Perk or Flaw, without specifiers", nullable: false, required: true}),
-			specific: new fields.StringField({hint: "A unique specifier for this Perk or Flaw (e.g. the name of a Nemesis), if appropriate."}),
-			specify: new fields.BooleanField({hint: "Whether this Perk or Flaw requires a unique specifier.", initial: false}),
+			name: new fields.StringField({hint: "tribe8.item.pf.name.hint", nullable: false, required: true}),
+			specific: new fields.StringField({hint: "tribe8.item.pf.specific.hint"}),
+			specify: new fields.BooleanField({hint: "tribe8.item.pf.specify.hint", initial: false}),
 			baseCost: new fields.NumberField({
-				hint: "The cost, in CP or XP, of the first rank of the Perk or Flaw. For Flaws, this is a negative value.",
+				hint: "tribe8.item.pf.baseCost.hint",
 				initial: 0,
 				required: true,
 				nullable: false,
 			}),
 			perRank: new fields.NumberField({
-				hint: "The cost, in CP or XP, of additional ranks of the Perk or Flaw. For Flaws, this is a negative value.",
+				hint: "tribe8.item.pf.perRank.hint",
 				initial: 0,
 				required: false,
 				nullable: false,
 			}),
-			ranked: new fields.BooleanField({hint: "Whether or not this Perk or Flaw can be acquired at different intensity levels", initial: false, required: true, nullable: false}),
-			granted: new fields.BooleanField({hint: "Whether the cost of this Perk or Flaw is ignored, as may be the case with those granted by the Weaver.", initial: false, required: true, nullable: false}),
+			ranked: new fields.BooleanField({hint: "tribe8.item.pf.ranked.hint", initial: false, required: true, nullable: false}),
+			granted: new fields.BooleanField({hint: "tribe8.item.pf.granted.hint", initial: false, required: true, nullable: false}),
 			points: new fields.ArrayField(
 				new fields.StringField({
-					hint: "The type of points used to pay for this rank of the Perk, or refunded for this rank of the Flaw.",
+					hint: "tribe8.item.pf.points-rank.hint",
 					choices: ["CP", "XP"],
 					initial: "CP",
 					required: true, nullable: false
 				}), {
-					hint: "The type of points used to pay for the Perk, or to refund for the Flaw. Each rank is stored separately.",
+					hint: "tribe8.item.pf.points.hint",
 					initial: [],
 					required: true,
 					nullable: false

@@ -1,3 +1,4 @@
+import { Tribe8 } from '../config.js';
 import { Tribe8GearSheet } from './gear.js';
 
 export class Tribe8WeaponSheet extends Tribe8GearSheet {
@@ -74,14 +75,14 @@ export class Tribe8WeaponSheet extends Tribe8GearSheet {
 		}
 
 		// The form needs to know the possible options for several fields
-		context.valueOptions = Object.fromEntries(CONFIG.Tribe8.gearValueOptions.map((o) => [o, `tribe8.item.gear.value.strings.${o}.full`]));
-		context.weaponCategories = Object.fromEntries(Object.keys(CONFIG.Tribe8.weaponCategories).map((o) => [o, `tribe8.item.weapon.category.${o}.full`]));
+		context.valueOptions = Object.fromEntries(Tribe8.gearValueOptions.map((o) => [o, `tribe8.item.gear.value.strings.${o}.full`]));
+		context.weaponCategories = Object.fromEntries(Object.keys(Tribe8.weaponCategories).map((o) => [o, `tribe8.item.weapon.category.${o}.full`]));
 		if (this.document.system.category) {
-			context.weaponSubcategories = Object.fromEntries(CONFIG.Tribe8.weaponCategories[this.document.system.category].map((o) => [o, `tribe8.item.weapon.category.${this.document.system.category}.${o}.full`]));
+			context.weaponSubcategories = Object.fromEntries(Tribe8.weaponCategories[this.document.system.category].map((o) => [o, `tribe8.item.weapon.category.${this.document.system.category}.${o}.full`]));
 		}
-		context.weaponRanges = Object.fromEntries(CONFIG.Tribe8.weaponRanges.map((o) => [o, `tribe8.item.weapon.ranges.${o}.full`]));
+		context.weaponRanges = Object.fromEntries(Tribe8.weaponRanges.map((o) => [o, `tribe8.item.weapon.ranges.${o}.full`]));
 		context.ranges = Object.fromEntries(this.document.system.ranges.map((r) => [r, true]));
-		context.fumbleRisk = Object.fromEntries(CONFIG.Tribe8.fumble.map((f) => [f, `tribe8.item.weapon.fumble.${f}`]));
+		context.fumbleRisk = Object.fromEntries(Tribe8.fumble.map((f) => [f, `tribe8.item.weapon.fumble.${f}`]));
 		return context;
 	}
 

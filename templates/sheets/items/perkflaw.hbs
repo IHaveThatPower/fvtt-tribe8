@@ -5,46 +5,46 @@
 		</div>
 		<div class="name"><input type="text" name="system.name" value="{{document.system.name}}" size=12></div>
 		{{#if document.system.specify}}
-		<div class="specific"><input type="text" name="system.specific" value="{{document.system.specific}}" placeholder="Specify" size=12></div>
+		<div class="specific"><input type="text" name="system.specific" value="{{document.system.specific}}" placeholder="{{localize "tribe8.item.specific.placeholder"}}" size=12></div>
 		{{/if}}
 		<div class="specify">
-			<input type="checkbox" name="system.specify" value="true"{{#if document.system.specify}} checked{{/if}} title="Check to specify specific area of focus" />
-			<label for="system.specify" title="Check to specify specific area of focus">S?</label>
+			<input type="checkbox" name="system.specify" value="true"{{#if document.system.specify}} checked{{/if}} title="{{localize "tribe8.item.pf.specify.hint"}}" />
+			<label for="system.specify" title="{{localize "tribe8.item.pf.specify.hint"}}">S?</label>
 		</div>
 	</div>
 	<div class="costs">
 		<div class="base-cost cost-field">
-			<label for="system.baseCost">Base</label>
-			<input type="number" name="system.baseCost" value="{{ document.system.baseCost }}" title="Points to acquire this {{document.type}}{{#if (eq document.type 'flaw')}} (should be a negative values){{/if}}" min="-100" max="100">
+			<label for="system.baseCost">{{localize "tribe8.item.pf.baseCost.short"}}</label>
+			<input type="number" name="system.baseCost" value="{{ document.system.baseCost }}" title="{{#if (eq document.type "flaw")}}{{localize "tribe8.item.flaw.baseCost.hint"}}{{else}}{{localize "tribe8.item.perk.baseCost.hint"}}{{/if}}" min="-100" max="100">
 		</div>
 		{{#if @root.document.system.ranked}}
 		<div class="per-rank cost-field">
-			<label for="system.perRank">Per-Rank</label>
-			<input type="number" name="system.perRank" value="{{ document.system.perRank }}" title="Points for additional ranks." min="-100" max="100">
+			<label for="system.perRank">{{localize "tribe8.item.pf.perRank.short"}}</label>
+			<input type="number" name="system.perRank" value="{{ document.system.perRank }}" title="{{localize "tribe8.item.pf.perRank.hint"}}" min="-100" max="100">
 		</div>
 		{{/if}}
 		<div class="ranked cost-field">
-			<input type="checkbox" name="system.ranked" value="true"{{# if document.system.ranked}} checked{{/if}} title="Can multiple ranks be purchased?" />
-			<label for="system.ranked" title="Can multiple ranks be purchased?">R?</label>
+			<input type="checkbox" name="system.ranked" value="true"{{# if document.system.ranked}} checked{{/if}} title="{{localize "tribe8.item.pf.ranked.hint"}}" />
+			<label for="system.ranked" title="{{localize "tribe8.item.pf.ranked.hint"}}">R?</label>
 		</div>
 		<div class="granted cost-field">
-			<input type="checkbox" name="system.granted" value="true"{{#if document.system.granted}} checked{{/if}} title="Check if the Weaver granted this for free" />
-			<label for="system.granted" title="Check if the Weaver granted this for free">F?</label>
+			<input type="checkbox" name="system.granted" value="true"{{#if document.system.granted}} checked{{/if}} title="{{localize "tribe8.item.pf.granted.hint"}}" />
+			<label for="system.granted" title="{{localize "tribe8.item.pf.granted.hint"}}">F?</label>
 		</div>
 	</div>
 	<div class="points">
 		{{#each ranks}}
 		<div class="points-block" data-rank="{{@index}}">
 			{{#if @root.document.system.ranked}}
-			<div class="rank">Rank {{roman (add @index 1)}}</div>
+			<div class="rank">{{localize "tribe8.item.pf.rankRoman" numerals=(roman (add @index 1))}}</div>
 			{{ else }}
-			<div class="rank">Use</div>
+			<div class="rank">{{localize "tribe8.item.pf.points.short"}}</div>
 			{{/if}}
 			<input type="radio" value="CP" id="system.points[{{@index}}].cp" name="system.points[{{@index}}]"{{#if (eq this "CP")}} checked{{/if}} />
-			<label for="system.points[{{@index}}].cp">CP</label>
+			<label for="system.points[{{@index}}].cp">{{localize "tribe8.actor.character.points.cp.short"}}</label>
 			<input type="radio" value="XP" id="system.points[{{@index}}].xp" name="system.points[{{@index}}]"{{#if (eq this "XP")}} checked{{/if}} />
-			<label for="system.points[{{@index}}].xp">XP</label>
-			<button name="remove-rank" data-action="removeRank" title="Remove Rank" type="button"><i class="far fa-circle-xmark"></i></button>
+			<label for="system.points[{{@index}}].xp">{{localize "tribe8.actor.character.points.xp.short"}}</label>
+			<button name="remove-rank" data-action="removeRank" title="{{localize "tribe8.item.pf.removeRank"}}" type="button"><i class="far fa-circle-xmark"></i></button>
 		</div>
 		{{/each}}
 	</div>

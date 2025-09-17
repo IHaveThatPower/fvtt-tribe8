@@ -60,7 +60,7 @@ export class Tribe8ItemSheet extends Tribe8Application(ItemSheetV2) {
 		this._createContextMenu(() => {
 				return [
 					{
-						name: "Show Item Artwork", // TODO: Localize
+						name: "tribe8.item.contextMenu.show-artwork",
 						icon: '<i class="fa-solid fa-image"></i>',
 						callback: () => {
 							const item = this.document;
@@ -72,7 +72,7 @@ export class Tribe8ItemSheet extends Tribe8Application(ItemSheetV2) {
 						}
 					},
 					{
-						name: "Edit Item Artwork", // TODO: Localize
+						name: "tribe8.item.contextMenu.edit-artwork",
 						icon: '<i class="fa-solid fa-file-pen"></i>',
 						condition: this.document.isOwner,
 						callback: el => {
@@ -102,11 +102,11 @@ export class Tribe8ItemSheet extends Tribe8Application(ItemSheetV2) {
 		}
 		const actor = item.parent;
 		if (!actor) {
-			foundry.ui.notifications.warn("Only items belonging to actors can be deleted in this way.");
+			foundry.ui.notifications.warn(game.i18n.localize("tribe8.errors.only-delete-owned-items"));
 			return;
 		}
 
-		const deleteString = `Are you sure you want to ENTIRELY delete the ${item.type[0].toUpperCase()}${item.type.slice(1)} '${item.name}', including any associated points?`;
+		const deleteString = game.i18n.format("tribe8.item.delete-confirm", {'type': game.i18n.localize(`TYPES.item.${item.type}`), 'name': item.name});
 		DialogV2.confirm({
 			content: deleteString,
 			modal: true

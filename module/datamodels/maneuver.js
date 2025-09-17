@@ -1,4 +1,5 @@
 const fields = foundry.data.fields;
+import { Tribe8 } from '../config.js';
 import { Tribe8ItemModel } from './item.js';
 
 export class Tribe8ManeuverModel extends Tribe8ItemModel {
@@ -20,7 +21,7 @@ export class Tribe8ManeuverModel extends Tribe8ItemModel {
 			allowedTypes: new fields.ArrayField(
 				new fields.StringField({
 					required: true,
-					choices: Object.keys(CONFIG.Tribe8.COMBAT_SKILLS)
+					choices: Object.keys(Tribe8.COMBAT_SKILLS)
 				}), {
 					hint: "tribe8.item.maneuver.allowedTypes.hint",
 					require: false,

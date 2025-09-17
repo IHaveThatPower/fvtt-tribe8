@@ -1,4 +1,5 @@
 const fields = foundry.data.fields;
+import { Tribe8 } from '../config.js';
 
 export class Tribe8ItemModel extends foundry.abstract.TypeDataModel {
 	/**
@@ -9,7 +10,7 @@ export class Tribe8ItemModel extends foundry.abstract.TypeDataModel {
 	 */
 	static defineSchema() {
 		return {
-			description: new fields.StringField({hint: "Description of the Item", initial: "", blank: true, nullable: false, required: true})
+			description: new fields.StringField({hint: "tribe8.item.description.hint", initial: "", blank: true, nullable: false, required: true})
 		};
 	}
 
@@ -35,7 +36,7 @@ export class Tribe8ItemModel extends foundry.abstract.TypeDataModel {
 	 * @access private
 	 */
 	get intrinsicCost() {
-		const costs = CONFIG.Tribe8.costs;
+		const costs = Tribe8.costs;
 		if (costs[this.parent?.type])
 			return costs[this.parent.type];
 		return 0;

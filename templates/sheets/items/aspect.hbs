@@ -9,51 +9,51 @@
 	<div class="costs">
 		<div class="cost-field cost-field-checkbox">
 			<input type="radio" id="system.points.cp" name="system.points" value="CP"{{#if (eq document.system.points "CP")}} checked{{/if}}>
-			<label for="system.points.cp">CP</label>
+			<label for="system.points.cp">{{localize "tribe8.actor.character.points.cp.short"}}</label>
 		</div>
 		<div class="cost-field cost-field-checkbox">
 			<input type="radio" id="system.points.xp" name="system.points" value="XP"{{#if (eq document.system.points "XP")}} checked{{/if}} />
-			<label for="system.points.xp">XP</label>
+			<label for="system.points.xp">{{localize "tribe8.actor.character.points.xp.short"}}</label>
 		</div>
 		<div class="granted cost-field cost-field-checkbox">
-			<input type="checkbox" name="system.granted" value=true{{#if document.system.granted}} checked{{/if}} title="Check if the Weaver granted this for free" />
+			<input type="checkbox" name="system.granted" value=true{{#if document.system.granted}} checked{{/if}} title="{{localize "tribe8.item.aspect.granted.hint"}}" />
 			<label for="system.granted" title="Check if the Weaver granted this for free">F?</label>
 		</div>
 		<div class="granted cost-field cost-field-checkbox">
-			<input type="checkbox" name="system.ritual" value=true{{#if document.system.ritual}} checked{{/if}} title="Check if this is a Ritual Aspect instead of a Synthesis Aspect" />
-			<label for="system.ritual" title="Check if this is a Ritual Aspect instead of a Synthesis Aspect">Ritual</label>
+			<input type="checkbox" name="system.ritual" value=true{{#if document.system.ritual}} checked{{/if}} title="{{localize "tribe8.item.aspect.ritual.hint"}}" />
+			<label for="system.ritual" title="Check if this is a Ritual Aspect instead of a Synthesis Aspect">{{localize "TYPES.Item.ritual"}}</label>
 		</div>
 	</div>
 	<div class="properties">
 		<div class="property">
-			<div class="property-name">Cpx</div>
+			<div class="property-name">{{localize "tribe8.item.complexity.short"}}</div>
 			<div class="property-input">
 				<span class="input-sizer" data-value="{{document.system.complexity}}">
-					<input type="number" name="system.complexity" value="{{ document.system.complexity }}" title="Complexity requirement for this Aspect." placeholder="2" min="2" max="10" />
+					<input type="number" name="system.complexity" value="{{ document.system.complexity }}" title="{{localize "tribe8.item.aspect.complexity.hint"}}" placeholder="2" min="2" max="10" />
 				</span>
 			</div>
 		</div>
 		<div class="property">
-			<div class="property-name">Attr.</div>
+			<div class="property-name">{{localize "tribe8.actor.character.attributes.name.short"}}</div>
 			<div class="property-input">
 				<span class="input-sizer" data-value="{{document.system.attribute}}">
-					<input type="text" name="system.attribute" value="{{ document.system.attribute }}" title="Attribute added when rolling Synthesis to use this Aspect." placeholder="CRE" size=3 />
+					<input type="text" name="system.attribute" value="{{ document.system.attribute }}" title="{{localize "tribe8.item.aspect.attribute.hint"}}" placeholder="{{localize "tribe8.actor.character.attributes.primary.cre.short"}}" size=3 />
 				</span>
 			</div>
 		</div>
 		<div class="property">
-			<div class="property-name">Thr.</div>
+			<div class="property-name">{{localize "tribe8.item.aspect.threshold.short"}}</div>
 			<div class="property-input">
 				<span class="input-sizer" data-value="{{document.system.threshold}}">
-					<input type="number" name="system.threshold" value="{{ document.system.threshold }}" title="Synthesis roll Threshold required to use this Aspect successfully. If the Threshold varies, leave blank." placeholder="0" min="0" max="10" />
+					<input type="number" name="system.threshold" value="{{ document.system.threshold }}" title="{{localize "tribe8.item.aspect.threshold.hint"}}" placeholder="0" min="0" max="10" />
 				</span>
 			</div>
 		</div>
 		<div class="property">
-			<div class="property-name">Opp.</div>
+			<div class="property-name">{{localize "tribe8.item.aspect.opposedBy.short"}}</div>
 			<div class="property-input">
 				<span class="input-sizer" data-value="{{document.system.opposedBy}}">
-					<input type="text" name="system.opposedBy" value="{{ document.system.opposedBy }}" title="Attribute roll target makes to resist this Aspect's effects." placeholder="WIL" size=2 />
+					<input type="text" name="system.opposedBy" value="{{ document.system.opposedBy }}" title="{{localize "tribe8.item.aspect.opposedBy.hint"}}" placeholder="WIL" size=2 />
 				</span>
 			</div>
 		</div>

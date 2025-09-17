@@ -5,57 +5,57 @@
 		</div>
 		<div class="name"><input type="text" name="system.name" value="{{document.system.name}}" size=0></div>
 		{{#if document.system.specify}}
-		<div class="specific"><input type="text" name="system.specific" value="{{document.system.specific}}" placeholder="Specify" size=0></div>
+		<div class="specific"><input type="text" name="system.specific" value="{{document.system.specific}}" placeholder="{{localize "tribe8.item.specific.placeholder"}}" size=0></div>
 		{{/if}}
 		<div class="specify">
-			<input type="checkbox" name="system.specify" value="true"{{#if document.system.specify}} checked{{/if}} title="Check to specify specific area of focus" />
-			<label for="system.specify" title="Check to specify specific area of focus">S?</label>
+			<input type="checkbox" name="system.specify" value="true"{{#if document.system.specify}} checked{{/if}} title="{{localize "tribe8.item.skill.specify.hint"}}" />
+			<label for="system.specify" title="{{localize "tribe8.item.skill.specify.hint"}}">S?</label>
 		</div>
 	</div>
 	<div class="costs">
 		<div class="points-block">
-			<div class="points-type">Level</div>
+			<div class="points-type">{{localize "tribe8.item.skill.level.full"}}</div>
 			<div class="value">{{document.system.level}}</div>
 			<div class="points">
 				<div class="cp">
 					<input type="number" value="{{#if document.system.points.level.cp}}{{document.system.points.level.cp}}{{else}}0{{/if}}" name="system.points.level.cp" min="0" max="100" />
-					<label for="system.points.level.cp">CP</label>
+					<label for="system.points.level.cp">{{localize "tribe8.actor.character.points.cp.short"}}</label>
 				</div>
 				<div class="xp">
 					<input type="number" value="{{#if document.system.points.level.xp}}{{document.system.points.level.xp}}{{else}}0{{/if}}" name="system.points.level.xp" min="0" max="999" />
-					<label for="system.points.level.xp">XP</label>
+					<label for="system.points.level.xp">{{localize "tribe8.actor.character.points.xp.short"}}</label>
 				</div>
 			</div>
 		</div>
 		<div class="points-block">
-			<div class="points-type">Cpx</div>
+			<div class="points-type">{{localize "tribe8.item.complexity.short"}}</div>
 			<div class="value">{{document.system.cpx}}</div>
 			<div class="points">
 				<div class="cp">
 					<input type="number" value="{{#if document.system.points.cpx.cp}}{{document.system.points.cpx.cp}}{{else}}0{{/if}}" name="system.points.cpx.cp" min="0" max="100" />
-					<label for="system.points.cpx.cp">CP</label>
+					<label for="system.points.cpx.cp">{{localize "tribe8.actor.character.points.cp.short"}}</label>
 				</div>
 				<div class="xp">
 					<input type="number" value="{{#if document.system.points.cpx.xp}}{{document.system.points.cpx.xp}}{{else}}0{{/if}}" name="system.points.cpx.xp" min="0" max="999" />
-					<label for="system.points.cpx.xp">XP</label>
+					<label for="system.points.cpx.xp">{{localize "tribe8.actor.character.points.xp.short"}}</label>
 				</div>
 			</div>
 		</div>
 		<div class="points-block">
-			<div class="points-type">EDie</div>
+			<div class="points-type">{{localize "tribe8.actor.character.edie.short"}}</div>
 			<div class="value"><input type="number" value="{{#if document.system.eDieSpent}}{{document.system.eDieSpent}}{{else}}0{{/if}}" name="system.eDieSpent" min="0" max="999" /></div>
 			<div class="points">
-				<button name="edie.dec" data-action="decrementEdie" title="Remove SPENT E-Die. It will be added back to the character's general E-Die pool" type="button">-</button>
-				<button name="edie.inc" data-action="incrementEdie" title="SPEND an E-Die on this skill. It will be removed from the character's general E-Die pool, if available, or spend from available XP if not." type="button">+</button>
+				<button name="edie.dec" data-action="decrementEdie" title="{{localize "tribe8.actor.character.edie.unspend"}}" type="button">-</button>
+				<button name="edie.inc" data-action="incrementEdie" title="{{localize "tribe8.actor.character.edie.spend"}}" type="button">+</button>
 			</div>
 		</div>
 	</div>
 	<div class="properties">
 		<div class="property">
-			<div class="property-name">Combat Category</div>
+			<div class="property-name">{{localize "tribe8.item.skill.combatCategory.full"}}</div>
 			<div class="property-input">
 				<select name="system.combatCategory">
-					<option value="">None</option>
+					<option value="">{{localize "tribe8.none"}}</option>
 					{{#each combatCategories as |label value|}}
 					<option value="{{value}}"{{#if (eq value ../document.system.combatCategory)}} selected{{/if}}>{{localize (concat "tribe8.item.skill.combatCategory." label)}}</option>
 					{{/each}}
@@ -64,22 +64,22 @@
 		</div>
 	</div>
 	<div class="specializations">
-		<h3>Specializations</h3>
+		<h3>{{localize "TYPES.Item.specialization-plural"}}</h3>
 		{{#if document.isEmbedded}}
 		{{#each specializations}}
 		<div class="specialization" data-edit-id="{{this.id}}">
 			<input type="text" value="{{this.name}}" name="specializations[{{this.id}}].name" />
 			<input type="radio" value="CP" id="specializations[{{this.id}}].system.points.cp" name="specializations[{{this.id}}].system.points"{{#if (eq this.system.points "CP")}} checked{{/if}} />
-			<label for="specializations[{{this.id}}].system.points.cp">CP</label>
+			<label for="specializations[{{this.id}}].system.points.cp">{{localize "tribe8.actor.character.points.cp.short"}}</label>
 			<input type="radio" value="XP" id="specializations[{{this.id}}].system.points.xp" name="specializations[{{this.id}}].system.points"{{#if (eq this.system.points "XP")}} checked{{/if}} />
-			<label for="specializations[{{this.id}}].system.points.xp">XP</label>
+			<label for="specializations[{{this.id}}].system.points.xp">{{localize "tribe8.actor.character.points.xp.short"}}</label>
 			<input type="checkbox" value=true id="specializations[{{this.id}}].system.granted" name="specializations[{{this.id}}].system.granted"{{#if this.system.granted}} checked{{/if}} />
 			<label for="specializations[{{this.id}}].system.granted">F?</label>
-			<button name="remove-specialization" data-action="removeSpecialization" title="Remove Specialization" type="button"><i class="far fa-circle-xmark"></i></button>
+			<button name="remove-specialization" data-action="removeSpecialization" title="{{localize "tribe8.item.skill.removeSpecialization"}}" type="button"><i class="far fa-circle-xmark"></i></button>
 		</div>
 		{{/each}}
 		<div class="add-specialization">
-			<input type="text" name="newSpecialization.name" placeholder="Add specialization">
+			<input type="text" name="newSpecialization.name" placeholder="{{localize "tribe8.item.skill.addSpecialization"}}">
 			<input type="radio" id="newSpecialization.pointSource.cp" value="cp" name="newSpecialization.pointSource"{{#if (eq newSpecialization.pointSource "cp")}} checked{{/if}} />
 			<label for="newSpecialization.pointSource.cp">CP</label>
 			<input type="radio" id="newSpecialization.pointSource.xp" value="xp" name="newSpecialization.pointSource"{{#if (eq newSpecialization.pointSource "xp")}} checked{{/if}} />
@@ -89,7 +89,7 @@
 			<button name="add-specialization" data-action="addSpecialization" type="button"><i class="fa fa-solid fa-plus"></i></button>
 		</div>
 		{{else}}
-		<em>Specializations can only be added to Skills belonging to a character.</em>
+		<em>{{localize "tribe8.errors.specializations-on-characters"}}</em>
 		{{/if}}
 	</div>
 	{{> "systems/tribe8/templates/sheets/items/partials/description.hbs"}}

@@ -7,7 +7,7 @@
 	</div>
 	<div class="properties">
 		<div class="property ar">
-			<div class="property-name">AR</div>
+			<div class="property-name">{{localize "tribe8.item.armor.ar.short"}}</div>
 			<div class="property-input">
 				<span class="input-sizer" data-value="{{document.system.ar}}">
 					<input type="text" name="system.ar" value="{{document.system.ar}}" placeholder="0" size=2 title="{{localize "tribe8.item.armor.ar.hint"}}"/>
@@ -15,7 +15,7 @@
 			</div>
 		</div>
 		<div class="property enc">
-			<div class="property-name">Enc</div>
+			<div class="property-name">{{localize "tribe8.item.armor.enc.short"}}</div>
 			<div class="property-input">
 				<span class="input-sizer" data-value="{{document.system.enc}}">
 					<input type="text" name="system.enc" value="{{document.system.enc}}" placeholder="0" size=4 title="{{localize "tribe8.item.armor.enc.hint"}}"{{#if document.system.partial}} disabled{{/if}} />
@@ -23,13 +23,13 @@
 			</div>
 		</div>
 		<div class="property partial">
-			<div class="property-name">Partial</div>
+			<div class="property-name">{{localize "tribe8.item.armor.partial.short"}}</div>
 			<div class="property-input">
 				<input type="checkbox" name="system.partial" value=true title="{{localize "tribe8.item.armor.partial.hint"}}"{{#if document.system.partial}} checked{{/if}} />
 			</div>
 		</div>
 		<div class="property concealable">
-			<div class="property-name">Concealable</div>
+			<div class="property-name">{{localize "tribe8.item.armor.conceal.full"}}</div>
 			<div class="property-input">
 				<select name="system.conceal" title="{{localize "tribe8.item.armor.conceal.hint"}}">
 					{{#each conceal as |name key|}}
@@ -39,7 +39,7 @@
 			</div>
 		</div>
 		<div class="property notes">
-			<div class="property-name">Notes</div>
+			<div class="property-name">{{localize "tribe8.item.armor.notes.full"}}</div>
 			<div class="property-input">
 				<span class="input-sizer" data-value="{{document.system.notes}}">
 					<input type="text" name="system.notes" value="{{document.system.notes}}" placeholder="None" size=4 title="{{localize "tribe8.item.armor.notes.hint"}}" />
@@ -49,7 +49,7 @@
 		<hr />
 		{{!-- Coverage --}}
 		<div class="property coverage">
-			<div class="property-name">Coverage</div>
+			<div class="property-name">{{localize "tribe8.item.armor.coverage.full"}}</div>
 			{{#each document.system.coverage}}
 			<div class="property-value" data-edit-id="{{@index}}">
 				<span>{{localize (concat "tribe8.item.armor.coverage." this)}}</span>

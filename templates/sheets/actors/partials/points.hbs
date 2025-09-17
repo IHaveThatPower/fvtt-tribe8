@@ -1,31 +1,31 @@
 <div class="points-summary">
-	<h2>Points</h2>
+	<h2>{{localize "tribe8.actor.character.points.header"}}</h2>
 	<dl class="points">
-		<dt class="points-type cp">CP</dt>
+		<dt class="points-type cp">{{localize "tribe8.actor.character.points.cp.short"}}</dt>
 		<dd class="points-value cp">
 			<dl class="points">
-				<dt class="attribute-points points-type{{#if (gt document.system.cpSpentAttributes document.system.points.cp.attributes)}} over{{/if}}">Att</dt>
+				<dt class="attribute-points points-type{{#if (gt document.system.cpSpentAttributes document.system.points.cp.attributes)}} over{{/if}}">{{localize "tribe8.actor.character.attributes.name.short"}}</dt>
 				<dd class="attribute-points point-value{{#if (gt document.system.cpSpentAttributes document.system.points.cp.attributes)}} over{{/if}}"><span class="points-spent">{{document.system.cpSpentAttributes}}</span> / <span class="points-total">{{document.system.points.cp.attributes}}</span></dd>
-				<dt class="general-points points-type{{#if (gt document.system.cpSpentGeneral document.system.points.cp.general)}} over{{/if}}">General</dt>
+				<dt class="general-points points-type{{#if (gt document.system.cpSpentGeneral document.system.points.cp.general)}} over{{/if}}">{{localize "tribe8.actor.character.points.cp.general.header"}}</dt>
 				<dd class="general-points point-value{{#if (gt document.system.cpSpentGeneral document.system.points.cp.general)}} over{{/if}}"><span class="points-spent">{{document.system.cpSpentGeneral}}</span> / <span class="points-total">{{document.system.points.cp.general}}</span></dd>
 			</dl>
 		</dd>
-		<dt class="points-type xp">XP</dt>
+		<dt class="points-type xp">{{localize "tribe8.actor.character.points.xp.short"}}</dt>
 		<dd class="points-value xp">
 			<dl class="points">
 				<dt class="general-points points-type{{#if (gt document.system.points.xp.spent document.system.points.xp.total)}} over{{/if}}"></dt>
 				<dd class="general-points points-value{{#if (gt document.system.points.xp.spent document.system.points.xp.total)}} over{{/if}}"><span class="points-spent">{{document.system.points.xp.spent}}</span> / <span class="points-total"><input type="number" name="system.points.xp.total" value="{{document.system.points.xp.total}}" /></span></dd>
 			</dl>
 		</dd>
-		<dt class="points-type edie">EDie</dt>
+		<dt class="points-type edie">{{localize "tribe8.actor.character.edie.short"}}</dt>
 		<dd class="points-value edie">
 			<dl class="points">
-				<dt class="points-type edie-total{{#if (lt document.system.edieTotal 0)}} over{{/if}}">Total</dt>
+				<dt class="points-type edie-total{{#if (lt document.system.edieTotal 0)}} over{{/if}}">{{localize "tribe8.actor.character.edie.total"}}</dt>
 				<dd class="points-value edie-total{{#if (lt document.system.edieTotal 0)}} over{{/if}}">{{document.system.edieTotal}}</dd>
-				<dt class="points-type edie-xp{{#if (lt document.system.edieFromXP 0)}} over{{/if}}">From XP</dt>
+				<dt class="points-type edie-xp{{#if (lt document.system.edieFromXP 0)}} over{{/if}}">{{localize "tribe8.actor.character.edie.fromXP"}}</dt>
 				<dd class="points-value edie-xp{{#if (lt document.system.edieFromXP 0)}} over{{/if}}">{{document.system.edieFromXP}}</dd>
-				<dt class="points-type edie-other">Other</dt>
-				<dd class="points-value edie-other"><button name="edie.dec" data-action="decrementEdie" type="button">-</button><input type="number" name="system.edie" value="{{document.system.edie}}" /><button name="edie.inc" data-action="incrementEdie" type="button">+</button></dd>
+				<dt class="points-type edie-other">{{localize "tribe8.actor.character.edie.other"}}</dt>
+				<dd class="points-value edie-other"><button name="edie.dec" data-action="decrementEdie" type="button" title="{{localize "tribe8.actor.character.edie.remove"}}">-</button><input type="number" name="system.edie" value="{{document.system.edie}}" title="{{localize "tribe8.actor.character.edie.input"}}" /><button name="edie.inc" data-action="incrementEdie" type="button" title="{{localize "tribe8.actor.character.edie.add"}}" >+</button></dd>
 			</dl>
 		</dd>
 	</dl>

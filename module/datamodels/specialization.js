@@ -10,12 +10,12 @@ export class Tribe8SpecializationModel extends Tribe8ItemModel {
 	 */
 	static defineSchema() {
 		return {
-			granted: new fields.BooleanField({hint: "Whether or not this Specialization was granted for free by the Weaver", initial: false, required: true, nullable: false}),
-			points: new fields.StringField({hint: "The type of points used to pay for the Specialization.", choices: ["CP", "XP"], initial: "CP", required: true, nullable: false}),
+			granted: new fields.BooleanField({hint: "tribe8.item.specialization.granted.hint", initial: false, required: true, nullable: false}),
+			points: new fields.StringField({hint: "tribe8.item.specialization.points.hint", choices: ["CP", "XP"], initial: "CP", required: true, nullable: false}),
 			skill: new fields.ForeignDocumentField(
 				CONFIG.Item.documentClass,
 				{
-					hint: "The Skill to which this Specialization belongs",
+					hint: "tribe8.item.specialization.skill.hint",
 					required: true,
 					blank: false,
 					nullable: false,

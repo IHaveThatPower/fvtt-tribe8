@@ -1,5 +1,5 @@
 <div class="magic">
-	<h2>Magic</h2>
+	<h2>{{localize "tribe8.actor.character.magic.header"}}</h2>
 	{{#if magic.hasDreamerPerk}}
 	<h3{{#if (and magic.hasAwakenedDreamerPerk magic.synthesisSkill)}} class="has-skill" data-action="editItem" data-item-id="{{magic.synthesisSkill.id}}"{{/if}}><span>Synthesis</span>
 		{{~#if (and magic.hasAwakenedDreamerPerk magic.synthesisSkill)~}}
@@ -7,7 +7,7 @@
 		{{~/if~}}
 	</h3>
 	<dl>
-		<dt><span>Eminences</span><button name="add-eminence" data-action="addNewItem" type="button"><i class="fa fa-solid fa-plus"></i></button></dt>
+		<dt><span>{{localize "TYPES.Item.eminence-plural"}}</span><button name="add-eminence" data-action="addNewItem" type="button"><i class="fa fa-solid fa-plus"></i></button></dt>
 		<dd>
 			{{#if magic.eminences}}
 				{{#each magic.eminences.sortedIDs as |eminenceId|}}
@@ -18,7 +18,7 @@
 					<div class="specific">({{this.system.tribe}})</div>
 				</div>
 				<div class="used dot-checkbox">
-					<input type="checkbox" name="useEminence[{{this.id}}]" data-action="useEminence" data-item-id="{{this.id}}" title="Mark this Eminence as having been used for the day"{{#if this.system.used}} checked{{/if}}>
+					<input type="checkbox" name="useEminence[{{this.id}}]" data-action="useEminence" data-item-id="{{this.id}}" title="{{localize "tribe8.item.eminence.used.hint"}}"{{#if this.system.used}} checked{{/if}}>
 				</div>
 			</div>
 					{{/with}}
@@ -33,13 +33,13 @@
 	</dl>
 	{{/if}}
 	{{#if magic.ritualSkill}}
-	<h3{{#if magic.ritualSkill}} class="has-skill" data-action="editItem" data-item-id="{{magic.ritualSkill.id}}"{{/if}}><span>Ritual</span>
+	<h3{{#if magic.ritualSkill}} class="has-skill" data-action="editItem" data-item-id="{{magic.ritualSkill.id}}"{{/if}}><span>{{localize "tribe.item.skill.names.ritual"}}</span>
 		{{~#if magic.ritualSkill~}}
 		<span>{{magic.ritualSkill.system.level}}c{{magic.ritualSkill.system.cpx}}</span>
 		{{~/if~}}
 	</h3>
 	<dl>
-		<dt><span>Totems</span><button name="add-totem" data-action="addNewItem" type="button"><i class="fa fa-solid fa-plus"></i></button></dt>
+		<dt><span>{{localize "TYPES.Item.totem-plural"}}</span><button name="add-totem" data-action="addNewItem" type="button"><i class="fa fa-solid fa-plus"></i></button></dt>
 		<dd>
 			{{#if magic.totems}}
 				{{#each magic.totems.sortedIDs as |totemId|}}

@@ -1,4 +1,4 @@
-<dt><span>Aspects</span><button name="add-aspect-{{skill}}" data-action="addNewItem" type="button"><i class="fa fa-solid fa-plus"></i></button></dt>
+<dt><span>{{localize "TYPES.Item.aspect-plural"}}</span><button name="add-aspect-{{skill}}" data-action="addNewItem" type="button"><i class="fa fa-solid fa-plus"></i></button></dt>
 <dd>
 	{{#if aspects}}
 	{{#each aspects.sortedIDs as |aspectId|}}
@@ -6,9 +6,9 @@
 	<div class="aspect draggable" data-item-id="{{this.id}}">
 		<div class="identity{{# if this.system.granted}} granted{{/if}}" data-action="editItem">
 			<div class="name">{{this.name}}</div>
-			<div class="specific">({{#if this.system.tribe}}{{this.system.tribe}}{{else}}<em>No Tribe Specified</em>{{/if}})</div>
+			<div class="specific">({{#if this.system.tribe}}{{this.system.tribe}}{{else}}<em>{{localize "tribe8.no-tribe"}}</em>{{/if}})</div>
 		</div>
-		<div class="complexity">Cpx {{this.system.complexity}}</div>
+		<div class="complexity">{{localize "tribe8.item.complexity.summary" cpx=this.system.complexity}}</div>
 		<div class="cost">
 			{{#if this.system.granted}}
 			W
@@ -20,6 +20,6 @@
 	{{/with}}
 	{{/each}}
 	{{else}}
-	<em>None</em>
+	<em>{{localize "tribe8.none"}}</em>
 	{{/if}}
 </dd>

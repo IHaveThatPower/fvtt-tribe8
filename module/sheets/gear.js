@@ -1,3 +1,4 @@
+import { Tribe8 } from '../config.js';
 import { Tribe8ItemSheet } from './item.js';
 
 export class Tribe8GearSheet extends Tribe8ItemSheet {
@@ -41,7 +42,7 @@ export class Tribe8GearSheet extends Tribe8ItemSheet {
 		}
 
 		// The form needs to know the possible options for values
-		context.valueOptions = Object.fromEntries(CONFIG.Tribe8.gearValueOptions.map((o) => [o, `tribe8.item.gear.value.strings.${o}.full`]));
+		context.valueOptions = Object.fromEntries(Tribe8.gearValueOptions.map((o) => [o, `tribe8.item.gear.value.strings.${o}.full`]));
 		return context;
 	}
 }

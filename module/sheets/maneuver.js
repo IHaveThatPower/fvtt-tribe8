@@ -1,3 +1,4 @@
+import { Tribe8 } from '../config.js';
 import { Tribe8ItemSheet } from './item.js';
 
 export class Tribe8ManeuverSheet extends Tribe8ItemSheet {
@@ -85,7 +86,7 @@ export class Tribe8ManeuverSheet extends Tribe8ItemSheet {
 	_prepareSubmitData(event, form, formData, updateData) {
 		// TODO: This probably needs to be broken up at this point.
 		// Identify array-based form elements
-		const checkKeys = CONFIG.Tribe8.checkFormArrayElements(formData);
+		const checkKeys = Tribe8.checkFormArrayElements(formData);
 
 		// If N/A was selected, or the only option, drop it from internal storage
 		if (formData.object['system.skill'] === "N/A" || formData.object['system.free']) {

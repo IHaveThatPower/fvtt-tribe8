@@ -1,4 +1,5 @@
 const fields = foundry.data.fields;
+import { Tribe8 } from '../config.js';
 import { Tribe8ItemModel } from './item.js';
 
 export class Tribe8GearModel extends Tribe8ItemModel {
@@ -13,7 +14,7 @@ export class Tribe8GearModel extends Tribe8ItemModel {
 			...super.defineSchema(),
 			qty: new fields.NumberField({ hint: "tribe8.item.gear.weight.qty", required: false }),
 			weight: new fields.NumberField({ hint: "tribe8.item.gear.weight.hint", required: false }),
-			value: new fields.StringField({ hint: "tribe8.item.gear.value.hint", required: false, choices: CONFIG.Tribe8.gearValueOptions, initial: "avg" }),
+			value: new fields.StringField({ hint: "tribe8.item.gear.value.hint", required: false, choices: Tribe8.gearValueOptions, initial: "avg" }),
 			valueThreshold: new fields.NumberField({ hint: "tribe8.item.gear.valueThreshold.hint", required: false, validate: (t) => t > 0 && t <= 10 }),
 			complexity: new fields.NumberField({ hint: "tribe8.item.gear.complexity.hint", required: true, nullable: false, initial: 1 }),
 			storage: new fields.ForeignDocumentField(
@@ -40,7 +41,7 @@ export class Tribe8GearModel extends Tribe8ItemModel {
 	 * @access public
 	 */
 	get isContainer() {
-		if (!this.parent) throw new ReferenceError("Attempted to get properties of an Item's data model before the Item was initialized");
+		if (!this.parent) throw new ReferenceError(game.i18n.localize("tribe8.errors.model-item-not-initialized"));
 		if (!this.parent?.parent)
 			return false;
 		const parent = this.parent.parent;

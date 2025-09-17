@@ -1,4 +1,5 @@
 const { Actor } = foundry.documents;
+import { Tribe8 } from '../config.js';
 
 export class Tribe8Actor extends Actor {
 	/**
@@ -80,14 +81,14 @@ export class Tribe8Actor extends Actor {
 			// Make sure the Skill exists on the Actor
 			const candidateSkills = skills.filter((s) => s.id == spec.system.skill);
 			if (!candidateSkills.length) {
-				console.warn(`Actor.${this.id}.Specialization.${spec.id} lists Skill.${spec.system.skill}, but no matching Skill was found on the Actor.`);
+				console.warn(game.i18n.format("tribe8.errors.specialization-missing-skill", {actorSpecId: `Actor.${this.id}.Specialization.${spec.id}`, skillId: `Skill.${spec.system.skill}`}));
 				deleteSpecs.push(spec.id);
 				continue;
 			}
 			// Make sure the Skill lists the Specialization
 			const specSkill = candidateSkills[0];
 			if (specSkill.system.specializations.indexOf(spec.id) < 0) {
-				console.warn(`Actor.${this.id}.Skill.${specSkill.id} does not list Specialization.${spec.id}, but the Specialization lists Skill.${spec.system.skill}.`);
+				console.warn(game.i18n.format("tribe8.errors.skill-specialization-mismatch", {actorSkillId: `Actor.${this.id}.Skill.${specSkill.id}`, specId: `Specialization.${spec.id}`, skillId: `Skill.${spec.system.skill}`}));
 				if (!addSpecsToSkills[specSkill.id]) addSpecsToSkills[specSkill.id] = [];
 				addSpecsToSkills[specSkill.id].push(spec.id);
 			}
@@ -100,7 +101,7 @@ export class Tribe8Actor extends Actor {
 					// Make sure the listed Specialization exists on the Actor
 					const specItems = specs.filter((s) => s.id == specId);
 					if (!specItems.length) {
-						console.warn(`Specializations.${specId} not found on Actor.${this.id}.Skills.${skill.id}. Removing from list.`);
+						console.warn(game.i18n.format("tribe8.errors.specialization-not-found", {specId: `Specialization.${specId}`, actorSkillId: `Actor.${this.id}.Skills.${skill.id}`}));
 						if (!removeSpecsFromSkills[skill.id]) removeSpecsFromSkills[skill.id] = [];
 						removeSpecsFromSkills[skill.id].push(specId);
 						continue;
@@ -109,7 +110,7 @@ export class Tribe8Actor extends Actor {
 					// Make sure the Specialization's linked Skill actually matches this Skill
 					const expectedSkillId = specItems[0].system?.skill;
 					if (expectedSkillId != skill.id) {
-						console.warn(`Actor.${this.id}.Skill.${skill.id} lists Specialization.${specId}, but the Specialization lists Skill.${expectedSkillId}.`);
+						console.warn(game.i18n.format("tribe8.errors.skill-specialization-mismatch", {actorSkillId: `Actor.${this.id}.Skill.${skill.id}`, specId: `Specialization.${specId}`, skillId: `Skill.${expectedSkillId}`}));
 						if (!removeSpecsFromSkills[skill.id]) removeSpecsFromSkills[skill.id] = [];
 						removeSpecsFromSkills[skill.id].push(specId);
 					}
@@ -119,7 +120,6 @@ export class Tribe8Actor extends Actor {
 
 		// Delete orphaned Specializations
 		if (deleteSpecs.length) {
-			console.log(`Deleting orphaned Specializations from Actor.${this.id}.`);
 			this.deleteEmbeddedDocuments("Item", [deleteSpecs]);
 		}
 
@@ -187,8 +187,8 @@ export class Tribe8Actor extends Actor {
 	static #searchForItems(searchIn, searchFor) {
 		let returnItems = [];
 		for (let searchTerm of searchFor) {
-			searchTerm = CONFIG.Tribe8.slugify(searchTerm);
-			const foundItems = searchIn.filter(s => CONFIG.Tribe8.slugify(s.system?.name || '') == searchTerm || CONFIG.Tribe8.slugify(s.name || '') == searchTerm);
+			searchTerm = Tribe8.slugify(searchTerm);
+			const foundItems = searchIn.filter(s => Tribe8.slugify(s.system?.name || '') == searchTerm || Tribe8.slugify(s.name || '') == searchTerm);
 			if (foundItems.length) {
 				returnItems = returnItems.concat(foundItems);
 			}
@@ -206,7 +206,7 @@ export class Tribe8Actor extends Actor {
 	 */
 	static #areValidSearchTypes(typesRequested, type = '') {
 		if (typesRequested.constructor.name !== 'Array') {
-			console.error(`Invalid type filter syntax; supply an array of strings`);
+			console.error(game.i18n.localize("tribe8.errors.invalid-type-filter"));
 			return false;
 		}
 
@@ -215,20 +215,20 @@ export class Tribe8Actor extends Actor {
 			validTypes = ['combat', 'magic'];
 		}
 		// If the categories include any of the physical Item types...
-		if (typesRequested.some(t => CONFIG.Tribe8.PHYSICAL_ITEMS.includes(t))) {
+		if (typesRequested.some(t => Tribe8.PHYSICAL_ITEMS.includes(t))) {
 			// If we also specified a type, return just that one type
 			if (type) validTypes = [type];
 			// Otherwise, all types are considered valid
-			else validTypes = CONFIG.Tribe8.PHYSICAL_ITEMS;
+			else validTypes = Tribe8.PHYSICAL_ITEMS;
 		}
 		if (!validTypes.length) {
-			console.error(`No search types are valid for ${type}`);
+			console.error(game.i18n.format("tribe8.errors.no-valid-types", {'type': type}));
 			return false;
 		}
 
 		for (let reqType of typesRequested) {
 			if (!validTypes.includes(reqType) < 0) {
-				console.error(`Invalid category filter '${type}' requested`);
+				console.error(game.i18n.format("tribe8.errors.invalid-category-filter", {'type': type}));
 				return false;
 			}
 		}
@@ -385,12 +385,12 @@ export class Tribe8Actor extends Actor {
 	 */
 	static #getMagicSkills(skills) {
 		// Define the default names of the combat Skills, based on config
-		const magicSkillNames = CONFIG.Tribe8.MAGIC_SKILLS.map(n => game.i18n.localize(n).toLowerCase());
+		const magicSkillNames = Tribe8.MAGIC_SKILLS.map(n => game.i18n.localize(n).toLowerCase());
 
 		// Filter the skill list to just those that qualify
 		return skills.filter((i) => {
 			if (i.type != 'skill') return false;
-			let lookupName = CONFIG.Tribe8.slugify(i.system.name);
+			let lookupName = Tribe8.slugify(i.system.name);
 			if (magicSkillNames.includes(lookupName)) return true;
 			return false;
 		});
@@ -409,14 +409,14 @@ export class Tribe8Actor extends Actor {
 		// Do some pre-validation
 		if (options.categories) {
 			if (options.categories.constructor.name !== 'Array')
-				throw new TypeError("'categories' option must be an array");
+				throw new TypeError(game.i18n.localize("tribe8.errors.categories-must-be-array"));
 			for (let cat of options.categories) {
-				if (!CONFIG.Tribe8.PHYSICAL_ITEMS.includes(cat))
-					throw new RangeError(`'${cat}' is not a valid category`);
+				if (!Tribe8.PHYSICAL_ITEMS.includes(cat))
+					throw new RangeError(game.i18n.format("tribe8.errors.invalid-category", {'category': cat}));
 			}
 		}
 		else {
-			options.categories = [...CONFIG.Tribe8.PHYSICAL_ITEMS];
+			options.categories = [...Tribe8.PHYSICAL_ITEMS];
 		}
 		return this.getItems(options);
 	}

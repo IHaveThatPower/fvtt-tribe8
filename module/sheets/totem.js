@@ -18,6 +18,8 @@ export class Tribe8TotemSheet extends Tribe8ItemSheet {
 	 * @access public
 	 */
 	get title() {
-		return `Totem: ${this.document.name}` + (this.document.system.totemType ? ` (${this.document.system.totemType})` : '');
+		if (this.document.system.totemType)
+			return game.i18n.format("tribe8.item.totem.title-with-type", {name: this.document.name, type: this.document.system.totemType});
+		return game.i18n.format("tribe8.item.totem.title", {name: this.document.name});
 	}
 }

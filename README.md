@@ -39,16 +39,15 @@ At present, no stock Items (i.e. Skills, Perks, Flaws, Combat Maneuvers, Aspects
 This is a rough, ever-changing list that depicts in approximate priority order what's on the list of yet-to-be-implemented features.
 
 ### Short Term
-- Finalize character sheet layout
 - Deal with various remaining TODO items
+- Finalize character sheet layout
 
 ### Longer Term
-- Fully localize!
 - Convert flat config values to system settings
   - e.g. Make starting CP a system setting for the GM
 - Allow GMs to edit a character's initial CP
 - Some way to trade attribute points (i.e. PSY for other attributes)
+- Item Compendium packs
 - Sundering?
 - Technosmithig?
-- Item Compendium packs
 - Vehicle system...?

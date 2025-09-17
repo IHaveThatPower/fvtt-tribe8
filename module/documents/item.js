@@ -1,5 +1,6 @@
 const { Item } = foundry.documents;
 import { Tribe8Actor } from './actor.js';
+import { Tribe8 } from '../config.js';
 
 export class Tribe8Item extends Item {
 	/**
@@ -11,7 +12,7 @@ export class Tribe8Item extends Item {
 	 * @access public
 	 */
 	get isPhysicalItem() {
-		if (CONFIG.Tribe8.PHYSICAL_ITEMS.indexOf(this.type) < 0)
+		if (Tribe8.PHYSICAL_ITEMS.indexOf(this.type) < 0)
 			return false;
 		return true;
 	}
@@ -400,7 +401,7 @@ export class Tribe8Item extends Item {
 		for (let parentItemId of path) {
 			const parentItem = this.parent.getEmbeddedDocument("Item", parentItemId);
 			if (!parentItem) {
-				console.error(`Item.${parentItemId} was not found on Actor.${this.parent.id}, despite being indicated as storage for Item.${this.id}`);
+				console.error(game.i18n.format("tribe8.errors.item-storage-missing", {itemId: `Item.${parentItemId}`, actorId: `Actor.${this.parent.id}`, storageId: `Item.${this.id}`}));
 				return false;
 			}
 			if (parentItem.isCarried) return true; // If at any point, the parent is carried, we return true
@@ -458,7 +459,7 @@ export class Tribe8Item extends Item {
 	 */
 	static #cmpFallback(a, b) {
 		if (a.type != b.type && !(a.isPhysicalItem && b.isPhysicalItem))
-			throw new Error("Cannot compare items of different types");
+			throw new Error(game.i18n.localize("tribe8.errors.cmp-type-mismatch-general"));
 		if (a.name < b.name) return -1;
 		if (a.name > b.name) return 1;
 		if (a._stats.createdTime < b._stats.createdTime) return -1;
@@ -477,7 +478,7 @@ export class Tribe8Item extends Item {
 	 */
 	static #cmpSkill(a, b) {
 		if (a.type != 'skill' || b.type != 'skill')
-			throw new Error("Cannot use Skill comparison function to sort non-Skill items");
+			throw new Error(game.i18n.format("tribe8.errors.cmp-type-mismatch-specific", {'type': game.i18n.localize("TYPES.Item.skill")}));
 
 		// If the user is viewing a character for which they have
 		// specified an override sorting value, we skip the particulars
@@ -511,7 +512,7 @@ export class Tribe8Item extends Item {
 	 */
 	static #cmpPerkFlaw(a, b) {
 		if ((a.type != 'perk' && a.type != 'flaw') || (b.type != 'perk' && b.type != 'flaw'))
-			throw new Error("Cannot use Perk/Flaw comparison function to sort non-Perk/Flaw items");
+			throw new Error(game.i18n.format("tribe8.errors.cmp-type-mismatch-specific", {'type': game.i18n.localize("tribe8.item.pf.type")}));
 
 		if (a.type == 'perk' && b.type == 'flaw') return -1;
 		if (a.type == 'flaw' && b.type == 'perk') return 1;
@@ -540,7 +541,7 @@ export class Tribe8Item extends Item {
 	 */
 	static #cmpManeuver(a, b) {
 		if (a.type != 'maneuver' || b.type != 'maneuver')
-			throw new Error("Cannot use Maneuver comparison function to sort non-Maneuver items");
+			throw new Error(game.i18n.format("tribe8.errors.cmp-type-mismatch-specific", {'type': game.i18n.localize("TYPES.Item.maneuver")}));
 
 		// If the user is viewing a character for which they have
 		// specified an override sorting value, we skip the particulars
@@ -604,7 +605,7 @@ export class Tribe8Item extends Item {
 	 */
 	static #cmpEminence(a, b) {
 		if (a.type != 'eminence' || b.type != 'eminence')
-			throw new Error("Cannot use Eminence comparison function to sort non-Eminence items");
+			throw new Error(game.i18n.format("tribe8.errors.cmp-type-mismatch-specific", {'type': game.i18n.localize("TYPES.Item.eminence")}));
 		if (!a.system.used && b.system.used) return -1;
 		if (a.system.used && !b.system.used) return 1;
 		return Tribe8Item.#cmpFallback(a, b);
@@ -621,7 +622,7 @@ export class Tribe8Item extends Item {
 	 */
 	static #cmpAspect(a, b) {
 		if (a.type != 'aspect' || b.type != 'aspect')
-			throw new Error("Cannot use Aspect comparison function to sort non-Aspect items");
+			throw new Error(game.i18n.format("tribe8.errors.cmp-type-mismatch-specific", {'type': game.i18n.localize("TYPES.Item.aspect")}));
 		// TBD if we want to change this up at all
 		return Tribe8Item.#cmpFallback(a, b);
 	}
@@ -637,7 +638,7 @@ export class Tribe8Item extends Item {
 	 */
 	static #cmpTotem(a, b) {
 		if (a.type != 'totem' || b.type != 'totem')
-			throw new Error("Cannot use Totem comparison function to sort non-Totem items");
+			throw new Error(game.i18n.format("tribe8.errors.cmp-type-mismatch-specific", {'type': game.i18n.localize("TYPES.Item.totem")}));
 		if (a.system.granted && !b.system.granted) return -1;
 		if (!a.system.granted && b.system.granted) return 1;
 		if (a.system.fromCpx || b.system.fromCpx) {
@@ -665,7 +666,7 @@ export class Tribe8Item extends Item {
 	static #cmpGear(a, b) {
 		const validGearTypes = ['gear', 'weapon', 'armor'];
 		if (validGearTypes.indexOf(a.type) < 0 || validGearTypes.indexOf(b.type) < 0)
-			throw new Error("Cannot use Gear comparison function to sort non-Gear items");
+			throw new Error(game.i18n.format("tribe8.errors.cmp-type-mismatch-specific", {'type': game.i18n.localize("TYPES.Item.gear")}));
 
 		// Is one of these items the container for the other?
 		if (a.system.storage == b.id) return 1;
@@ -748,8 +749,8 @@ export class Tribe8Item extends Item {
 					break;
 				// DataModel Mapped String
 				case 'value': {
-					const aValue = CONFIG.Tribe8.gearValueOptions.indexOf(a.system.value);
-					const bValue = CONFIG.Tribe8.gearValueOptions.indexOf(b.system.value);
+					const aValue = Tribe8.gearValueOptions.indexOf(a.system.value);
+					const bValue = Tribe8.gearValueOptions.indexOf(b.system.value);
 					if (sortFlag.dir == "desc") {
 						if (aValue > bValue) return -1;
 						if (aValue < bValue) return 1;
@@ -788,13 +789,13 @@ export class Tribe8Item extends Item {
 	 */
 	static #pathToActor(item) {
 		if (!item.isPhysicalItem) {
-			throw new TypeError("Cannot trace path to Actor for non-physical Item types");
+			throw new TypeError(game.i18n.localize("tribe8.errors.non-physical-path-trace"));
 		}
 		if (item.system.storage == item.id) { // Break this, if something goofy happened
 			if (!item.fixingStorageRecursion) {
 				item.fixingStorageRecursion = true;
 				item.update({'system.==storage': null}, {diff: false});
-				console.error(`Item.${item.id} listed itself as storage, which would lead to infinite recursion. This link has been broken.`);
+				console.error(game.i18n.format("tribe8.errors.recursive-storage", {itemId: `Item.${item.id}`}));
 			}
 			return [item.id, item.parent.id];
 		}
@@ -802,7 +803,7 @@ export class Tribe8Item extends Item {
 		if (item.system.storage) {
 			const storageItem = item.parent.getEmbeddedDocument("Item", item.system.storage);
 			if (!storageItem) {
-				console.warn(`Item.${item.id} wants Item.${item.system.storage} as storage, but it does not exist on the Actor!`);
+				console.warn(game.i18n.format("tribe8.errors.item-storage-missing", {itemId: `Item.${item.system.storage}`, actorId: `${item.parent.id}`, storageId: `Item.${item.id}`}));
 				path.push(item.parent.id);
 				return path;
 			}
@@ -824,7 +825,7 @@ export class Tribe8Item extends Item {
 	 */
 	static #cmpWeapon(a, b) {
 		if (a.type != 'weapon' || b.type != 'weapon')
-			throw new Error("Cannot use Weapon comparison function to sort non-Weapon items");
+			throw new Error(game.i18n.format("tribe8.errors.cmp-type-mismatch-specific", {'type': game.i18n.localize("TYPES.Item.weapon")}));
 		return this.#cmpGear(a, b);
 	}
 
@@ -839,7 +840,7 @@ export class Tribe8Item extends Item {
 	 */
 	static #cmpArmor(a, b) {
 		if (a.type != 'armor' || b.type != 'armor')
-			throw new Error("Cannot use Armor comparison function to sort non-Armor items");
+			throw new Error(game.i18n.format("tribe8.errors.cmp-type-mismatch-specific", {'type': game.i18n.localize("TYPES.Item.armor")}));
 		return this.#cmpGear(a, b);
 	}
 
@@ -869,9 +870,9 @@ export class Tribe8Item extends Item {
 		}
 		// If we didn't have either...give it a placeholder name?
 		else {
-			canonName.name = "Broken Skill";
+			canonName.name = game.i18n.localize("tribe8.item.broken.name");
 			canonName.system.name = `${canonName.name}`;
-			console.warn("Cannot determine system base name for Item, so giving it a dummy name");
+			console.warn(game.i18n.localize("tribe8.errors.dummy-item-name"));
 		}
 		// Did we indicate that this Item uses a specification/category?
 		// Note that we may not have checked the checkbox, but the item might still have had one in its data, so we check both
@@ -883,7 +884,7 @@ export class Tribe8Item extends Item {
 
 				// If we didn't find anything, give it a stand-in name if we definitively indicated that we want a specifier
 				if (!canonName.system.specific && specify)
-					canonName.system.specific = 'Unspecified';
+					canonName.system.specific = game.i18n.localize("tribe8.item.specific.unspecified");
 			}
 			// If it wasn't, just use it.
 			else {
@@ -893,11 +894,11 @@ export class Tribe8Item extends Item {
 		// Compose the document name from the now-defined parts
 		canonName.name = `${canonName.system.name}`;
 		if (specify)
-			canonName.name = `${canonName.name} (${canonName.system.specific})`;
+			canonName.name = game.i18n.format("tribe8.item.name-with-specific", {'name': `${canonName.name}`, 'specific': `${canonName.system.specific}`});
 
 		// If we get this far and have a zero-length name, bail out
 		if (!canonName.name || canonName.length == 0)
-			throw new Error("Should never generate a name of no value");
+			throw new Error(game.i18n.localize("tribe8.errors.empty-name"));
 
 		// Return the assembled name data
 		return canonName;
@@ -950,7 +951,7 @@ export class Tribe8Item extends Item {
 
 				// If it didn't work for some reason, raise a ruckus
 				if (!Object.keys(data.flags['tribe8']['legacy-specializations']).length)
-					throw new Error("Failed to migrate specialization data");
+					throw new Error(game.i18n.localize("tribe8.errors.specialization-migration"));
 			}
 			catch {
 				// No need to report anything
@@ -1015,13 +1016,13 @@ export class Tribe8Item extends Item {
 				const specsToCreate = [];
 				for (let key of Object.keys(source)) {
 					const oldSpec = source[key];
-					const oldSpecNameSlug = CONFIG.Tribe8.slugify(oldSpec.name);
+					const oldSpecNameSlug = Tribe8.slugify(oldSpec.name);
 					// Do we have any specializations that match?
-					if (currSpecs.map((s) => CONFIG.Tribe8.slugify(s.name)).indexOf(oldSpecNameSlug) > -1) {
+					if (currSpecs.map((s) => Tribe8.slugify(s.name)).indexOf(oldSpecNameSlug) > -1) {
 						continue;
 					}
 					// Are we already creating this?
-					if (specsToCreate.map((s) => CONFIG.Tribe8.slugify(s.name)).indexOf(oldSpecNameSlug) > -1) {
+					if (specsToCreate.map((s) => Tribe8.slugify(s.name)).indexOf(oldSpecNameSlug) > -1) {
 						continue;
 					}
 					specsToCreate.push({type: 'specialization', name: oldSpec.name, system: {points: oldSpec.points.toUpperCase(), skill: this.id}});

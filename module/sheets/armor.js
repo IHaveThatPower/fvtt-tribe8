@@ -1,4 +1,5 @@
 import { Tribe8GearSheet } from './gear.js';
+import { Tribe8 } from '../config.js';
 
 export class Tribe8ArmorSheet extends Tribe8GearSheet {
 	static DEFAULT_OPTIONS = {
@@ -35,9 +36,9 @@ export class Tribe8ArmorSheet extends Tribe8GearSheet {
 	async _prepareContext(options) {
 		const context = await super._prepareContext(options);
 		// Furnish concealment level
-		context.conceal = Object.fromEntries(CONFIG.Tribe8.armorConcealable.map((c) => [c, `tribe8.item.armor.conceal.${c}`]));
+		context.conceal = Object.fromEntries(Tribe8.armorConcealable.map((c) => [c, `tribe8.item.armor.conceal.${c}`]));
 		// Furnish coverage options
-		context.coverage = [...CONFIG.Tribe8.armorCoverage];
+		context.coverage = [...Tribe8.armorCoverage];
 		return context;
 	}
 
@@ -96,7 +97,7 @@ export class Tribe8ArmorSheet extends Tribe8GearSheet {
 
 		// If coverage already in the list, present a warning message
 		if (currentCoverage.includes(newCoverage)) {
-			foundry.ui.notifications.warn("This Armor already includes that type of coverage");
+			foundry.ui.notifications.warn(game.i18n.localize("tribe8.errors.armor-double-coverage"));
 			return;
 		}
 

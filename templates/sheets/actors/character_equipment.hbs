@@ -22,10 +22,10 @@
 			</div>
 			<div {{gearSortControls column="carried" section="weapons" sorting=sorting}}>
 				<span title="{{localize "tribe8.item.gear.carried.full"}}"><i class="fa fa-solid fa-suitcase"></i></span>
-			</div><!-- TODO: (UI) Carried toggle -->
+			</div>
 			<div {{gearSortControls column="equipped" section="weapons" sorting=sorting}}>
 				<span title="{{localize "tribe8.item.gear.equipped.full"}}"><i class="fa fa-solid fa-hand"></i></span>
-			</div><!-- TODO: (UI) Equipped toggle -->
+			</div>
 		</div>
 		{{#each weapons.sortedIDs as |weaponID|}}
 		{{#with (lookup ../weapons weaponID)}}
@@ -33,7 +33,7 @@
 		{{/with}}
 		{{/each}}
 		{{#if (not weapons.sortedIDs.length)}}
-		<em>None</em>
+		<em>{{localize "tribe8.none"}}</em>
 		{{/if}}
 	</div>
 	<div class="gear-list armor-list">
@@ -52,8 +52,8 @@
 				<span title="{{localize "tribe8.item.armor.enc.full"}}"><i class="fa fa-solid fa-scale-unbalanced-flip"></i></span>
 			</div>
 			<div {{gearSortControls column="equipped" section="armor" sorting=sorting}}>
-				<span title="{{localize "tribe8.item.armor.equipped.full"}}"><i class="fa fa-solid fa-shirt"></i></span>
-			</div><!-- TODO: (UI) Worn toggle -->
+				<span title="{{localize "tribe8.item.gear.equipped.full"}}"><i class="fa fa-solid fa-shirt"></i></span>
+			</div>
 		</div>
 		{{#each armor.sortedIDs as |armorID|}}
 		{{#with (lookup ../armor armorID)}}
@@ -61,7 +61,7 @@
 		{{/with}}
 		{{/each}}
 		{{#if (not armor.sortedIDs.length)}}
-		<em>None</em>
+		<em>{{localize "tribe8.none"}}</em>
 		{{/if}}
 	</div>
 	<div class="gear-list">
@@ -87,10 +87,10 @@
 			</div>
 			<div {{gearSortControls column="carried" section="gear" sorting=sorting}}>
 				<span title="{{localize "tribe8.item.gear.carried.full"}}"><i class="fa fa-solid fa-suitcase"></i></span>
-			</div><!-- TODO: (UI) Carried toggle -->
+			</div>
 			<div {{gearSortControls column="equipped" section="gear" sorting=sorting}}>
 				<span title="{{localize "tribe8.item.gear.equipped.full"}}"><i class="fa fa-solid fa-hand"></i></span>
-			</div><!-- TODO: (UI) Worn toggle -->
+			</div>
 		</div>
 		{{#each gear.sortedIDs as |gearID|}}
 		{{#with (lookup ../gear gearID)}}
@@ -133,7 +133,7 @@
 		{{/with}}
 		{{/each}}
 		{{#if (not gear.sortedIDs.length)}}
-		<em>None</em>
+		<em>{{localize "tribe8.none"}}</em>
 		{{/if}}
 	</div>
 	<div class="load-slider">

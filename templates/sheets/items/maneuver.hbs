@@ -46,36 +46,36 @@
 	<div class="costs">
 		<div class="cost-field cost-field-checkbox">
 			<input type="radio" id="system.points.cp" name="system.points" value="CP"{{#if (eq document.system.points "CP")}} checked{{/if}}>
-			<label for="system.points.cp">CP</label>
+			<label for="system.points.cp">{{localize "tribe8.actor.character.points.cp.short"}}</label>
 		</div>
 		<div class="cost-field cost-field-checkbox">
 			<input type="radio" id="system.points.xp" name="system.points" value="XP"{{#if (eq document.system.points "XP")}} checked{{/if}} />
-			<label for="system.points.xp">XP</label>
+			<label for="system.points.xp">{{localize "tribe8.actor.character.points.xp.short"}}</label>
 		</div>
 		<div class="fromCpx cost-field cost-field-checkbox">
-			<input type="checkbox" name="system.fromCpx" value=true{{# if document.system.fromCpx}} checked{{/if}} title="Pay for this Maneuver using free Maneuvers granted by Complexity in chosen Skill" />
-			<label for="system.fromCpx" title="Pay for this Maneuver using bonus Maneuvers granted by Complexity in chosen Skill">Cpx</label>
+			<input type="checkbox" name="system.fromCpx" value=true{{# if document.system.fromCpx}} checked{{/if}} title="{{localize "tribe8.item.maneuver.fromCpx.hint"}}" />
+			<label for="system.fromCpx" title="{{localize "tribe8.item.maneuver.fromCpx.hint"}}">{{localize "tribe8.item.complexity.short"}}</label>
 		</div>
 		<div class="granted cost-field cost-field-checkbox">
-			<input type="checkbox" name="system.granted" value=true{{#if document.system.granted}} checked{{/if}} title="Check if the Weaver granted this for free" />
-			<label for="system.granted" title="Check if the Weaver granted this for free">G?</label>
+			<input type="checkbox" name="system.granted" value=true{{#if document.system.granted}} checked{{/if}} title="{{localize "tribe8.item.maneuver.granted.hint"}}" />
+			<label for="system.granted" title="{{localize "tribe8.item.maneuver.granted.hint"}}">G?</label>
 		</div>
 		<div class="free cost-field cost-field-checkbox">
-			<input type="checkbox" name="system.free" value=true{{# if document.system.free}} checked{{/if}} title="This is a Free Maneuver available to everyone." />
-			<label for="system.free" title="This is a Free Maneuver available to everyone.">Free</label>
+			<input type="checkbox" name="system.free" value=true{{# if document.system.free}} checked{{/if}} title="{{localize "tribe8.item.maneuver.free.hint"}}" />
+			<label for="system.free" title="{{localize "tribe8.item.maneuver.free.hint"}}">{{localize "tribe8.item.maneuver.free.short"}}</label>
 		</div>
 	</div>
 	<div class="properties">
 		<div class="property">
-			<div class="property-name">Cpx</div>
+			<div class="property-name">{{localize "tribe8.item.complexity.short"}}</div>
 			<div class="property-input">
 				<span class="input-sizer" data-value="{{document.system.complexity}}">
-					<input type="number" name="system.complexity" value="{{ document.system.complexity }}" title="Complexity requirement for this Maneuver. Use 0 for Free Maneuvers." placeholder="0" min="0" max="10" />
+					<input type="number" name="system.complexity" value="{{ document.system.complexity }}" title="{{localize "tribe8.item.maneuver.complexity.hint"}}" placeholder="0" min="0" max="10" />
 				</span>
 			</div>
 		</div>
 		<div class="property">
-			<div class="property-name">Acc.</div>
+			<div class="property-name">{{localize "tribe8.item.weapon.accuracy.short"}}</div>
 			<div class="property-input">
 				<span class="input-sizer" data-value="{{document.system.accuracy}}">
 					<input type="text" name="system.accuracy" value="{{document.system.accuracy}}" placeholder="N/A" size=2 />
@@ -83,7 +83,7 @@
 			</div>
 		</div>
 		<div class="property">
-			<div class="property-name">Init.</div>
+			<div class="property-name">{{localize "tribe8.actor.character.combat.initiative.short"}}</div>
 			<div class="property-input">
 				<span class="input-sizer" data-value="{{document.system.initiative}}">
 					<input type="text" name="system.initiative" value="{{document.system.initiative}}" placeholder="N/A" size=2 />
@@ -91,7 +91,7 @@
 			</div>
 		</div>
 		<div class="property">
-			<div class="property-name">Def.</div>
+			<div class="property-name">{{localize "tribe8.actor.character.combat.defense.short"}}</div>
 			<div class="property-input">
 				<span class="input-sizer" data-value="{{document.system.defense}}">
 					<input type="text" name="system.defense" value="{{document.system.defense}}" placeholder="N/A" size=2 />
@@ -99,7 +99,7 @@
 			</div>
 		</div>
 		<div class="property">
-			<div class="property-name">Parry</div>
+			<div class="property-name">{{localize "tribe8.item.weapon.parry.short"}}</div>
 			<div class="property-input">
 				<span class="input-sizer" data-value="{{document.system.parry}}">
 					<input type="text" name="system.parry" value="{{document.system.parry}}" placeholder="N/A" size=2 />
@@ -107,7 +107,7 @@
 			</div>
 		</div>
 		<div class="property">
-			<div class="property-name">Dmg.</div>
+			<div class="property-name">{{localize "tribe8.item.weapon.damage.short"}}</div>
 			<div class="property-input">
 				<span class="input-sizer" data-value="{{document.system.damage}}">
 					<input type="text" name="system.damage" value="{{document.system.damage}}" placeholder="N/A" size=4 />

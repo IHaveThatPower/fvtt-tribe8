@@ -1,4 +1,5 @@
 const { Combatant } = foundry.documents;
+import { Tribe8 } from '../config.js';
 
 export class Tribe8Combatant extends Combatant {
 	/**
@@ -22,7 +23,7 @@ export class Tribe8Combatant extends Combatant {
 		}
 		formula = formula || this._getInitiativeFormula();
 		const rollData = this.actor?.getRollData() || {};
-		rollData.combatSense = rollData.items.filter((i) => i.type == 'skill' && CONFIG.Tribe8.slugify(i.system?.name) === 'combatsense')[0]?.system?.level || 0;
+		rollData.combatSense = rollData.items.filter((i) => i.type == 'skill' && Tribe8.slugify(i.system?.name) === Tribe8.slugify(game.i18n.localize("tribe8.item.skill.names.combatsense")))[0]?.system?.level || 0;
 		return foundry.dice.Roll.create(formula, rollData);
 	}
 

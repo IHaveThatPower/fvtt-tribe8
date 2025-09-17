@@ -3,11 +3,11 @@
 		<div class="artwork">
 			<img src="{{document.img}}" alt="{{document.name}}" data-action="editImage">
 		</div>
-		<div class="name"><input type="text" name="name" value="{{document.name}}" size=12 title="Name of the Eminence"></div>
-		<div class="specific"><input type="text" name="system.tribe" value="{{document.system.tribe}}" size=12 title="Tribe with which the Eminence is associated"></div>
+		<div class="name"><input type="text" name="name" value="{{document.name}}" size=12 title="{{localize "tribe8.item.eminence.name.hint"}}"></div>
+		<div class="specific"><input type="text" name="system.tribe" value="{{document.system.tribe}}" size=12 title="{{localize "tribe8.item.eminence.tribe.hint"}}"></div>
 		<div class="used">
-			<input type="checkbox" name="system.used" value="true"{{#if document.system.used}} checked{{/if}} title="Check to mark this Eminence as used for the day" />
-			<label for="system.used" title="Check to mark this Eminence as used for the day">Used</label>
+			<input type="checkbox" name="system.used" value="true"{{#if document.system.used}} checked{{/if}} title="{{localize "tribe8.item.eminence.used.hint"}}" />
+			<label for="system.used" title="{{localize "tribe8.item.eminence.used.hint"}}">{{localize "tribe8.item.eminence.used.short"}}</label>
 		</div>
 	</div>
 	{{> "systems/tribe8/templates/sheets/items/partials/description.hbs"}}

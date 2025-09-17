@@ -28,6 +28,6 @@ export class Tribe8AttributeEditor extends Tribe8Application(DocumentSheetV2) {
 	 * @access public
 	 */
 	get title() {
-		return `${game.i18n.localize("Attribute Editor")}: ${this.document.name}`;
+		return game.i18n.format("tribe8.actor.character.attributes.editor-title", {name: this.document.name});
 	}
 }

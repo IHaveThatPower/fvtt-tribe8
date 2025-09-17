@@ -1,3 +1,4 @@
+import { Tribe8 } from '../config.js';
 import { Tribe8ItemSheet } from './item.js';
 const { DialogV2 } = foundry.applications.api;
 
@@ -41,7 +42,7 @@ export class Tribe8SkillSheet extends Tribe8ItemSheet {
 		const context = await super._prepareContext(options);
 
 		// Supply combat category reference
-		context.combatCategories = CONFIG.Tribe8.COMBAT_SKILLS;
+		context.combatCategories = Tribe8.COMBAT_SKILLS;
 
 		// Bolt on the Specializations
 		if (item.system.specializations.length) {
@@ -66,7 +67,7 @@ export class Tribe8SkillSheet extends Tribe8ItemSheet {
 	 */
 	_prepareSubmitData(event, form, formData, updateData) {
 		// Identify array-based form elements
-		const checkKeys = CONFIG.Tribe8.checkFormArrayElements(formData);
+		const checkKeys = Tribe8.checkFormArrayElements(formData);
 
 		// Setup objects for the types of form elements we know we want
 		this.specializations = {}
@@ -245,14 +246,14 @@ export class Tribe8SkillSheet extends Tribe8ItemSheet {
 		// Can we find the specialization among the Skill's list?
 		const currentSpecializations = this.document.system.specializations;
 		if (!currentSpecializations.includes(specId)) {
-			foundry.ui.notifications.error(`Could not find Specialization.${specId} among those of Skill '${this.document.name}'`);
+			foundry.ui.notifications.error(game.i18n.format("tribe8.errors.spec-missing-from-skill", {'specId': `Specialization.${specId}`, 'skill': this.document.name}))
 			return;
 		}
 
 		const spec = this.document.parent.getEmbeddedDocument("Item", specId);
 		const that = this;
 		DialogV2.confirm({
-			content: `Are you sure you want to delete the Specialization '${spec.name}'?`,
+			content: game.i18n.format("tribe8.item.skill.delete-specialization", {'name': spec.name}),
 			modal: true
 		}).then((result) => {
 			if (result) {

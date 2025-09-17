@@ -1,4 +1,5 @@
 const fields = foundry.data.fields;
+import { Tribe8 } from '../config.js';
 import { Tribe8ItemModel } from './item.js';
 
 export class Tribe8SkillModel extends Tribe8ItemModel {
@@ -21,7 +22,7 @@ export class Tribe8SkillModel extends Tribe8ItemModel {
 				hint: "tribe8.item.skill.combatCategory.hint",
 				required: false,
 				nullable: true,
-				choices: Object.keys(CONFIG.Tribe8.COMBAT_SKILLS)
+				choices: Object.keys(Tribe8.COMBAT_SKILLS)
 			}),
 			// level: new fields.NumberField({hint: "The current Level of this Skill", initial: 0, required: true, nullable: false, min: 0}),
 			// cpx: new fields.NumberField({hint: "The current Complexity of this Skill", initial: 1, required: true, nullable: false, min: 1}),
@@ -169,7 +170,7 @@ export class Tribe8SkillModel extends Tribe8ItemModel {
 
 		// Don't do anything if we'd go negative
 		if (this.eDieSpent + (data.spendFromBonus + data.spendFromXP) < 0) {
-			const msg = "Can't decrease spent EDie below 0"; // TODO: (Localization) Localize
+			const msg = game.i18n.localize("tribe8.errors.edie-below-0");
 			if (foundry.ui?.notifications) foundry.ui.notifications.warn(msg);
 			else console.warn(msg);
 			return false;
@@ -186,7 +187,7 @@ export class Tribe8SkillModel extends Tribe8ItemModel {
 
 		// Don't mess with the actor if our values didn't change
 		if (skill.system.points.edie.fromBonus != newFromBonus || skill.system.points.edie.fromXP != newFromXP) {
-			const msg = `EDie state on Skill.${skill.id} unchanged`; // TODO: (Localization) Localize
+			const msg = game.i18n.format("tribe8.errors.edie-unchanged", {skillId: skill.id});
 			if (foundry.ui?.notifications) foundry.ui.notifications.warn(msg);
 			else console.warn(msg);
 		}
@@ -235,7 +236,7 @@ export class Tribe8SkillModel extends Tribe8ItemModel {
 
 			// Does the owner have enough eDie at all?
 			if (owner.system.edieTotal < amount) {
-				const msg = "You do not have enough EDie!"; // TODO: (Localization) Localize
+				const msg = game.i18n.localize("tribe8.errors.edie-insufficient");
 				if (foundry.ui?.notifications) foundry.ui.notifications.error(msg);
 				else console.error(msg);
 				return false;

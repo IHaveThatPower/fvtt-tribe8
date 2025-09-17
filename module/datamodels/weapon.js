@@ -1,4 +1,5 @@
 const fields = foundry.data.fields;
+import { Tribe8 } from '../config.js';
 import { Tribe8GearModel } from './gear.js';
 
 export class Tribe8WeaponModel extends Tribe8GearModel {
@@ -9,8 +10,8 @@ export class Tribe8WeaponModel extends Tribe8GearModel {
 	 * @access public
 	 */
 	static defineSchema() {
-		const categories = Object.keys(CONFIG.Tribe8.weaponCategories);
-		const subcategories = Object.entries(CONFIG.Tribe8.weaponCategories).map(([ , subcats]) => subcats).reduce((acc, cur) => acc.concat(cur), []);
+		const categories = Object.keys(Tribe8.weaponCategories);
+		const subcategories = Object.entries(Tribe8.weaponCategories).map(([ , subcats]) => subcats).reduce((acc, cur) => acc.concat(cur), []);
 		return {
 			...super.defineSchema(),
 			category: new fields.StringField({
@@ -46,8 +47,8 @@ export class Tribe8WeaponModel extends Tribe8GearModel {
 			),
 			fumble: new fields.StringField({
 				required: true,
-				choices: CONFIG.Tribe8.fumble,
-				initial: CONFIG.Tribe8.fumble[0],
+				choices: Tribe8.fumble,
+				initial: Tribe8.fumble[0],
 				hint: "tribe8.item.weapon.fumble.hint"
 			}),
 			damage: new fields.ArrayField(
@@ -64,7 +65,7 @@ export class Tribe8WeaponModel extends Tribe8GearModel {
 					required: true,
 					blank: false,
 					nullable: false,
-					validate: (value) => CONFIG.Tribe8.weaponRanges.includes(value),
+					validate: (value) => Tribe8.weaponRanges.includes(value),
 					hint: "tribe8.item.weapon.ranges.hint"
 				}), {
 					required: true,
@@ -183,7 +184,7 @@ export class Tribe8WeaponModel extends Tribe8GearModel {
 			}
 			else {
 				if (damagePrefix != thisPrefix) {
-					throw new Error("Damage prefix must match for multiple damage modes"); // TODO: (Localization) localize
+					throw new Error(game.i18n.localize("tribe8.errors.weapons.damage-prefix-mismatch"));
 				}
 			}
 		}
@@ -199,10 +200,10 @@ export class Tribe8WeaponModel extends Tribe8GearModel {
 	 */
 	static validateRanges(data) {
 		// This is purely an internal error, and shouldn't happen
-		if (data.constructor.name !== 'Array') throw new Error("Cannot submit non-array data for Weapon ranges"); // TODO: (Localization) localize
-		if (!data.length) throw new Error(game.i18n.localize("tribe8.errors.weapon-no-range"));
+		if (data.constructor.name !== 'Array') throw new Error(game.i18n.localize("tribe8.errors.weapons.range-non-array"));
+		if (!data.length) throw new Error(game.i18n.localize("tribe8.errors.weapons.no-range"));
 		// This should also not actually get hit, since we have logic elsewhere to prevent it
-		if (data.includes("ranged") && data.length > 1) throw new Error("Cannot mix ranged with other Weapon ranges"); // TODO: (Localization) localize
+		if (data.includes("ranged") && data.length > 1) throw new Error(game.i18n.localize("tribe8.errors.weapons.range-mix"));
 	}
 
 	/**
@@ -221,7 +222,7 @@ export class Tribe8WeaponModel extends Tribe8GearModel {
 		// Thrown weapons might list STR+X
 		if (data.match(/STR\+[0-9]+/))
 			return;
-		throw new Error("Base Range must be a flat value or a recognized Base Range equation (e.g. STR+1)"); // TODO: (Localization) localize
+		throw new Error(game.i18n.localize("tribe8.errors.weapons.base-range"));
 	}
 
 	/**
@@ -235,9 +236,9 @@ export class Tribe8WeaponModel extends Tribe8GearModel {
 	 */
 	static validateJoint(data) {
 		if (data.ranges?.includes("ranged") && data.category == "melee")
-			throw new Error("Melee weapons cannot be marked ranged");
+			throw new Error(game.i18n.localize("tribe8.errors.weapons.melee-marked-range"));
 		if (data.ranges?.includes("close") && data.category == "ranged")
-			throw new Error("Ranged weapons cannot be marked close");
+			throw new Error(game.i18n.localize("tribe8.errors.weapons.ranged-close"));
 	}
 
 	/**

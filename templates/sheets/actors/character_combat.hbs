@@ -1,42 +1,42 @@
 <div class="character-sheet tab combat {{tab.cssClass}}" data-group="character" data-tab="combat">
 	<div class="combat-pane attack-summary">
-		<h2><span>Attack Summary</span></h2>
+		<h2><span>{{localize "tribe8.actor.character.combat.summary"}}</span></h2>
 		<div class="properties">
 			<div class="property initiative">
-				<div class="property-name">Init.</div>
+				<div class="property-name">{{localize "tribe8.actor.character.combat.initiative.short"}}</div>
 				<div class="property-value">{{combatData.summary.initiative}}</div>
 			</div>
 			<div class="property accuracy">
-				<div class="property-name">Acc.</div>
+				<div class="property-name">{{localize "tribe8.item.weapon.accuracy.short"}}</div>
 				<div class="property-value">{{combatData.summary.accuracy}}</div>
 			</div>
 			<div class="property damage">
-				<div class="property-name">Dmg.</div>
+				<div class="property-name">{{localize "tribe8.item.weapon.damage.short"}}</div>
 				<div class="property-value">{{combatData.summary.damage}}</div>
 			</div>
 			{{#ifIn (lookup (lookup (lookup weapons combatData.useWeapon) "system") "ranges") "ranged"}}
 			<div class="property fumble">
-				<div class="property-name">Fumble</div>
+				<div class="property-name">{{localize "tribe8.item.weapon.fumble.short"}}</div>
 				<div class="property-value">{{localize (concat "tribe8.item.weapon.fumble." combatData.summary.fumble)}}</div>
 			</div>
 			{{else}}
 			<div class="property parry">
-				<div class="property-name">Parry</div>
+				<div class="property-name">{{localize "tribe8.item.weapon.parry.short"}}</div>
 				<div class="property-value">{{combatData.summary.parry}}</div>
 			</div>
 			{{/ifIn}}
 			<div class="property defense">
-				<div class="property-name">Def.</div>
+				<div class="property-name">{{localize "tribe8.actor.character.combat.defense.short"}}</div>
 				<div class="property-value">{{combatData.summary.defense}}</div>
 			</div>
 			<div class="property traits">
-				<div class="property-name">Traits</div>
+				<div class="property-name">{{localize "tribe8.item.weapon.traits.short"}}</div>
 				<div class="property-value">{{combatData.summary.traits}}</div>
 			</div>
 		</div>
 	</div>
 	<div class="combat-pane combat-skills">
-		<h2><span>Combat Skills</span></h2>
+		<h2><span>{{localize "tribe8.actor.character.combat.skills"}}</span></h2>
 		{{#if skills}}
 		<ul>
 		{{#each skills.sortedIDs as |skillId|}}
@@ -54,12 +54,12 @@
 		{{/each}}
 		</ul>
 		{{else}}
-		<em>None</em>
+		<em>{{localize "tribe8.none"}}</em>
 		{{/if}}
 		{{#if combatData.useCombatSkill}}
 			{{#with (lookup skills combatData.useCombatSkill)}}
 				{{#if this.system.specializations}}
-				<h3>Specializations</h3>
+				<h3>{{localize "TYPES.Item.specialization-plural"}}</h3>
 				<ul>
 					{{#each this.system.specializations}}
 					{{#with (lookup @root.specializations this)}}
@@ -93,7 +93,7 @@
 			<input type="radio" name="combatData.useWeapon" value="{{id}}" data-action="combatCalculator"{{#if (eq @root.combatData.useWeapon id)}} checked{{/if}} />
 			<div class="identity" data-action="editItem">
 				<div class="name">{{name}}</div>
-				<div class="specific">({{localize "tribe8.item.gear.complexity.summary" cpx=system.complexity}})</div>
+				<div class="specific">({{localize "tribe8.item.complexity.summary" cpx=system.complexity}})</div>
 			</div>
 		</li>
 		{{/if}}
@@ -131,7 +131,7 @@
 				<div class="name">{{name}}</div>
 				<div class="specific">(
 					{{~#if system.free~}}
-					{{localize "tribe8.item.maneuver.complexity.free"}}: {{system.allowedTypes}}
+					{{localize "tribe8.item.maneuver.complexity.free" types=system.allowedTypes}}
 					{{~else~}}
 						{{~#with (lookup ../../skills this.system.skill)~}}
 							{{~#if name~}}
@@ -152,7 +152,7 @@
 		{{/if}}
 	</div>
 	<div class="combat-pane attributes primary-attributes">
-		<h2><span>Attributes</span></h2>
+		<h2><span>{{localize "tribe8.actor.character.attributes.name.plural"}}</span></h2>
 		{{#each document.system.attributes.primary as |data att|}}
 		<div class="attribute-block{{#if (eq @root.combatData.useAttribute att)}} selected{{/if}}" data-attribute="{{att}}" data-action="chooseAttribute">
 			<div class="name" title="{{localize (concat "tribe8.actor.character.attributes.primary." att ".full")}}">{{localize (concat "tribe8.actor.character.attributes.primary." att ".short")}}</div>
@@ -164,10 +164,10 @@
 		{{/each}}
 	</div>
 	<div class="combat-pane situational">
-		<h2><span>Situational Modifiers</span></h2>
+		<h2><span>{{localize "tribe8.actor.character.combat.modifiers"}}</span></h2>
 		<div class="properties">
 			<div class="property initiative">
-				<div class="property-name">Init.</div>
+				<div class="property-name">{{localize "tribe8.actor.character.combat.initiative.short"}}</div>
 				<div class="property-value">
 					<span class="input-sizer" data-value="">
 						<input type="text" name="combatData.modifier.initiative" value="{{#if combatData.modifier.initiative}}{{combatData.modifier.initiative}}{{/if}}" placeholder="0" size=4  />
@@ -175,7 +175,7 @@
 				</div>
 			</div>
 			<div class="property accuracy">
-				<div class="property-name">Acc.</div>
+				<div class="property-name">{{localize "tribe8.item.weapon.accuracy.short"}}</div>
 				<div class="property-value">
 					<span class="input-sizer" data-value="">
 						<input type="text" name="combatData.modifier.accuracy" value="{{#if combatData.modifier.accuracy}}{{combatData.modifier.accuracy}}{{/if}}" placeholder="0" size=4  />
@@ -183,7 +183,7 @@
 				</div>
 			</div>
 			<div class="property range">
-				<div class="property-name">Range</div>
+				<div class="property-name">{{localize "tribe8.item.weapon.ranges.short"}}</div>
 				<div class="property-value">
 					<select name="combatData.modifier.range">
 						{{#with (lookup weapons combatData.useWeapon) as |weapon|}}
@@ -202,7 +202,7 @@
 				</div>
 			</div>
 			<div class="property damage">
-				<div class="property-name">Dmg.</div>
+				<div class="property-name">{{localize "tribe8.item.weapon.damage.short"}}</div>
 				<div class="property-value">
 					<span class="input-sizer" data-value="">
 						<input type="text" name="combatData.modifier.damage" value="{{#if combatData.modifier.damage}}{{combatData.modifier.damage}}{{/if}}" placeholder="0" size=4  />
@@ -211,7 +211,7 @@
 			</div>
 			{{#ifIn (lookup (lookup (lookup weapons combatData.useWeapon) "system") "ranges") "ranged"}}
 			<div class="property fumble">
-				<div class="property-name">Fumble</div>
+				<div class="property-name">{{localize "tribe8.item.weapon.fumble.short"}}</div>
 				<div class="property-value">
 					<select name="combatData.modifier.fumble">
 						<option value=""></option>
@@ -224,7 +224,7 @@
 			</div>
 			{{else}}
 			<div class="property parry">
-				<div class="property-name">Parry {{ranges}}</div>
+				<div class="property-name">{{localize "tribe8.item.weapon.parry.short"}}</div>
 				<div class="property-value">
 					<span class="input-sizer" data-value="">
 						<input type="text" name="combatData.modifier.parry" value="{{#if combatData.modifier.parry}}{{combatData.modifier.parry}}{{/if}}" placeholder="0" size=4  />
@@ -233,7 +233,7 @@
 			</div>
 			{{/ifIn}}
 			<div class="property defense">
-				<div class="property-name">Def.</div>
+				<div class="property-name">{{localize "tribe8.actor.character.combat.defense.short"}}</div>
 				<div class="property-value">
 					<span class="input-sizer" data-value="">
 						<input type="text" name="combatData.modifier.defense" value="{{#if combatData.modifier.defense}}{{combatData.modifier.defense}}{{/if}}" placeholder="0" size=4 />
@@ -252,13 +252,13 @@
 		<ul>
 			<li class="header">
 				<div class="identity">
-					<div class="name">Description/Coverage</div>
+					<div class="name">{{localize "tribe8.actor.character.combat.armor.header.name"}}</div>
 				</div>
-				<div class="ar">AR</div>
-				<div class="threshold-fw">FW</div>
-				<div class="threshold-dw">DW</div>
-				<div class="threshold-id">ID</div>
-				<div class="enc">ENC</div>
+				<div class="ar">{{localize "tribe8.item.armor.ar.short"}}</div>
+				<div class="threshold-fw">{{localize "tribe8.actor.character.attributes.secondary.physical.thresholds.flesh.short"}}</div>
+				<div class="threshold-dw">{{localize "tribe8.actor.character.attributes.secondary.physical.thresholds.deep.short"}}</div>
+				<div class="threshold-id">{{localize "tribe8.actor.character.attributes.secondary.physical.thresholds.death.short"}}</div>
+				<div class="enc">{{localize "tribe8.item.armor.enc.short"}}</div>
 			</li>
 		{{#each armor.sortedIDs as |armorId|}}
 		{{#with (lookup ../armor armorId)}}
@@ -279,7 +279,7 @@
 		{{/each}}
 			<li>
 				<div class="identity">
-					<div class="name">Unarmored</div>
+					<div class="name">{{localize "tribe8.item.armor.unarmored"}}</div>
 				</div>
 				<div class="ar">&mdash;</div>
 				<div class="threshold-fw">{{@root.document.system.attributes.secondary.physical.thresholds.flesh.value}}</div>
@@ -290,9 +290,9 @@
 		</ul>
 	</div>
 	<div class="combat-pane injuries">
-		<h2><span>Injuries</span>{{#if document.system.actionPenalty}}<span title="{{localize "tribe8.actor.character.injuries.penalty.full"}}">{{document.system.actionPenalty}}</span>{{/if}}</h2>
+		<h2><span>{{localize "tribe8.actor.character.injuries.header"}}</span>{{#if document.system.actionPenalty}}<span title="{{localize "tribe8.actor.character.injuries.penalty.full"}}">{{document.system.actionPenalty}}</span>{{/if}}</h2>
 		<div class="wounds-pane">
-			<h3>Wounds</h3>
+			<h3>{{localize "tribe8.actor.character.wounds.header"}}</h3>
 			{{#each document.system.wounds}}
 			<div class="injury-block injury-values">
 				<div class="header">{{lookup (lookup @root.document.system.attributes.secondary.physical.thresholds @key) "name"}}</div>

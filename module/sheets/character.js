@@ -1,5 +1,6 @@
 const { DialogV2 } = foundry.applications.api;
 const { ActorSheetV2 } = foundry.applications.sheets;
+import { Tribe8 } from '../config.js';
 import { Tribe8Application } from '../apps/base-app.js';
 import { Tribe8AttributeEditor } from '../apps/attribute-editor.js';
 import { Tribe8WeaponModel } from '../datamodels/weapon.js'; // For #addCombatModifier
@@ -79,7 +80,7 @@ export class Tribe8CharacterSheet extends Tribe8Application(ActorSheetV2) {
 		// the various things we need to ensure exist along the way
 		context.ensureHas = function(name, empty) {
 			if (typeof this != 'object' || this?.constructor?.name !== 'Object')
-				throw new Error("Invalid state for context object; continuing would be unsafe");
+				throw new Error(game.i18n.localize("tribe8.errors.invalid-context"));
 			if (!this[name])
 				this[name] = empty;
 		}
@@ -107,12 +108,12 @@ export class Tribe8CharacterSheet extends Tribe8Application(ActorSheetV2) {
 		context.hasCombatSkills = this.document.getSkills({categories: ['combat'], count: true})
 		context.hasMagicSkills = this.document.getSkills({categories: ['magic'], count: true});
 
-		context.COMBAT_SKILLS = CONFIG.Tribe8.COMBAT_SKILLS;
+		context.COMBAT_SKILLS = Tribe8.COMBAT_SKILLS;
 		this.#prepareContext_collectItems(context);
 		this.#prepareContext_sortCollections(context);
 
-		context.fumble = CONFIG.Tribe8.fumble;
-		context.rangeBands = Object.keys(CONFIG.Tribe8.rangeBands);
+		context.fumble = Tribe8.fumble;
+		context.rangeBands = Object.keys(Tribe8.rangeBands);
 		this.#prepareContext_combatData();
 		context.combatData = this.combatData;
 
@@ -140,10 +141,10 @@ export class Tribe8CharacterSheet extends Tribe8Application(ActorSheetV2) {
 					context[collectionName][item.id] = item;
 
 					// Track Synthesis and Ritual, specifically
-					if (CONFIG.Tribe8.slugify(item.system.name) == 'synthesis') { // TODO: (Localization) Use localized slug
+					if (Tribe8.slugify(item.system.name) == Tribe8.slugify(game.i18n.localize("tribe8.item.skills.names.synthesis"))) {
 						context.magic.synthesisSkill = item;
 					}
-					if (CONFIG.Tribe8.slugify(item.system.name) == 'ritual') { // TODO: (Localization) Use localized slug
+					if (Tribe8.slugify(item.system.name) == Tribe8.slugify(game.i18n.localize("tribe8.item.skills.names.ritual"))) {
 						context.magic.ritualSkill = item;
 					}
 					break;
@@ -153,10 +154,10 @@ export class Tribe8CharacterSheet extends Tribe8Application(ActorSheetV2) {
 					context[collectionName][item.id] = item;
 
 					// Track Dreamer and Awakened Dreamer Perks
-					if (CONFIG.Tribe8.slugify(item.name) == 'dreamer') { // TODO: (Localization) Use localized slug
+					if (Tribe8.slugify(item.name) == Tribe8.slugify(game.i18n.localize("tribe8.item.perk.names.dreamer"))) {
 						context.magic.hasDreamerPerk = true;
 					}
-					if (CONFIG.Tribe8.slugify(item.name) == 'awakeneddreamer') { // TODO: (Localization) Use localized slug
+					if (Tribe8.slugify(item.name) == Tribe8.slugify(game.i18n.localize("tribe8.item.perk.names.awakeneddreamer"))) {
 						context.magic.hasAwakenedDreamerPerk = true;
 					}
 					break;
@@ -172,7 +173,7 @@ export class Tribe8CharacterSheet extends Tribe8Application(ActorSheetV2) {
 						collectionName = item.system.ritual ? `ritual${collectionName}` : `synthesis${collectionName}`;
 					}
 					context.magic.ensureHas(collectionName, {});
-					item.cost = CONFIG.Tribe8.costs[item.type];
+					item.cost = Tribe8.costs[item.type];
 					context.magic[collectionName][item.id] = item;
 					break
 				case 'gear':
@@ -335,7 +336,7 @@ export class Tribe8CharacterSheet extends Tribe8Application(ActorSheetV2) {
 				}
 			}
 			else
-				console.warn(`Chosen weapon ${this.combatData.useWeapon} not found`);
+				console.warn(game.i18n.format("tribe8.errors.weapon-not-found", {'weapon': this.combatData.useWeapon}));
 		}
 
 		// Factor in Specialization use
@@ -352,7 +353,7 @@ export class Tribe8CharacterSheet extends Tribe8Application(ActorSheetV2) {
 			for (let maneuverId of Object.keys(this.combatData.useManeuver)) {
 				const maneuver = (this.document.getItems({'type': 'maneuver'}).filter((m) => m.id == maneuverId) ?? [])[0];
 				if (!maneuver) {
-					console.warn(`Selected Maneuver.${maneuverId} not found in Actor.${this.document.id} Maneuver list`);
+					console.warn(game.i18n.format("tribe8.errors.maneuver-not-found", {'maneuver': `Maneuver.${maneuverId}`, 'actorId': `Actor.${this.document.id}`}));
 					continue;
 				}
 				/**
@@ -384,7 +385,7 @@ export class Tribe8CharacterSheet extends Tribe8Application(ActorSheetV2) {
 		if (this.combatData.modifier) {
 			for (let modifierName in this.combatData.modifier) {
 				if (modifierName === 'range') {
-					this.combatData.summary.accuracy = this.#addCombatModifier(this.combatData.summary.accuracy, CONFIG.Tribe8.rangeBands[this.combatData.modifier.range], 'accuracy');
+					this.combatData.summary.accuracy = this.#addCombatModifier(this.combatData.summary.accuracy, Tribe8.rangeBands[this.combatData.modifier.range], 'accuracy');
 					continue;
 				}
 				if (Object.hasOwn(this.combatData.summary, modifierName)) {
@@ -466,7 +467,7 @@ export class Tribe8CharacterSheet extends Tribe8Application(ActorSheetV2) {
 					if (!summaryIsArray) summaryValue = [summaryValue];
 					if (summaryValue.length < arrayLength) {
 						if (summaryValue.length > 1)
-							console.warn(`Adding an array combat modifier to an existing combat modifier array set of differing length. Results unpredictable`);
+							console.warn(game.i18n.localize("tribe8.errors.array-combat-modifier-differing-lengths"));
 						for (let i = 1; i < arrayLength; i++) {
 							summaryValue[i] = summaryValue[0];
 						}
@@ -477,7 +478,7 @@ export class Tribe8CharacterSheet extends Tribe8Application(ActorSheetV2) {
 					if (!modifierIsArray) modifierValue = [modifierValue];
 					if (modifierValue.length < arrayLength) {
 						if (modifierValue.length > 1)
-							console.warn(`Adding an array combat modifier to an existing combat modifier array set of differing length. Results unpredictable`);
+							console.warn(game.i18n.localize("tribe8.errors.array-combat-modifier-differing-lengths"));
 						for (let i = 1; i < arrayLength; i++) {
 							modifierValue[i] = modifierValue[0];
 						}
@@ -496,7 +497,7 @@ export class Tribe8CharacterSheet extends Tribe8Application(ActorSheetV2) {
 						if (modifierValue[i] == '+CPLX') {
 							const skill = this.document.getEmbeddedDocument("Item", this.combatData.useCombatSkill);
 							if (!skill) {
-								console.warn(`Couldn't locate Skill.${this.combatData.useCombatSkill} for Actor.${this.document.id}; cannot add modifier '${modifierValue[i]}'`);
+								console.warn(game.i18n.format("tribe8.errors.no-skill-for-modifier", {'skillId': `Skill.${this.combatData.useCombatSkill}`, 'actorId': `Actor.${this.document.id}`, value: `${modifierValue[i]}`}));
 								continue;
 							}
 							summaryValue[i] += Number(skill.system.cpx);
@@ -521,7 +522,7 @@ export class Tribe8CharacterSheet extends Tribe8Application(ActorSheetV2) {
 							if (modifierValue[i].match(',')) { // e.g. "Grapple"
 								modifierValue[i] = modifierValue[i].split(',').filter((m) => !m.match(/ENT/));
 								if (modifierValue[i].length > 1) {
-									console.log(`Comma-delimited damage modifier longer than expected after removing condition component; results may be unexpected`);
+									console.log(game.i18n.localize("tribe8.errors.long-damage-modifier"));
 								}
 								if (modifierValue[i].length < 1) { // e.g. "Weapon Catch", deals no damage
 									continue;
@@ -553,7 +554,7 @@ export class Tribe8CharacterSheet extends Tribe8Application(ActorSheetV2) {
 										summaryValue[i] = ourBuild / operand;
 										break;
 									default:
-										console.warn(`Unhandled arithmetic operation ${operation} for damage modifier`);
+										console.warn(game.i18n.format("tribe8.errors.unhandled-damage-operation", {'operation': operation}));
 									break;
 								}
 								continue;
@@ -615,12 +616,12 @@ export class Tribe8CharacterSheet extends Tribe8Application(ActorSheetV2) {
 						// Case 1: "as attack/weapon" -- no change; default
 						// Case 8: "as best/as worst/special" -- unhandled
 						// "# of rounds"
-						console.log(`Modifier '${modifierValue[i]}' not currently handled for Combat summary`);
+						console.log(game.i18n.format("tribe8.errors.unhandled-modifier", {'modifier': modifierValue[i]}));
 					}
 					return summaryValue;
 				}
 				else
-					console.warn(`${modifierName} should always be an array operation, but non-array values detected`);
+					console.warn(game.i18n.format("tribe8.errors.array-modifier-not-array", {'modifier': modifierName}));
 				break;
 			case 'initiative':
 			case 'defense':
@@ -743,7 +744,7 @@ export class Tribe8CharacterSheet extends Tribe8Application(ActorSheetV2) {
 		// TODO: Probably should break this out
 		// Set the size of the equipment load sliders
 		const usedLoad = this.document.system.carriedWeight / this.document.system.deadlift[0] * 100;
-		const loadThresholds = CONFIG.Tribe8.loadThresholds;
+		const loadThresholds = Tribe8.loadThresholds;
 		const thresholdList = Object.keys(loadThresholds);
 		for (let t = 0; t < thresholdList.length; t++) {
 			const thresholdName = loadThresholds[thresholdList[t]].descriptor;
@@ -888,7 +889,7 @@ export class Tribe8CharacterSheet extends Tribe8Application(ActorSheetV2) {
 		this._createContextMenu(() => {
 				return [
 					{
-						name: "Show Character Artwork", // TODO: Localize
+						name: "tribe8.actor.character.contextMenu.show-artwork",
 						icon: '<i class="fa-solid fa-image"></i>',
 						callback: () => {
 							const actor = this.document;
@@ -900,7 +901,7 @@ export class Tribe8CharacterSheet extends Tribe8Application(ActorSheetV2) {
 						}
 					},
 					{
-						name: "Edit Character Artwork", // TODO: Localize
+						name: "tribe8.actor.character.contextMenu.edit-artwork",
 						icon: '<i class="fa-solid fa-file-pen"></i>',
 						condition: this.document.isOwner,
 						callback: el => {
@@ -908,7 +909,7 @@ export class Tribe8CharacterSheet extends Tribe8Application(ActorSheetV2) {
 						}
 					},
 					{
-						name: "Show Token Artwork", // TODO: Localize
+						name: "tribe8.actor.character.contextMenu.show-token",
 						icon: '<i class="fa-solid fa-image"></i>',
 						callback: () => {
 							const actor = this.document;
@@ -925,7 +926,7 @@ export class Tribe8CharacterSheet extends Tribe8Application(ActorSheetV2) {
 						}
 					},
 					{
-						name: (this.token ? "Configure Token" : "Configure Prototype Token"), // TODO: Localize
+						name: (this.token ? "tribe8.actor.character.contextMenu.edit-token" : "tribe8.actor.character.contextMenu.edit-proto-token"),
 						icon: '<i class="fa-solid fa-file-pen"></i>',
 						condition: this.document.isOwner,
 						callback: el => {
@@ -962,7 +963,7 @@ export class Tribe8CharacterSheet extends Tribe8Application(ActorSheetV2) {
 		}
 		const skillItem = this.document.getEmbeddedDocument("Item", skillRow.dataset?.itemId);
 		if (!skillItem) {
-			foundry.ui.notifications.error(`Could not find a Skill with the id ${skillRow.dataset?.itemId}`);
+			foundry.ui.notifications.error(game.i18n.format("tribe8.errors.skill-from-dataset-not-found", {itemId: skillRow.dataset?.itemId}));
 			return;
 		}
 		skillItem.system.alterEdie();
@@ -987,7 +988,7 @@ export class Tribe8CharacterSheet extends Tribe8Application(ActorSheetV2) {
 		}
 		const skillItem = this.document.getEmbeddedDocument("Item", skillRow.dataset?.itemId);
 		if (!skillItem) {
-			foundry.ui.notifications.error(`Could not find a Skill with the id ${skillRow.dataset?.itemId}`);
+			foundry.ui.notifications.error(game.i18n.format("tribe8.errors.skill-from-dataset-not-found", {itemId: skillRow.dataset?.itemId}));
 			return;
 		}
 		skillItem.system.alterEdie(-1);
@@ -1006,7 +1007,7 @@ export class Tribe8CharacterSheet extends Tribe8Application(ActorSheetV2) {
 		const actionParts = (target.name?.split('-') || []).slice(1);
 		const addItemType = actionParts.shift();
 		if (!addItemType || ([...Object.keys(CONFIG.Item.dataModels), 'pf'].indexOf(addItemType) < 0)) {
-			foundry.ui.notifications.warn("Requested creation of unrecognized item type");
+			foundry.ui.notifications.warn(game.i18n.localize("tribe8.errors.unrecognized-item-type"));
 			return;
 		}
 		// Present special dialog for Perks/Flaws
@@ -1026,12 +1027,12 @@ export class Tribe8CharacterSheet extends Tribe8Application(ActorSheetV2) {
 	#presentPerkFlawPrompt(actionParts) {
 		const that = this;
 		DialogV2.wait({
-			window: {title: "Choose Perk or Flaw"},
-			content: "Do you wish to create a Perk or a Flaw?",
+			window: {title: "tribe8.item.pf.dialog.title"},
+			content: "tribe8.item.pf.dialog.prompt",
 			buttons: [
-				{label: "Perk", action: "perk"},
-				{label: "Flaw", action: "flaw"},
-				{label: "Cancel", action: "cancel"}
+				{label: "TYPES.Item.perk", action: "perk"},
+				{label: "TYPES.Item.flaw", action: "flaw"},
+				{label: "tribe8.item.pf.dialog.cancel", action: "cancel"}
 			],
 			modal: true
 		}).then((result) => {
@@ -1216,7 +1217,7 @@ export class Tribe8CharacterSheet extends Tribe8Application(ActorSheetV2) {
 	 * @access private
 	 */
 	#addNewItem(itemType, actionParts = []) {
-		const newItemName = `New ${itemType[0].toUpperCase()}${itemType.slice(1)}`;
+		const newItemName = game.i18n.format("tribe8.item.new-name", {'type': game.i18n.localize(`TYPES.Item.${itemType}`)});
 		const newItemPayload = {type: itemType, name: newItemName};
 		if (itemType == 'aspect' && actionParts.length)
 			newItemPayload.ritual = (actionParts[0] == 'ritual');
@@ -1241,12 +1242,12 @@ export class Tribe8CharacterSheet extends Tribe8Application(ActorSheetV2) {
 			target.parentNode?.dataset?.itemId ??
 			false;
 		if (!id) {
-			foundry.ui.notifications.warn("Item ID could not be determined");
+			foundry.ui.notifications.warn(game.i18n.localize("tribe8.errors.no-item-id"));
 			return false;
 		}
 		const item = this.document.getEmbeddedDocument('Item', id);
 		if (!item) {
-			foundry.ui.notifications.warn("Item not found");
+			foundry.ui.notifications.warn(game.i18n.localize("tribe8.errors.item-not-found"));
 			return false;
 		}
 		return item;

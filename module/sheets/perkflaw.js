@@ -1,3 +1,4 @@
+import { Tribe8 } from '../config.js';
 import { Tribe8ItemSheet } from './item.js';
 const { DialogV2 } = foundry.applications.api;
 
@@ -62,7 +63,7 @@ class Tribe8PerkFlawSheet extends Tribe8ItemSheet {
 	 */
 	_prepareSubmitData(event, form, formData, updateData) {
 		// Identify array-based form elements
-		const checkKeys = CONFIG.Tribe8.checkFormArrayElements(formData);
+		const checkKeys = Tribe8.checkFormArrayElements(formData);
 
 		// Extract identified array-based elements
 		const rankPoints = {}; // Object so we can use explicit keys
@@ -102,7 +103,7 @@ class Tribe8PerkFlawSheet extends Tribe8ItemSheet {
 			return;
 		const that = this;
 		DialogV2.confirm({
-			content: `Are you sure you want to delete Rank ${rankIdx + 1} from ${this.document.name}? Any other ranks will re-shuffle around it.`,
+			content: game.i18n.format("tribe8.item.pf.dialog.delete-rank-confirm", {'rank': `${rankIdx + 1}`, 'name': this.document.name}),
 			modal: true
 		}).then((result) => {
 			if (result) {

@@ -32,9 +32,16 @@
 	"tribe8": {
 		"actor": {
 			"character": {
+				"name.field": "Name",
+				"player.field": "Player",
+				"tribe.field": "Tribe",
+				"tribe.hint": "Tribe into which the character was born or most directly identifies",
+				"role.field": "Role",
+				"role.hint": "Role this character plays in their Cell",
 				"attributes": {
 					"name.singular": "Attribute",
 					"name.plural": "Attributes",
+					"name.short": "Att",
 					"primary": {
 						"name.singular": "Primary Attribute",
 						"name.plural": "Primary Attributes",
@@ -57,7 +64,12 @@
 						"psy.short": "PSY",
 						"psy.full": "Psyche",
 						"wil.short": "WIL",
-						"wil.full": "Willpower"
+						"wil.full": "Willpower",
+						"label.hint": "The short name used to identify this attribute on a character sheet",
+						"name.hint": "The full name of this attribute",
+						"value.hint": "The current calculated value of this attribute",
+						"cp.hint": "The number of CP invested in this attribute",
+						"xp.hint": "The number of XP invested in this attribute"
 					},
 					"secondary": {
 						"name.singular": "Secondary Attribute",
@@ -83,8 +95,12 @@
 							},
 							"shock.short": "SS",
 							"shock.full": "System Shock"
-						}
-					}
+						},
+						"label.hint": "The short name used to identify this attribute on a character sheet",
+						"name.hint": "The full name of this attribute",
+						"value.hint": "The current calculated value of this attribute"
+					},
+					"editor-title": "Attribute Editor: {name}"
 				},
 				"movement": {
 					"name": "Movement",
@@ -99,14 +115,76 @@
 					"crawling.full": "Crawling",
 					"crawling.short": "Crwl"
 				},
+				"wounds": {
+					"flesh.hint": "Number of Flesh Wounds sustained",
+					"deep.hint": "Number of Deep Wounds sustained",
+					"header": "Wounds"
+				},
+				"points": {
+					"header": "Points",
+					"cp": {
+						"short": "CP",
+						"full": "Character Points",
+						"attributes.hint": "Number of initial character points that can be spent on attributes",
+						"general.header": "General",
+						"general.hint": "Number of additional character points that can be spent on character features other than attributes"
+					},
+					"xp": {
+						"short": "XP",
+						"full": "Experience Points",
+						"total.hint": "Number of total XP accumulated by the character"
+					}
+				},
+				"edie": {
+					"short": "EDie",
+					"long": "Emergency Dice",
+					"total": "Total",
+					"fromXP": "From XP",
+					"other": "Other",
+					"hint": "Number of bonus EDie available, beyond unspent XP",
+					"spend": "SPEND an E-Die on this skill. It will be removed from the character's general E-Die pool, if available, or spend from available XP if not.",
+					"unspend": "Remove SPENT E-Die. It will be added back to the character's general E-Die pool",
+					"input": "Enter an exact number of EDie",
+					"add": "Add an E-Die to this Character's bonus EDie pool",
+					"remove": "Remove an E-Die from this Character's bonus EDie pool"
+				},
+				"portrait.text": "Your face here",
+				"skills": {
+					"toggle.name": "Name",
+					"toggle.level": "Level"
+				},
 				"injuries": {
 					"penalty.full": "Action Penalty",
-					"penalty.short": "AP"
+					"penalty.short": "AP",
+					"header": "Injuries",
+					"severity": "Severity",
+					"threshold": "Threshold",
+					"current": "Current"
 				},
+				"magic.header": "Magic",
 				"tabs": {
 					"main": "Traits",
 					"equipment": "Gear",
 					"combat": "Combat"
+				},
+				"contextMenu": {
+					"show-artwork": "Show Character Artwork",
+					"edit-artwork": "Edit Character Artwork",
+					"show-token": "Show Token Artwork",
+					"edit-token": "Configure Token",
+					"edit-proto-token": "Configure Prototype Token"
+				},
+				"combat": {
+					"summary": "Attack Summary",
+					"initiative.short": "Init.",
+					"initiative.full": "Initiative",
+					"defense.short": "Def.",
+					"defense.full": "Defense",
+					"skills": "Combat Skills",
+					"modifiers": "Situational Modifiers",
+					"armor": {
+						"header.name": "Description/Coverage"
+					}
 				}
 			}
 		},
@@ -118,17 +196,52 @@
 		},
 		"item": {
 			"name": "Name",
+			"name-with-specific": "{name} ({specific})",
+			"broken-name": "Broken Item",
+			"new-name": "New {type}",
+			"specific.placeholder": "Specify",
+			"specific.unspecified": "Unspecified",
+			"description.header": "Description",
+			"description.hint": "Description of the Item",
+			"complexity": {
+				"summary": "Cpx {cpx}",
+				"full": "Complexity",
+				"short": "Cpx"
+			},
+			"cost": {
+				"short": "Cost"
+			},
+			"contextMenu": {
+				"show-artwork": "Show Item Artwork",
+				"edit-artwork": "Edit Item Artwork"
+			},
 			"aspect": {
 				"title": {
 					"synthesis": "Synthesis Aspect: {aspect}",
 					"synthesis-tribe": "Synthesis Aspect: {aspect} ({tribe})",
 					"ritual": "Ritual Aspect: {aspect}",
 					"ritual-tribe": "Ritual Aspect: {aspect} ({tribe})"
-				}
+				},
+				"tribe.hint": "The Tribe to which this Aspect belongs",
+				"complexity.hint": "Synthesis Complexity required to use this Aspect",
+				"attribute.hint": "Attribute used when rolling Synthesis for use of this Aspect",
+				"opposedBy.short": "Opp.",
+				"opposedBy.full": "Opposed By",
+				"opposedBy.hint": "Attribute roll target makes to resist this Aspect's effects.",
+				"threshold.short": "Thr.",
+				"threshold.full": "Threshold",
+				"threshold.hint": "Synthesis roll Threshold required to use this Aspect successfully. If the Threshold varies, leave blank.",
+				"granted.hint": "Whether or not this Aspect was granted for free by the Weaver",
+				"points.hint": "The type of points used to pay for the Aspect.",
+				"ritual.hint": "Whether or not this is a Ritual based on an Aspect."
 			},
 			"eminence": {
 				"title": "Eminence: {eminence}",
-				"title-tribe": "Eminence: {eminence} ({tribe})"
+				"title-tribe": "Eminence: {eminence} ({tribe})",
+				"tribe.hint": "Tribe with which the Eminence is associated",
+				"name.hint": "Name of the Eminence",
+				"used.short": "Used",
+				"used.hint": "Whether or not the Eminence has been used for the current day"
 			},
 			"maneuver": {
 				"title": "Maneuver: {maneuver}",
@@ -139,7 +252,7 @@
 				"parry.hint": "The effect this Maneuver has on Parry rolls for the round.",
 				"damage.hint": "The effect this Maneuver has on Damage rolls for the round.",
 				"complexity.hint": "The Complexity requirement to use this Maneuver",
-				"complexity.free": "Free",
+				"complexity.free": "Free: {types}",
 				"allowedTypes": {
 					"hint": "The combat Skill categories that can be used with this Maneuver",
 					"cavalry": "Can be used with the Riding Skill",
@@ -150,23 +263,59 @@
 					"na": "No Skills Allowed"
 				},
 				"skill.hint": "The Skill to which this Maneuver applies",
-				"fromCpx.hint": "Whether this Maneuver is granted due to a Skill's Complexity.",
+				"fromCpx.hint": "Pay for this Maneuver using free Maneuvers granted by Complexity in chosen Skill",
 				"granted.hint": "Whether or not this Maneuver was granted for free by the Weaver",
-				"points.hint": "The type of points used to pay for the Maneuver."
+				"free.short": "Free",
+				"free.hint": "This is a Free Maneuver available to everyone.",
+				"points.hint": "The type of points used to pay for the Maneuver.",
+				"table-header": "Maneuver (Skill)"
+			},
+			"pf": {
+				"type": "Perk/Flaw",
+				"title": "Perks & Flaws",
+				"name.hint": "The top-level name of the Perk/Flaw, without specifiers",
+				"specific.hint": "A unique specifier for this Perk/Flaw (e.g. the name of a relevant person), if appropriate.",
+				"specify.hint": "Whether this Perk/Flaw requires a unique specifier.",
+				"baseCost.short": "Base",
+				"baseCost.hint": "The cost, in CP or XP, of the first rank of the Perk/Flaw. For Flaws, this is a negative value.",
+				"perRank.short": "Per-Rank",
+				"perRank.hint": "The cost, in CP or XP, of additional ranks of the Perk/Flaw. For Flaws, this is a negative value.",
+				"ranked.hint": "Whether or not this Perk/Flaw can be acquired at different intensity levels",
+				"granted.hint": "Whether the cost of this Perk/Flaw is ignored, as may be the case with those granted by the Weaver.",
+				"points-rank.hint": "The type of points used to pay for this rank of the Perk, or refunded for this rank of the Flaw.",
+				"points.short": "Use",
+				"points.hint": "The type of points used to pay for the Perk, or to refund for the Flaw. Each rank is stored separately.",
+				"rankRoman": "Rank {numerals}",
+				"removeRank": "Remove Rank",
+				"dialog": {
+					"title": "Choose Perk or Flaw",
+					"prompt": "Do you wish to create a Perk or a Flaw?",
+					"cancel": "Cancel",
+					"delete-rank-confirm": "Are you sure you want to delete Rank {rank} from {name}? Any other ranks will re-shuffle around it."
+				}
 			},
 			"perk": {
-				"title": "Perk: {pfName}"
+				"title": "Perk: {pfName}",
+				"names": {
+					"dreamer": "Dreamer",
+					"awakeneddreamer": "Awakened Dreamer"
+				},
+				"baseCost.hint": "Points to acquire this Perk"
 			},
 			"flaw": {
-				"title": "Flaw: {pfName}"
+				"title": "Flaw: {pfName}",
+				"baseCost.hint": "Points to acquire this Flaw (should be negative values)"
 			},
 			"skill": {
 				"title": "Skill: {skill}",
 				"name.hint": "The top-level name of the Skill, without specifiers",
 				"specific.hint": "The specific area of expertise to which this Skill pertains, if appropriate",
 				"specify.hint": "Whether this Skill require an area of expertise to be specified",
+				"level.full": "Level",
 				"specialization.hint": "A Specialization that pertains to this Skill",
 				"combatCategory": {
+					"short": "Cat.",
+					"full": "Combat Category",
 					"hint": "The combat categories this Skill applies to",
 					"cavalry": "Riding",
 					"cavalry-hint": "This Skill is marked as a Riding Combat Skill",
@@ -187,12 +336,29 @@
 					"edie.fromBonus.hint": "Number of non-XP e-die spent into this Skill's rolls",
 					"edie.fromXP.hint": "Number of XP converted to e-die for this Skill's rolls"
 				},
+				"removeSpecialization": "Remove Specialization",
+				"addSpecialization": "Add specialization",
 				"names": {
 					"synthesis": "Synthesis",
 					"ritual": "Ritual",
 					"technosmithing": "Technosmithing",
-					"sundering": "Sundering"
-				}
+					"sundering": "Sundering",
+					"combatsense": "Combat Sense"
+				},
+				"delete-specialization": "Are you sure you want to delete the Specialization '{name}'?"
+			},
+			"specialization": {
+				"granted.hint": "Whether or not this Specialization was granted for free by the Weaver",
+				"points.hint": "The type of points used to pay for the Specialization.",
+				"skill.hint": "The Skill to which this Specialization belongs"
+			},
+			"totem": {
+				"type.hint": "The type of Totem this is (e.g. Spirit, Fatima, Z'bri lord, etc.)",
+				"fromCpx.hint": "Whether this Totem is granted due to the Ritual Skill's Complexity.",
+				"granted.hint": "Whether or not this Totem was granted for free by the Weaver",
+				"points.hint": "The type of points used to pay for the Totem.",
+				"title": "Totem: {name}",
+				"title-with-type": "Totem: {name} ({type})"
 			},
 			"gear": {
 				"name": {
@@ -235,12 +401,7 @@
 					"short": "Find",
 					"hint": "The Threshold required to find this type of Item"
 				},
-				"complexity": {
-					"full": "Complexity",
-					"short": "Cpx",
-					"hint": "The Complexity requirement to use, or fully use, this Gear",
-					"summary": "Cpx {cpx}"
-				},
+				"complexity.hint": "The Complexity requirement to use, or fully use, this Gear",
 				"storage": {
 					"full": "Container/Carrier",
 					"short": "On/In",
@@ -289,24 +450,36 @@
 					"hint": "The specific category this Weapon belongs to, within its general category"
 				},
 				"accuracy": {
+					"short": "Acc.",
+					"full": "Accuracy",
 					"hint": "The Accuracy modifier of this Weapon"
 				},
 				"parry": {
+					"short": "Parry",
+					"full": "Parry",
 					"hint": "The Parry modifier of this Weapon"
 				},
 				"fumble": {
+					"short": "Fumble",
+					"full": "Fumble",
 					"low": "Low",
 					"medium": "Medium",
 					"high": "High",
 					"hint": "The Fumble Risk of this Weapon"
 				},
 				"damage": {
+					"short": "DM",
+					"full": "Damage Multiplier",
 					"hint": "The Damage Multiplier formula for this Weapon, generally a flat number, AD+X, or AD+X/Y"
 				},
 				"traits": {
+					"short": "Traits",
+					"full": "Traits",
 					"hint": "Any special traits this Weapon has (e.g. ENT, MNT, 2H)"
 				},
 				"ranges": {
+					"short": "Range",
+					"full": "Range",
 					"hint": "The range type(s) at which this Weapon can be used",
 					"close.full": "Close Combat",
 					"close.short": "C",
@@ -316,6 +489,8 @@
 					"ranged.short": "R"
 				},
 				"baseRange": {
+					"short": "Base Dist.",
+					"full": "Base Range Distance",
 					"hint": "The first range band of this Weapon, generally a flat number or STR+X"
 				},
 				"rangeBands": {
@@ -331,15 +506,27 @@
 					"extreme-with-distance": "Extreme (<={distance}m)"
 				},
 				"rof": {
+					"short": "ROF",
+					"full": "Rate-of-Fire",
 					"hint": "The Rate Of Fire for this Weapon, generally a flat number or X/Y"
 				},
 				"ammo": {
+					"short": "Ammo",
+					"full": "Ammunition",
+					"current.short": "Ammo Curr.",
+					"current.full": "Current Ammunition",
+					"capacity.short": "Ammo Cap.",
+					"capacity.full": "Ammunition Capacity",
 					"current.hint": "The current amount of ammo loaded into this Weapon",
 					"capacity.hint": "The ammo capacity of this Weapon before it needs to be reloaded"
 				}
 			},
 			"armor": {
+				"ar.short": "AR",
+				"ar.full": "Armor Rating",
 				"ar.hint": "The AR of this (piece of) Armor",
+				"conceal.full": "Concealable",
+				"conceal.short": "Conceal",
 				"conceal.no": "No",
 				"conceal.somewhat": "Somewhat",
 				"conceal.yes": "Yes",
@@ -358,17 +545,81 @@
 				},
 				"enc.hint": "The whole number Encumbrance value of this (piece of) Armor",
 				"enc.summary": "ENC {enc}",
+				"enc.short": "ENC",
+				"enc.full": "Encumbrance",
 				"notes.hint": "Notes relevant to this Armor, such as penalties to Notice or Stealth",
-				"partial.hint": "This piece of Armor does not have an individual ENC, but three such pieces equal 1 ENC"
-			}
+				"partial.full": "Partial",
+				"partial.short": "Partial",
+				"partial.hint": "This piece of Armor does not have an individual ENC, but three such pieces equal 1 ENC",
+				"notes.short": "Notes",
+				"notes.full": "Notes",
+				"unarmored": "Unarmored"
+			},
+			"delete-confirm": "Are you sure you want to ENTIRELY delete the {type} '{name}', including any associated points?"
 		},
 		"errors": {
 			"circular-container": "An Item cannot be made its own container",
 			"quantity-on-container": "A container Item cannot have a quantity other than 1",
+			"recursive-storage": "{itemId} listed itself as storage, which would lead to infinite recursion. This link has been broken.",
 			"unowned-specialization": "Specializations cannot be created outside of a Skill that belongs to a character.",
 			"existing-skill-specialization": "A Specialization with that name already exists for this Skill",
+			"specialization-missing-skill": "{actorSpecId} lists {skillId}, but no matching Skill was found on the Actor",
+			"skill-specialization-mismatch": "{actorSkillId} lists {specId}, but the Specialization lists {skillId}",
+			"specialization-not-found": "{specId} not found on {actorSkillId}. Removing from list.",
+			"spec-missing-from-skill": "Could not find {specId} among those of Skill '{skill}'",
 			"maneuver-missing-skill": "CHOOSE SKILL",
-			"weapon-no-range": "Weapons must have at least one Range selected"
-		}
+			"weapons": {
+				"no-range": "Weapons must have at least one Range selected",
+				"damage-prefix-mismatch": "Damage prefix must match for multiple damage modes",
+				"range-non-array": "Cannot submit non-array data for Weapon ranges",
+				"range-mix": "Cannot mix 'ranged' with other Weapon ranges",
+				"base-range": "Base Range must be a flat value or a recognized Base Range equation (e.g. STR+1)",
+				"melee-marked-range": "Melee weapons cannot be marked ranged",
+				"ranged-closed": "Ranged weapons cannot be marked close"
+			},
+			"edie-below-0": "Can't decrease spent EDie below 0",
+			"edie-unchanged": "EDie state on Skill.{skillId} unchanged",
+			"edie-insufficient": "You do not have enough EDie!",
+			"model-actor-not-initialized": "Attempted to get properties of an Actor's data model before the Actor was initialized",
+			"model-item-not-initialized": "Attempted to get properties of an Item's data model before the Item was initialized",
+			"called-before-movement-prepared": "Must call #prepareMovement before calling {method}",
+			"non-percentage-load": "Load threshold could not be converted to a percentage",
+			"load-threshold-nan": "Load threshold speed multiplier was not a number",
+			"no-wounds-property": "{actor} did not have a wounds property",
+			"unmarked-free-totem": "{actor}'s {totem} Totem is free based on their Ritual Skill's Complexity, but it is not marked as such.",
+			"unmarked-free-maneuver": "{actor}'s '{maneuver} ({skill})' Maneuver is free due to bonus Maneuver slots, but is not marked as \"from Complexity\".",
+			"non-free-maneuver": "{actor}'s '{maneuver} ({skill})' Maneuver is marked as from Complexity, but no bonus Maneuver slot was available for it.",
+			"invalid-type-filter": "Invalid type filter syntax; supply an array of strings",
+			"no-valid-types": "No search types are valid for {type}",
+			"invalid-category-filter": "Invalid category filter '{type}' requested",
+			"categories-must-be-array": "'categories' option must be an array",
+			"invalid-category": "{category} is not a valid category",
+			"item-storage-missing": "{itemId} was not found on {actorId}, despite being indicated as storage for {storageId}",
+			"cmp-type-mismatch-general": "Cannot compare items of different types",
+			"cmp-type-mismatch-specific": "Cannot use {type} comparison function to sort non-{type} items",
+			"non-physical-path-trace": "Cannot trace path to Actor for non-physical Item types",
+			"dummy-item-name": "Cannot determine system base name for Item, so giving it a dummy name",
+			"empty-name": "Should never generate a name of no value",
+			"specialization-migration": "Failed to migrate specialization data",
+			"armor-double-coverage": "This Armor already includes that type of coverage",
+			"invalid-context": "Invalid state for context object; continuing would be unsafe",
+			"weapon-not-found": "Chosen weapon {weapon} not found",
+			"maneuver-not-found": "Selected {maneuver} not found in {actorId} Maneuver list",
+			"array-combat-modifier-differing-lengths": "Adding an array combat modifier to an existing combat modifier array set of differing length. Results unpredictable",
+			"no-skill-for-modifier": "Couldn't locate {skillId} for {actorId}; cannot add modifier '{modifier}'",
+			"long-damage-modifier": "Comma-delimited damage modifier longer than expected after removing condition component; results may be unexpected",
+			"unhandled-damage-operation": "Unhandled arithmetic operation {operation} for damage modifier",
+			"unhandled-modifier": "Modifier '{modifier}' not currently handled for Combat summary",
+			"array-modifier-not-array": "{modifier} should always be an array operation, but non-array values detected",
+			"skill-from-dataset-not-found": "Could not find a Skill with the id {itemId}",
+			"unrecognized-item-type": "Requested creation of unrecognized item type",
+			"no-item-id": "Item ID could not be determined",
+			"item-not-found": "Item not found",
+			"only-delete-owned-items": "Only Items belonging to Actors can be deleted in this way.",
+			"specializations-on-characters": "Specializations can only be added to Skills belonging to a character."
+		},
+		"none": "None",
+		"no-tribe": "No Tribe specified",
+		"delete": "Delete"
 	}
 }

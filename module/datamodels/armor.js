@@ -1,4 +1,5 @@
 const fields = foundry.data.fields;
+import { Tribe8 } from '../config.js';
 import { Tribe8GearModel } from './gear.js';
 
 export class Tribe8ArmorModel extends Tribe8GearModel {
@@ -20,8 +21,8 @@ export class Tribe8ArmorModel extends Tribe8GearModel {
 				new fields.StringField({
 					required: true,
 					blank: false,
-					choices: [...CONFIG.Tribe8.armorCoverage],
-					initial: CONFIG.Tribe8.armorCoverage[0],
+					choices: [...Tribe8.armorCoverage],
+					initial: Tribe8.armorCoverage[0],
 					hint: "tribe8.item.armor.coverage.hint"
 				}),
 				{
@@ -39,8 +40,8 @@ export class Tribe8ArmorModel extends Tribe8GearModel {
 			}),
 			conceal: new fields.StringField({
 				required: true,
-				initial: CONFIG.Tribe8.armorConcealable[0],
-				choices: [...CONFIG.Tribe8.armorConcealable],
+				initial: Tribe8.armorConcealable[0],
+				choices: [...Tribe8.armorConcealable],
 				blank: false,
 				hint: "tribe8.item.armor.conceal.hint"
 			}),
