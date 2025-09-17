@@ -495,7 +495,7 @@ div.dice-roll .dice-formula.unskilled {
 		flex-flow: column;
 		height: 100%;
 		overflow-y: auto;
-		overflow-x: auto;
+		overflow-x: clip;
 		gap: 0.5rem;
 	}
 	div.character-sheet div.middle-column {
@@ -720,10 +720,10 @@ div.dice-roll .dice-formula.unskilled {
 			box-sizing: content-box;
 		}
 		div.aspect  {
-			display: flex;
-			flex-flow: row;
 			gap: 0.4rem;
 			justify-content: space-between;
+			display: grid;
+			grid-template-columns: 1fr 1.4rem 3rem;
 		}
 		div.totem {
 			display: grid;

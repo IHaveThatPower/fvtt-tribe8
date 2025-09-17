@@ -40,6 +40,6 @@ export class Tribe8AspectModel extends Tribe8ItemModel {
 	 */
 	get intrinsicCost() {
 		if (this.granted) return 0;
-		return super.intrinsicCost();
+		return super.intrinsicCost;
 	}
 }

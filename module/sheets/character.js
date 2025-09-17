@@ -141,10 +141,10 @@ export class Tribe8CharacterSheet extends Tribe8Application(ActorSheetV2) {
 					context[collectionName][item.id] = item;
 
 					// Track Synthesis and Ritual, specifically
-					if (Tribe8.slugify(item.system.name) == Tribe8.slugify(game.i18n.localize("tribe8.item.skills.names.synthesis"))) {
+					if (Tribe8.slugify(item.system.name) == Tribe8.slugify(game.i18n.localize("tribe8.item.skill.names.synthesis"))) {
 						context.magic.synthesisSkill = item;
 					}
-					if (Tribe8.slugify(item.system.name) == Tribe8.slugify(game.i18n.localize("tribe8.item.skills.names.ritual"))) {
+					if (Tribe8.slugify(item.system.name) == Tribe8.slugify(game.i18n.localize("tribe8.item.skill.names.ritual"))) {
 						context.magic.ritualSkill = item;
 					}
 					break;

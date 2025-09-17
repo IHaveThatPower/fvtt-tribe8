@@ -6,7 +6,7 @@
 		"Item": {
 			"item": "Generic Item",
 			"skill": "Skill",
-			"skill-plural": "SkillS",
+			"skill-plural": "Skills",
 			"specialization": "Specialization",
 			"specialization-plural": "Specializations",
 			"perk": "Perk",
@@ -233,6 +233,7 @@
 				"threshold.hint": "Synthesis roll Threshold required to use this Aspect successfully. If the Threshold varies, leave blank.",
 				"granted.hint": "Whether or not this Aspect was granted for free by the Weaver",
 				"points.hint": "The type of points used to pay for the Aspect.",
+				"ritual.short": "Ritual",
 				"ritual.hint": "Whether or not this is a Ritual based on an Aspect."
 			},
 			"eminence": {

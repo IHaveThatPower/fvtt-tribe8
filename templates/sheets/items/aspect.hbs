@@ -21,7 +21,7 @@
 		</div>
 		<div class="granted cost-field cost-field-checkbox">
 			<input type="checkbox" name="system.ritual" value=true{{#if document.system.ritual}} checked{{/if}} title="{{localize "tribe8.item.aspect.ritual.hint"}}" />
-			<label for="system.ritual" title="Check if this is a Ritual Aspect instead of a Synthesis Aspect">{{localize "TYPES.Item.ritual"}}</label>
+			<label for="system.ritual" title="{{localize "tribe8.item.aspect.ritual.hint"}}">{{localize "tribe8.item.aspect.ritual.short"}}</label>
 		</div>
 	</div>
 	<div class="properties">
@@ -53,7 +53,7 @@
 			<div class="property-name">{{localize "tribe8.item.aspect.opposedBy.short"}}</div>
 			<div class="property-input">
 				<span class="input-sizer" data-value="{{document.system.opposedBy}}">
-					<input type="text" name="system.opposedBy" value="{{ document.system.opposedBy }}" title="{{localize "tribe8.item.aspect.opposedBy.hint"}}" placeholder="WIL" size=2 />
+					<input type="text" name="system.opposedBy" value="{{ document.system.opposedBy }}" title="{{localize "tribe8.item.aspect.opposedBy.hint"}}" placeholder="{{localize "tribe8.actor.character.attributes.primary.wil.short"}}" size=2 />
 				</span>
 			</div>
 		</div>
