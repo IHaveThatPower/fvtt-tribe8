@@ -74,6 +74,8 @@
 					"secondary": {
 						"name.singular": "Secondary Attribute",
 						"name.plural": "Secondary Attributes",
+						"name.short.singular": "Secondary",
+						"name.short.plural": "Secondaries",
 						"physical": {
 							"str.short": "STR",
 							"str.full": "Strength",
@@ -140,7 +142,7 @@
 					"long": "Emergency Dice",
 					"total": "Total",
 					"fromXP": "From XP",
-					"other": "Other",
+					"other": "Non-XP",
 					"hint": "Number of bonus EDie available, beyond unspent XP",
 					"spend": "SPEND an E-Die on this skill. It will be removed from the character's general E-Die pool, if available, or spend from available XP if not.",
 					"unspend": "Remove SPENT E-Die. It will be added back to the character's general E-Die pool",
@@ -163,9 +165,11 @@
 				},
 				"magic.header": "Magic",
 				"tabs": {
-					"main": "Traits",
+					"skills": "Skills",
 					"equipment": "Gear",
-					"combat": "Combat"
+					"abilities": "Abilities",
+					"combat": "Combat",
+					"effects": "Effects"
 				},
 				"contextMenu": {
 					"show-artwork": "Show Character Artwork",

@@ -1,0 +1,37 @@
+<div class="gear-list weapons-list">
+	<h2><span>{{localize "TYPES.Item.weapon-plural"}}</span><button name="add-weapon" data-action="addNewItem" type="button"><i class="fa fa-solid fa-plus"></i></button></h2>
+	<div class="gear-item-row gear-list-header">
+		<div {{gearSortControls column="identity" section="weapons" sorting=sorting}}>
+			<div class="name">{{localize "tribe8.item.name"}}</div>
+		</div>
+		<div {{gearSortControls column="qty" section="weapons" sorting=sorting}}>
+			<span title="{{localize "tribe8.item.gear.qty.full"}}">{{localize "tribe8.item.gear.qty.short"}}</span>
+		</div>
+		<div {{gearSortControls column="weight" section="weapons" sorting=sorting}}>
+			<span title="{{localize "tribe8.item.gear.weight.full"}}"><i class="fa fa-solid fa-weight-hanging"></i></span>
+		</div>
+		<div {{gearSortControls column="total-weight" section="weapons" sorting=sorting}}>
+			<span title="{{localize "tribe8.item.gear.totalWeight.full"}}">&Sigma;<i class="fa fa-solid fa-weight-hanging"></i></span>
+		</div>
+		<div {{gearSortControls column="value" section="weapons" sorting=sorting}}>
+			<span title="{{localize "tribe8.item.gear.value.full"}}">{{localize "tribe8.item.gear.value.short"}}</span>
+		</div>
+		<div {{gearSortControls column="complexity" section="weapons" sorting=sorting}}>
+			<span title="{{localize "tribe8.item.complexity.full"}}">{{localize "tribe8.item.complexity.short"}}</span>
+		</div>
+		<div {{gearSortControls column="carried" section="weapons" sorting=sorting}}>
+			<span title="{{localize "tribe8.item.gear.carried.full"}}"><i class="fa fa-solid fa-suitcase"></i></span>
+		</div>
+		<div {{gearSortControls column="equipped" section="weapons" sorting=sorting}}>
+			<span title="{{localize "tribe8.item.gear.equipped.full"}}"><i class="fa fa-solid fa-hand"></i></span>
+		</div>
+	</div>
+	{{#each weapons.sortedIDs as |weaponID|}}
+	{{#with (lookup ../weapons weaponID)}}
+	{{> "systems/tribe8/templates/sheets/actors/partials/weapon.hbs"}}
+	{{/with}}
+	{{/each}}
+	{{#if (not weapons.sortedIDs.length)}}
+	<em>{{localize "tribe8.none"}}</em>
+	{{/if}}
+</div>

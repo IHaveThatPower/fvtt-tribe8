@@ -187,6 +187,20 @@ Handlebars.registerHelper('setVar',
 	}
 );
 
+Handlebars.registerHelper('hasKey',
+	/**
+	 * Check if a key exists in a supplied object
+	 *
+	 * @param  {object} object    The object to be checked
+	 * @param  {string} key       The key to look for in the object
+	 * @param  {object} options   Handlebars options object
+	 * @return {bool}
+	 */
+	function (object, key, options) {
+		return Object.hasOwn(object, key);
+	}
+);
+
 Handlebars.registerHelper('gearSortControls',
 	/**
 	 * Generate class and dataset properties for a header row on the
@@ -222,11 +236,13 @@ Handlebars.registerHelper('gearSortControls',
 // Load supplemental templates
 foundry.applications.handlebars.loadTemplates(
 	[
-		// Character sheet parts
-		"sheets/actors/partials/armor.hbs",
+		// Character sheet widgets
+		"sheets/actors/partials/toggle.hbs",
+		// Character sheet common layout parts
 		"sheets/actors/partials/attributes.hbs",
+		"sheets/actors/partials/secatts.hbs",
 		"sheets/actors/partials/basic_info.hbs",
-		"sheets/actors/partials/gear.hbs",
+		"sheets/actors/partials/edie.hbs",
 		"sheets/actors/partials/injuries.hbs",
 		"sheets/actors/partials/magic.hbs",
 		"sheets/actors/partials/magic_aspects.hbs",
@@ -234,9 +250,23 @@ foundry.applications.handlebars.loadTemplates(
 		"sheets/actors/partials/pf.hbs",
 		"sheets/actors/partials/points.hbs",
 		"sheets/actors/partials/portrait.hbs",
+		"sheets/actors/partials/shock.hbs",
 		"sheets/actors/partials/skills.hbs",
-		"sheets/actors/partials/toggle.hbs",
+		// Gear tab
+		"sheets/actors/partials/armor.hbs",
 		"sheets/actors/partials/weapon.hbs",
+		"sheets/actors/partials/gear.hbs",
+		"sheets/actors/partials/weapons-list.hbs",
+		"sheets/actors/partials/armor-list.hbs",
+		"sheets/actors/partials/gear-list.hbs",
+		"sheets/actors/partials/load-slider.hbs",
+		// Combat tab
+		"sheets/actors/partials/combat_attack-summary.hbs",
+		"sheets/actors/partials/combat_skills.hbs",
+		"sheets/actors/partials/combat_weapons.hbs",
+		"sheets/actors/partials/combat_maneuvers.hbs",
+		"sheets/actors/partials/combat_situational.hbs",
+		"sheets/actors/partials/combat_armor.hbs",
 
 		// Shared Item sheet parts
 		"sheets/items/partials/gearCommonProperties.hbs",

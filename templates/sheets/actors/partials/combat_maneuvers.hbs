@@ -1,0 +1,68 @@
+<div class="combat-pane maneuvers">
+	<h2><span>{{localize "TYPES.Item.maneuver-plural"}}</span><button name="add-maneuver" data-action="addNewItem" type="button"><i class="fa fa-solid fa-plus"></i></button></h2>
+	{{#if sortedManeuvers}}
+	{{> "systems/tribe8/templates/sheets/actors/partials/toggle.hbs" toggleRight=sorting.sort-maneuvers action="sort-maneuvers" leftName="Name" rightName="Cpx"}}
+	<div class="maneuver header">
+		<div class="identity points-type">{{localize "tribe8.item.maneuver.table-header"}}</div>
+		<div class="complexity points-type">{{localize "tribe8.item.complexity.short"}}</div>
+		<div class="cost points-type">{{localize "tribe8.item.cost.short"}}</div>
+		<div></div>
+	</div>
+	{{else}}
+	<em>None</em>
+	{{/if}}
+	{{#each sortedManeuvers.sortedIDs as |maneuverId|}}
+	{{#with (lookup ../sortedManeuvers maneuverId)}}
+	{{setVar "maneuverEligible" (or
+		(eq @root.combatData.useCombatSkill system.skill)
+		(and
+			system.free
+			(ifIn system.allowedTypes (lookup (lookup (lookup ../../skills @root.combatData.useCombatSkill) "system") "combatCategory"))
+		)
+	)}}
+	<div class="maneuver draggable{{#if (and (not this.usesPoints) this.system.fromCpx)}} from-cpx{{/if}}{{#if this.system.granted}} granted{{/if}}{{#if (not @root.maneuverEligible)}} disabled{{/if}}" data-item-id="{{this.id}}">
+		<input type="checkbox" value="{{id}}"
+			name="combatData.useManeuver[{{id}}]"
+			data-action="combatCalculator"
+			{{#if (not @root.maneuverEligible)}}
+			disabled
+			{{else}}
+			{{#if (lookup @root.combatData.useManeuver id)}} checked{{/if}}
+			{{/if}}
+		/>
+		<div class="identity" data-action="editItem">
+			<div class="name">{{name}}</div>
+			<div class="specific">(
+				{{~#if system.free~}}
+				{{~localize "tribe8.item.maneuver.complexity.free" types=system.allowedTypes~}}
+				{{~else~}}
+					{{~#with (lookup ../../skills this.system.skill)~}}
+						{{~#if name~}}
+							{{~name~}}
+						{{~else~}}
+							{{~localize "tribe8.errors.maneuver-missing-skill"~}}
+						{{~/if~}}
+					{{~/with~}}
+				{{~/if~}}
+			)</div>
+		</div>
+		<div class="complexity">{{#if this.system.free}}1*{{else}}{{this.system.complexity}}{{/if}}</div>
+		<div class="cost">
+			{{#if (and (not this.usesPoints) this.system.fromCpx)}}
+			C
+			{{else}}
+				{{#if this.system.granted}}
+				W
+				{{else}}
+					{{#if this.system.free}}
+					F
+					{{else}}
+					{{this.system.complexity}} {{this.system.points}}{{#if (and this.system.fromCpx this.usesPoints)}}*{{/if}}
+					{{/if}}
+				{{/if}}
+			{{/if}}
+		</div>
+	</div>
+	{{/with}}
+	{{/each}}
+</div>

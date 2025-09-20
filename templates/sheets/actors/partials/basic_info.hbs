@@ -1,18 +1,14 @@
 <div class="character-basics">
 	<div class="name field">
-		<label for="name">{{localize "tribe8.actor.character.name.field"}}</label>
-		<input type="text" name="name" value="{{document.name}}" />
+		<input type="text" name="name" value="{{document.name}}" title="{{localize "tribe8.actor.character.name.field"}}" placeholder="{{localize "tribe8.actor.character.name.field"}}" size=10 />
 	</div>
-	<div class="player field">
-		<label for="player">{{localize "tribe8.actor.character.player.field"}}</label>
-		<input type="text" name="player" readonly value="{{#if playerName}}{{playerName}}{{else}}NPC{{/if}}" />
-	</div>
+	<!--
 	<div class="tribe field">
-		<label for="tribe">{{localize "tribe8.actor.character.tribe.field"}}</label>
-		<input type="text" name="system.tribe" value="{{document.system.tribe}}" title="{{localize "tribe8.actor.character.tribe.hint"}}" />
+		<input type="text" name="system.tribe" value="{{document.system.tribe}}" title="{{localize "tribe8.actor.character.tribe.hint"}}" placeholder="{{localize "tribe8.actor.character.tribe.field"}}" />
 	</div>
 	<div class="role field">
-		<label for="document.system.role">{{localize "tribe8.actor.character.role.field"}}</label>
-		<input type="text" name="system.role" value="{{document.system.role}}" title="{{localize "tribe8.actor.character.role.hint"}}" />
+		<input type="text" name="system.role" value="{{document.system.role}}" title="{{localize "tribe8.actor.character.role.hint"}}" placeholder="{{localize "tribe8.actor.character.role.field"}}" />
 	</div>
+	-->
+	<div class="player field">{{#if playerName}}{{playerName}}{{else}}NPC{{/if}}</div>
 </div>

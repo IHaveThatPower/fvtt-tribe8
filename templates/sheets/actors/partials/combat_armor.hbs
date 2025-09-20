@@ -1,0 +1,47 @@
+<div class="combat-pane armor">
+	<h2>
+		<span>{{localize "TYPES.Item.armor-plural"}}</span>
+		<span>({{localize "tribe8.item.armor.enc.summary" enc=document.system.encumbrance}})</span>
+		<button name="add-armor" data-action="addNewItem" type="button"><i class="fa fa-solid fa-plus"></i></button>
+		<span>/ Thresholds</span>
+	</h2>
+	<ul>
+		<li class="header">
+			<div class="identity">
+				<div class="name">{{localize "tribe8.actor.character.combat.armor.header.name"}}</div>
+			</div>
+			<div class="ar">{{localize "tribe8.item.armor.ar.short"}}</div>
+			<div class="threshold-fw">{{localize "tribe8.actor.character.attributes.secondary.physical.thresholds.flesh.short"}}</div>
+			<div class="threshold-dw">{{localize "tribe8.actor.character.attributes.secondary.physical.thresholds.deep.short"}}</div>
+			<div class="threshold-id">{{localize "tribe8.actor.character.attributes.secondary.physical.thresholds.death.short"}}</div>
+			<div class="enc">{{localize "tribe8.item.armor.enc.short"}}</div>
+		</li>
+	{{#each armor.sortedIDs as |armorId|}}
+	{{#with (lookup ../armor armorId)}}
+	{{#if system.equipped}}
+		<li data-item-id="{{id}}">
+			<div class="identity" data-action="editItem">
+				<div class="name">{{name}}</div>
+				<div class="specific">({{#if system.coverage}}{{system.coverage}}{{else}}<em>coverage missing</em>{{/if}})</div>
+			</div>
+			<div class="ar">{{#if system.ar}}{{system.ar}}{{else}}0{{/if}}</div>
+			<div class="threshold-fw">{{add @root.document.system.attributes.secondary.physical.thresholds.flesh.value system.ar}}</div>
+			<div class="threshold-dw">{{add @root.document.system.attributes.secondary.physical.thresholds.deep.value system.ar}}</div>
+			<div class="threshold-id">{{add @root.document.system.attributes.secondary.physical.thresholds.death.value system.ar}}</div>
+			<div class="enc">{{#if system.partial}}*{{else}}{{system.enc}}{{/if}}</div>
+		</li>
+	{{/if}}
+	{{/with}}
+	{{/each}}
+		<li>
+			<div class="identity">
+				<div class="name">{{localize "tribe8.item.armor.unarmored"}}</div>
+			</div>
+			<div class="ar">&mdash;</div>
+			<div class="threshold-fw">{{@root.document.system.attributes.secondary.physical.thresholds.flesh.value}}</div>
+			<div class="threshold-dw">{{@root.document.system.attributes.secondary.physical.thresholds.deep.value}}</div>
+			<div class="threshold-id">{{@root.document.system.attributes.secondary.physical.thresholds.death.value}}</div>
+			<div class="enc">&mdash;</div>
+		</li>
+	</ul>
+</div>

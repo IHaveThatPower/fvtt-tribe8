@@ -1,0 +1,16 @@
+<div class="shock-container">
+	<h3><span>{{localize "tribe8.actor.character.attributes.secondary.physical.shock.full"}}</span></h3>
+	<div class="shock">
+	{{#with document.system.attributes.secondary.physical.shock as | shock |}}
+	{{#repeat shock.value false}}
+		<div class="shock-state">
+			{{~#if (gt this (sub shock.value @root.document.system.shock))~}}
+			<i class="fa fa-solid fa-skull wounded"></i>
+			{{~else~}}
+			<i class="fa fa-solid fa-heart healthy"></i>
+			{{~/if~}}
+		</div>
+	{{/repeat}}
+	{{/with}}
+	</div>
+</div>

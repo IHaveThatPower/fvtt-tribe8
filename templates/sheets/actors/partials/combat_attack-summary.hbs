@@ -1,0 +1,36 @@
+<div class="combat-pane attack-summary">
+	<h2><span>{{localize "tribe8.actor.character.combat.summary"}}</span></h2>
+	<div class="properties">
+		<div class="property initiative">
+			<div class="property-name">{{localize "tribe8.actor.character.combat.initiative.short"}}</div>
+			<div class="property-value">{{combatData.summary.initiative}}</div>
+		</div>
+		<div class="property accuracy">
+			<div class="property-name">{{localize "tribe8.item.weapon.accuracy.short"}}</div>
+			<div class="property-value">{{combatData.summary.accuracy}}</div>
+		</div>
+		<div class="property damage">
+			<div class="property-name">{{localize "tribe8.item.weapon.damage.short"}}</div>
+			<div class="property-value">{{combatData.summary.damage}}</div>
+		</div>
+		{{#ifIn (lookup (lookup (lookup weapons combatData.useWeapon) "system") "ranges") "ranged"}}
+		<div class="property fumble">
+			<div class="property-name">{{localize "tribe8.item.weapon.fumble.short"}}</div>
+			<div class="property-value">{{localize (concat "tribe8.item.weapon.fumble." combatData.summary.fumble)}}</div>
+		</div>
+		{{else}}
+		<div class="property parry">
+			<div class="property-name">{{localize "tribe8.item.weapon.parry.short"}}</div>
+			<div class="property-value">{{combatData.summary.parry}}</div>
+		</div>
+		{{/ifIn}}
+		<div class="property defense">
+			<div class="property-name">{{localize "tribe8.actor.character.combat.defense.short"}}</div>
+			<div class="property-value">{{combatData.summary.defense}}</div>
+		</div>
+		<div class="property traits">
+			<div class="property-name">{{localize "tribe8.item.weapon.traits.short"}}</div>
+			<div class="property-value">{{combatData.summary.traits}}</div>
+		</div>
+	</div>
+</div>

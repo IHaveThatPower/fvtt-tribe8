@@ -1,0 +1,10 @@
+<div class="character-sheet tab skills {{tab.cssClass}}" data-group="character" data-tab="skills">
+	<h2 class="skills">
+		<span>
+			<span class="header-label">{{localize "TYPES.Item.skill-plural"}}</span>
+			{{> "systems/tribe8/templates/sheets/actors/partials/toggle.hbs" toggleRight=sorting.sort-skills action="sort-skills" leftName=(localize "tribe8.actor.character.skills.toggle.name") rightName=(localize "tribe8.actor.character.skills.toggle.level")}}
+		</span>
+		<button name="add-skill" data-action="addNewItem" type="button"><i class="fa fa-solid fa-plus"></i></button>
+	</h2>
+	{{> "systems/tribe8/templates/sheets/actors/partials/skills.hbs"}}
+</div>

@@ -1,55 +1,50 @@
-<h2 class="skills">
-	<span>
-		<span class="header-label">{{localize "TYPES.Item.skill-plural"}}</span>
-		{{> "systems/tribe8/templates/sheets/actors/partials/toggle.hbs" toggleRight=sorting.sort-skills action="sort-skills" leftName=(localize "tribe8.actor.character.skills.toggle.name") rightName=(localize "tribe8.actor.character.skills.toggle.level")}}
-	</span>
-	<button name="add-skill" data-action="addNewItem" type="button"><i class="fa fa-solid fa-plus"></i></button>
-</h2>
-<div class="skills">
-	{{#if (not skills)}}
-	<em>{{localize "tribe8.none"}}</em>
-	{{/if}}
-	{{#each skills.sortedIDs as |skillId|}}
-	{{#with (lookup ../skills skillId)}}
-	<div class="skill" data-item-id="{{id}}" class="draggable">
-		<div class="identity" data-action="editItem">
-			<div class="name">
-				{{system.name}}
-				{{~#if (lookup @root.COMBAT_SKILLS system.combatCategory)~}}
-				<span class="combatCategory" title="{{localize (concat "tribe8.item.skill.combatCategory." (lookup @root.COMBAT_SKILLS system.combatCategory) "-hint")}}">{{system.combatCategory}}</span>
-				{{~/if}}
+<div class="skills-list-container scollable">
+	<div class="skills-list">
+		{{#if (not skills)}}
+		<em>{{localize "tribe8.none"}}</em>
+		{{/if}}
+		{{#each skills.sortedIDs as |skillId|}}
+		{{#with (lookup ../skills skillId)}}
+		<div class="skill" data-item-id="{{id}}" class="draggable">
+			<div class="identity" data-action="editItem">
+				<div class="name">
+					{{system.name}}
+					{{~#if (lookup @root.COMBAT_SKILLS system.combatCategory)~}}
+					<span class="combatCategory" title="{{localize (concat "tribe8.item.skill.combatCategory." (lookup @root.COMBAT_SKILLS system.combatCategory) "-hint")}}">{{system.combatCategory}}</span>
+					{{~/if}}
+				</div>
+				{{#if system.specify}}
+				<div class="specific">
+					({{system.specific}})
+				</div>
+				{{/if}}
 			</div>
-			{{#if system.specify}}
-			<div class="specific">
-				({{system.specific}})
+			{{#if specializations}}
+			<div class="specializations" data-action="editItem">
+				<label for="{{uuid}}.system.specializations" class="block-tab-label">{{localize "TYPES.Item.specialization-plural"}}</label>
+				<div class="specialization-list" title="{{specializations}}" name="{{uuid}}.system.specializations">{{specializations}}</div>
 			</div>
 			{{/if}}
-		</div>
-		{{#if specializations}}
-		<div class="specializations" data-action="editItem">
-			<label for="{{uuid}}.system.specializations">{{localize "TYPES.Item.specialization-plural"}}</label>
-			<div class="specialization-list" title="{{specializations}}" name="{{uuid}}.system.specializations">{{specializations}}</div>
-		</div>
-		{{/if}}
-		<div class="points-block">
-			<div class="points-type">{{localize "tribe8.item.skill.level.full"}}</div>
-			<div class="value">{{system.level}}</div>
-		</div>
-		<div class="points-block">
-			<div class="points-type">{{localize "tribe8.item.complexity.short"}}</div>
-			<div class="value">{{system.cpx}}</div>
-		</div>
-		<div class="points-block edie-block">
-			<div class="points-type">{{localize "tribe8.actor.character.edie.short"}}</div>
-			<div class="value">
-				<input type="number" value="{{system.eDieSpent}}" name="system.eDieSpent"  />
-				<div class="edie-buttons">
-					<button name="edie.inc" data-action="incrementEdie" title="{{localize "tribe8.actor.character.edie.spend"}}" type="button">+</button>
-					<button name="edie.dec" data-action="decrementEdie" title="{{localize "tribe8.actor.character.edie.unspend"}}" type="button">-</button>
+			<div class="points-block">
+				<div class="points-type block-tab-label">{{localize "tribe8.item.skill.level.full"}}</div>
+				<div class="value">{{system.level}}</div>
+			</div>
+			<div class="points-block">
+				<div class="points-type block-tab-label">{{localize "tribe8.item.complexity.short"}}</div>
+				<div class="value">{{system.cpx}}</div>
+			</div>
+			<div class="points-block edie-block">
+				<div class="points-type block-tab-label">{{localize "tribe8.actor.character.edie.short"}}</div>
+				<div class="value">
+					<input type="number" value="{{system.eDieSpent}}" name="system.eDieSpent"  />
+					<div class="edie-buttons">
+						<button name="edie.inc" data-action="incrementEdie" title="{{localize "tribe8.actor.character.edie.spend"}}" type="button">+</button>
+						<button name="edie.dec" data-action="decrementEdie" title="{{localize "tribe8.actor.character.edie.unspend"}}" type="button">-</button>
+					</div>
 				</div>
 			</div>
 		</div>
+		{{/with}}
+		{{/each}}
 	</div>
-	{{/with}}
-	{{/each}}
 </div>

@@ -1,0 +1,12 @@
+<div class="points-summary edie-summary">
+	<h3>
+		<span>{{localize "tribe8.actor.character.edie.short"}}</span>
+		<span title="{{localize "tribe8.actor.character.edie.total"}}" class="{{#if (lt document.system.edieTotal 0)}} over{{/if}}">{{document.system.edieTotal}}</span>
+	</h3>
+	<div class="attribute-set">
+		<dl class="points-list">
+			<dt class="points-type edie-other block-tab-label" title="{{localize "tribe8.actor.character.edie.hint"}}">{{localize "tribe8.actor.character.edie.other"}}</dt>
+			<dd class="detail points-value edie-other"><button name="edie.dec" data-action="decrementEdie" type="button" title="{{localize "tribe8.actor.character.edie.remove"}}">-</button><input type="number" name="system.edie" value="{{document.system.edie}}" title="{{localize "tribe8.actor.character.edie.input"}}" /><button name="edie.inc" data-action="incrementEdie" type="button" title="{{localize "tribe8.actor.character.edie.add"}}" >+</button></dd>
+		</dl>
+	</div>
+</div>

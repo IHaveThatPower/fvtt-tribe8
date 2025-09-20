@@ -1,0 +1,79 @@
+<div class="combat-pane situational">
+	<h2><span>{{localize "tribe8.actor.character.combat.modifiers"}}</span></h2>
+	<div class="properties">
+		<div class="property initiative">
+			<div class="property-name">{{localize "tribe8.actor.character.combat.initiative.short"}}</div>
+			<div class="property-value">
+				<span class="input-sizer" data-value="{{#if combatData.modifier.initiative}}{{combatData.modifier.initiative}}{{else}}0{{/if}}">
+					<input type="text" name="combatData.modifier.initiative" value="{{#if combatData.modifier.initiative}}{{combatData.modifier.initiative}}{{/if}}" placeholder="0" size=1  />
+				</span>
+			</div>
+		</div>
+		<div class="property accuracy">
+			<div class="property-name">{{localize "tribe8.item.weapon.accuracy.short"}}</div>
+			<div class="property-value">
+				<span class="input-sizer" data-value="{{#if combatData.modifier.accuracy}}{{combatData.modifier.accuracy}}{{else}}0{{/if}}">
+					<input type="text" name="combatData.modifier.accuracy" value="{{#if combatData.modifier.accuracy}}{{combatData.modifier.accuracy}}{{/if}}" placeholder="0" size=1  />
+				</span>
+			</div>
+		</div>
+		<div class="property range">
+			<div class="property-name">{{localize "tribe8.item.weapon.ranges.short"}}</div>
+			<div class="property-value">
+				<select name="combatData.modifier.range">
+					{{#with (lookup weapons combatData.useWeapon) as |weapon|}}
+						{{#with (lookup (lookup weapon "system") "ranges") as |ranges|}}
+							{{#ifIn ranges "close"}}
+								<option value="close">{{localize "tribe8.item.weapon.ranges.close.full"}}</option>
+							{{/ifIn}}
+							{{#if (or (ifIn ranges "ranged") (ifIn ranges "throw"))}}
+								{{#each @root.rangeBands}}
+									<option value="{{this}}"{{#if (or (eq @root.combatData.modifier.range this) (and (not @root.combatData.modifier.range) (eq this "short")))}} selected{{/if}}>{{localize (concat "tribe8.item.weapon.rangeBands." this "-with-distance") distance=(mult @root.combatData.weaponBaseRange @index)}}</option>
+								{{/each}}
+							{{/if}}
+						{{/with}}
+					{{/with}}
+				</select>
+			</div>
+		</div>
+		<div class="property damage">
+			<div class="property-name">{{localize "tribe8.item.weapon.damage.short"}}</div>
+			<div class="property-value">
+				<span class="input-sizer" data-value="{{#if combatData.modifier.damage}}{{combatData.modifier.damage}}{{else}}0{{/if}}">
+					<input type="text" name="combatData.modifier.damage" value="{{#if combatData.modifier.damage}}{{combatData.modifier.damage}}{{/if}}" placeholder="0" size=1  />
+				</span>
+			</div>
+		</div>
+		{{#ifIn (lookup (lookup (lookup weapons combatData.useWeapon) "system") "ranges") "ranged"}}
+		<div class="property fumble">
+			<div class="property-name">{{localize "tribe8.item.weapon.fumble.short"}}</div>
+			<div class="property-value">
+				<select name="combatData.modifier.fumble">
+					<option value=""></option>
+					{{#each @root.fumble}}
+					<option value="{{this}}"{{#if (eq @root.combatData.modifier.fumble this)}} selected{{/if}}>{{localize (concat "tribe8.item.weapon.fumble." this)}}</option>
+					{{/each}}
+				</select>
+			</select>
+			</div>
+		</div>
+		{{else}}
+		<div class="property parry">
+			<div class="property-name">{{localize "tribe8.item.weapon.parry.short"}}</div>
+			<div class="property-value">
+				<span class="input-sizer" data-value="{{#if combatData.modifier.parry}}{{combatData.modifier.parry}}{{else}}0{{/if}}">
+					<input type="text" name="combatData.modifier.parry" value="{{#if combatData.modifier.parry}}{{combatData.modifier.parry}}{{/if}}" placeholder="0" size=1  />
+				</span>
+			</div>
+		</div>
+		{{/ifIn}}
+		<div class="property defense">
+			<div class="property-name">{{localize "tribe8.actor.character.combat.defense.short"}}</div>
+			<div class="property-value">
+				<span class="input-sizer" data-value="{{#if combatData.modifier.defense}}{{combatData.modifier.defense}}{{else}}0{{/if}}">
+					<input type="text" name="combatData.modifier.defense" value="{{#if combatData.modifier.defense}}{{combatData.modifier.defense}}{{/if}}" placeholder="0" size=1 />
+				</span>
+			</div>
+		</div>
+	</div>
+</div>

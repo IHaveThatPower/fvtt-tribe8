@@ -32,21 +32,27 @@ export class Tribe8CharacterSheet extends Tribe8Application(ActorSheetV2) {
 	}
 
 	static PARTS = {
-		tabs: { template: 'templates/generic/tab-navigation.hbs' },
-		main: { template: 'systems/tribe8/templates/sheets/actors/character_main.hbs' },
-		equipment: { template: 'systems/tribe8/templates/sheets/actors/character_equipment.hbs' },
-		combat: { template: 'systems/tribe8/templates/sheets/actors/character_combat.hbs' }
+		header:    { template: 'systems/tribe8/templates/sheets/actors/parts/header.hbs' },
+		tabs:      { template: 'templates/generic/tab-navigation.hbs' },
+		skills:    { template: 'systems/tribe8/templates/sheets/actors/parts/main.hbs' },
+		equipment: { template: 'systems/tribe8/templates/sheets/actors/parts/equipment.hbs' },
+		abilities: { template: 'systems/tribe8/templates/sheets/actors/parts/abilities.hbs' },
+		combat:    { template: 'systems/tribe8/templates/sheets/actors/parts/combat.hbs' },
+		effects:   { template: 'systems/tribe8/templates/sheets/actors/parts/effects.hbs' },
+		footer:    { template: 'systems/tribe8/templates/sheets/actors/parts/footer.hbs' }
 	}
 
 	static TABS = {
 		character: {
 			tabs: [
-				{ id: "main", },
+				{ id: "skills", },
 				{ id: "equipment", },
-				{ id: "combat", }
+				{ id: "abilities", },
+				{ id: "combat", },
+				{ id: "effects", }
 			],
 			labelPrefix: "tribe8.actor.character.tabs",
-			initial: "main"
+			initial: "skills"
 		}
 	};
 
@@ -611,12 +617,23 @@ export class Tribe8CharacterSheet extends Tribe8Application(ActorSheetV2) {
 								summaryValue[i] += damageBoost;
 								continue;
 							}
+
+							/**
+							 * If the string matches the "as X" style,
+							 * and we don't have to make a determination
+							 * of that (i.e. best/worst), we just take
+							 * what we already have.
+							 */
+							if (modifierValue[i].match(/as (attack|weapon)/i)) {
+								// TODO: (Future) Can we localize this? Or maybe make the strings a config option?
+								// Case 1: "as attack/weapon" -- no change; default
+								continue;
+							}
 						}
 						// All other formats (currently) unhandled:
-						// Case 1: "as attack/weapon" -- no change; default
 						// Case 8: "as best/as worst/special" -- unhandled
 						// "# of rounds"
-						console.log(game.i18n.format("tribe8.errors.unhandled-modifier", {'modifier': modifierValue[i]}));
+						// console.log(game.i18n.format("tribe8.errors.unhandled-modifier", {'modifier': modifierValue[i]}));
 					}
 					return summaryValue;
 				}
@@ -713,86 +730,11 @@ export class Tribe8CharacterSheet extends Tribe8Application(ActorSheetV2) {
 		this.#listeners_artwork();
 		this.#listeners_edie();
 		this.#listeners_attEditor();
-
-		// Scale System Shock icon font size based on container
-		const shockScaler = new ResizeObserver((icons) => {
-			for (const icon of icons) {
-				const baseIconHeight = icon.target.parentNode?.offsetHeight;
-				if (baseIconHeight) {
-					const height = baseIconHeight * 0.75;
-					icon.target.style.fontSize = `${height}px`;
-				}
-			}
-		});
-		this.element.querySelectorAll('div.shock-state i').forEach((i) => { shockScaler.observe(i); });
-
-		// Flip the justify-content property on headers in the Combat
-		// tab, based on which column we think they're in.
-		const that = this;
-		const headerAligner = new ResizeObserver((headers) => {
-			const sheetSize = that.element.offsetWidth;
-			for (const header of headers) {
-				const headerPos = header.target.offsetLeft / sheetSize;
-				if (headerPos > 0.15)
-					header.target.classList.add('right-column');
-				else
-					header.target.classList.remove('right-column');
-			}
-		});
-		this.element.querySelectorAll('div.combat-pane h2').forEach((h) => { headerAligner.observe(h); });
-
-		// TODO: Probably should break this out
-		// Set the size of the equipment load sliders
-		const usedLoad = this.document.system.carriedWeight / this.document.system.deadlift[0] * 100;
-		const loadThresholds = Tribe8.loadThresholds;
-		const thresholdList = Object.keys(loadThresholds);
-		for (let t = 0; t < thresholdList.length; t++) {
-			const thresholdName = loadThresholds[thresholdList[t]].descriptor;
-			const thresholdStart = Number(thresholdList[t]);
-			const thresholdEnd = (() => {
-				if (thresholdStart == 100) {
-					if (usedLoad > thresholdStart)
-						return usedLoad;
-					return thresholdStart;
-				}
-				return Number(thresholdList[t+1] ?? thresholdList[thresholdList.length - 1]);
-			})();
-			const thresholdSpan = Math.max(thresholdEnd - thresholdStart, 0)
-			let thresholdUsed = 0;
-			if (usedLoad >= thresholdEnd) thresholdUsed = 100;
-			else {
-				thresholdUsed = Math.max((usedLoad - thresholdStart) / thresholdSpan * 100, 0);
-			}
-
-			// Find the corresponding element segment
-			const segment = this.element.querySelector(`div.${thresholdName}`);
-			segment.style.flex = `1 1 ${thresholdSpan}%`;
-			const el = this.element.querySelector(`div.${thresholdName}-used`);
-			el.style.width = `${thresholdUsed}%`;
-			const elValue = this.element.querySelector(`div.load-value.${thresholdName}-threshold`);
-			elValue.style.left = `0px`;
-			// If we're on overload and exceeding it, remove the normal
-			// translate amount that keeps it "inside" the bar
-			if (thresholdStart == 100 && thresholdEnd > 100) {
-				elValue.style.transform = 'var(--threshold-translate)';
-			}
-			elValue.innerHTML = game.i18n.format(
-				`tribe8.item.gear.weight.amount`,
-				{amount: Math.round(this.document.system.deadlift[0] * thresholdStart) / 100}
-			);
-		}
-		// Position the current carried weight text
-		const loadEl = this.element.querySelector(`div.load-value.current-load`);
-		loadEl.style.left = `${Math.min(usedLoad, 100)}%`;
-		loadEl.style.right = 'unset';
-		// If we've exceeded overload, translate to stay inside the bar
-		if (usedLoad > 100) {
-			loadEl.style.transform = 'var(--threshold-translate-last)';
-		}
-
+		this.#resize_shock();
+		this.#resize_skills();
+		this.#loadbar();
 		super._onRender(context, options);
 	}
-
 
 	/**
 	 * Setup event listeners related to the display and editing of
@@ -863,8 +805,8 @@ export class Tribe8CharacterSheet extends Tribe8Application(ActorSheetV2) {
 	 * @access private
 	 */
 	#listeners_attEditor() {
-		this.element.querySelector('div.primary-attributes').addEventListener('click', (e) => {
-			if (e.target.nodeName == 'H2') return;
+		this.element.querySelector('.primary-attributes').addEventListener('click', (e) => {
+			if (!e.target.matches('.attribute-block .value')) return;
 			// Do we already have an open attribute editor for this character? If so, just focus it
 			const attEditorId = `Tribe8AttributeEditor-Actor-${this.document.id}`;
 			const attEditor = foundry.applications.instances[attEditorId];
@@ -875,6 +817,186 @@ export class Tribe8CharacterSheet extends Tribe8Application(ActorSheetV2) {
 			// Okay, make one!
 			new Tribe8AttributeEditor({id: attEditorId, document: this.document}).render({force: true});
 		});
+	}
+
+	/**
+	 * Scales System Shock icon font size based on the container size
+	 *
+	 * @return {void}
+	 * @access private
+	 */
+	#resize_shock() {
+		const shockScaler = new ResizeObserver((els) => {
+			for (const el of els) {
+				// Identify the relevant elements
+				const widgetContainer = el.target; // Presumably, .footer
+				const widget = widgetContainer.querySelector('.shock-container'); // The .shock-container widget
+				const iconContainer = widget.querySelector('.shock'); // The container for the shock icons
+
+				// How many icons do we have?
+				const numIcons = iconContainer.children?.length || 0;
+				if (!numIcons) return;
+
+				// How much vertical space do we have?
+				const availableHeight = Array.from(widget.children || []).reduce((height, el) => {
+					if (el == iconContainer) return height;
+					height -= el.offsetHeight;
+					return height;
+				}, widget.offsetHeight);
+				if (!availableHeight) return;
+
+				// Set a base height from vertical space alone
+				let height = availableHeight;
+
+				// Compute the maximum width of each Shock icon, given
+				// the space of the container
+				const containerGap = Number(window.getComputedStyle(widgetContainer).gap.replace(/[^\d\.]+/, '')) || 0;
+				const availableWidth = Math.max(
+					Array.from(widgetContainer?.children || []).reduce((width, el, idx) => {
+						if (idx != 0) width -= containerGap; // Subtract gap amount, if any, from width for each element after the first.
+						if (el == widget) return width; // Don't subtract the shock container from the used space
+						width -= el.offsetWidth;
+						return width;
+					}, widgetContainer?.offsetWidth || 0),
+					widget.offsetWidth
+				);
+
+				// If we have sane values for width and icon count,
+				// choose the lesser size between height and width
+				if (availableWidth > 0 && numIcons > 0) {
+					height = Math.min(height, availableWidth / numIcons);
+				}
+
+				// Shrink the derived dimension slightly
+				height *= 0.75;
+
+				// Set the font size of each shock icon
+				requestAnimationFrame(() => {
+					iconContainer.querySelectorAll('.shock-state i').forEach((i) => {
+						i.style.fontSize = `${height}px`;
+					});
+				});
+			}
+		});
+		this.element.querySelectorAll('.footer').forEach((i) => { shockScaler.observe(i); });
+	}
+
+	/**
+	 * Scale the size of the Skills list container based on how many
+	 * items are in it
+	 *
+	 * @return {void}
+	 * @access private
+	 */
+	#resize_skills() {
+		const skillListScaler = new ResizeObserver((entries) => {
+			for (const entry of entries) {
+				// What's our actual element?
+				const list = entry.target;
+
+				// How big's our parent container?
+				const parent = list.parentNode;
+				const parentHeight = parent.offsetHeight - 1;
+				const parentWidth = parent.offsetWidth - 1;
+
+				// Determine how many skills we contain
+				const skillsContained = list.querySelectorAll('div.skill');
+
+				// What's the height of the first one?
+				const skillHeight = skillsContained[0].offsetHeight;
+
+				// We have space for this many skills:
+				const skillSpace = Math.floor(parentHeight / skillHeight);
+
+				// If we can already fit all of them without resorting
+				// to columns, we're done
+				if (skillSpace > skillsContained.length) {
+					requestAnimationFrame(() => {
+						list.style.columnCount = '1';
+					});
+					continue;
+				}
+
+				// How much space to static-sized elements of the first
+				// one take up?
+				const staticWidths = Array.from(skillsContained[0].querySelectorAll('.points-block')).reduce((acc, el) => acc += el.offsetWidth, 0);
+
+				// If our *width* has shrunk such that the static
+				// elements in the Skill record (level, cpx, edie)
+				// take up more than 40% of the real estate, (assuming
+				// two columns) switch to single-column.
+				if (parentWidth * 0.4 < staticWidths * 2) {
+					requestAnimationFrame(() => {
+						list.style.columnCount = '1';
+					});
+					continue;
+				}
+
+				// Otherwise, two-columns
+				requestAnimationFrame(() => {
+					list.style.removeProperty('column-count');
+				});
+			}
+		});
+		skillListScaler.observe(this.element.querySelector('div.skills-list'));
+	}
+
+	/**
+	 * Setup the load meter on the gear tab and compute how much of it
+	 * has been used.
+	 *
+	 * @return {void}
+	 * @access private
+	 */
+	#loadbar() {
+		// TODO: Probably should break this out
+		// Set the size of the equipment load sliders
+		const usedLoad = this.document.system.carriedWeight / this.document.system.deadlift[0] * 100;
+		const loadThresholds = Tribe8.loadThresholds;
+		const thresholdList = Object.keys(loadThresholds);
+		for (let t = 0; t < thresholdList.length; t++) {
+			const thresholdName = loadThresholds[thresholdList[t]].descriptor;
+			const thresholdStart = Number(thresholdList[t]);
+			const thresholdEnd = (() => {
+				if (thresholdStart == 100) {
+					if (usedLoad > thresholdStart)
+						return usedLoad;
+					return thresholdStart;
+				}
+				return Number(thresholdList[t+1] ?? thresholdList[thresholdList.length - 1]);
+			})();
+			const thresholdSpan = Math.max(thresholdEnd - thresholdStart, 0)
+			let thresholdUsed = 0;
+			if (usedLoad >= thresholdEnd) thresholdUsed = 100;
+			else {
+				thresholdUsed = Math.max((usedLoad - thresholdStart) / thresholdSpan * 100, 0);
+			}
+
+			// Find the corresponding element segment
+			const segment = this.element.querySelector(`div.${thresholdName}`);
+			segment.style.flex = `1 1 ${thresholdSpan}%`;
+			const el = this.element.querySelector(`div.${thresholdName}-used`);
+			el.style.width = `${thresholdUsed}%`;
+			const elValue = this.element.querySelector(`div.load-value.${thresholdName}-threshold`);
+			elValue.style.left = `0px`;
+			// If we're on overload and exceeding it, remove the normal
+			// translate amount that keeps it "inside" the bar
+			if (thresholdStart == 100 && thresholdEnd > 100) {
+				elValue.style.transform = 'var(--threshold-translate)';
+			}
+			elValue.innerHTML = game.i18n.format(
+				`tribe8.item.gear.weight.amount`,
+				{amount: Math.round(this.document.system.deadlift[0] * thresholdStart) / 100}
+			);
+		}
+		// Position the current carried weight text
+		const loadEl = this.element.querySelector(`div.load-value.current-load`);
+		loadEl.style.left = `${Math.min(usedLoad, 100)}%`;
+		loadEl.style.right = 'unset';
+		// If we've exceeded overload, translate to stay inside the bar
+		if (usedLoad > 100) {
+			loadEl.style.transform = 'var(--threshold-translate-last)';
+		}
 	}
 
 	/**

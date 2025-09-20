@@ -1,42 +1,14 @@
 <div class="primary-attributes">
-	<h2>{{localize "tribe8.actor.character.attributes.name.plural"}}</h2>
-	{{#each document.system.attributes.primary as |data att|}}
-	<div class="attribute-block">
-		<div class="name" title="{{localize (concat "tribe8.actor.character.attributes.primary." att ".full")}}">{{localize (concat "tribe8.actor.character.attributes.primary." att ".short")}}</div>
-		<div class="value">{{data.value}}</div>
-	</div>
-	{{#if (eq @index 4)}}
-	<hr />
-	{{/if}}
-	{{/each}}
-</div>
-<div class="secondary-attributes">
-	<h3>{{localize "tribe8.actor.character.attributes.secondary.name.plural"}}</h3>
-	{{#each document.system.attributes.secondary.physical as |attribute key|}}
-	{{#if (not (or (eq key "shock") (eq key "thresholds")))}}
-	<div class="attribute-block">
-		<div class="name" title="{{localize (concat "tribe8.actor.character.attributes.secondary.physical." key ".full")}}">{{localize (concat "tribe8.actor.character.attributes.secondary.physical." key ".short")}}</div>
-		<div class="value">{{this.value}}</div>
-	</div>
-	{{/if}}
-	{{/each}}
-	<h3>
-		<span>{{localize "tribe8.actor.character.movement.name"}}</span>
-		<span>
-			{{~#if document.movementReduction.injury~}}
-			<i class="fa fa-solid fa-droplet"></i>
-			{{~/if~}}
-			{{~#if document.movementReduction.load~}}
-			<i class="fa fa-solid fa-weight-hanging"></i>
-			{{~/if~}}
-		</span>
-	</h3>
-	<div class="move-rates">
-	{{#each document.system.movement}}
-		<div class="attribute-block move-rate">
-			<div class="name" title="{{localize (concat "tribe8.actor.character.movement." @key ".full")}}">{{localize (concat "tribe8.actor.character.movement." @key ".short")}}</div>
-			<div class="value">{{#if (eq this 0)}}<i class="fa fa-solid fa-xmark"></i>{{else}}{{this}}m{{/if}}</div>
+	<h3>{{localize "tribe8.actor.character.attributes.name.plural"}}</h3>
+	<div class="attribute-set">
+		{{#each document.system.attributes.primary as |data att|}}
+		<div class="attribute-block{{#if (eq @root.combatData.useAttribute att)}} selected{{/if}}">
+			<div class="name block-tab-label" title="{{localize (concat "tribe8.actor.character.attributes.primary." att ".full")}}" data-attribute="{{att}}" data-action="chooseAttribute">{{localize (concat "tribe8.actor.character.attributes.primary." att ".short")}}</div>
+			<div class="value">{{data.value}}</div>
 		</div>
-	{{/each}}
+		{{#if (eq @index 4)}}
+		<hr />
+		{{/if}}
+		{{/each}}
 	</div>
 </div>

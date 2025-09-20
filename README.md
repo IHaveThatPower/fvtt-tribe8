@@ -40,7 +40,6 @@ This is a rough, ever-changing list that depicts in approximate priority order w
 
 ### Short Term
 - Deal with various remaining TODO items
-- Finalize character sheet layout
 
 ### Medium Term
 - Convert flat config values to system settings
