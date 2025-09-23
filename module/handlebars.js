@@ -193,10 +193,9 @@ Handlebars.registerHelper('hasKey',
 	 *
 	 * @param  {object} object    The object to be checked
 	 * @param  {string} key       The key to look for in the object
-	 * @param  {object} options   Handlebars options object
-	 * @return {bool}
+	 * @return {bool}             Whether or not the object has the key
 	 */
-	function (object, key, options) {
+	function (object, key) {
 		return Object.hasOwn(object, key);
 	}
 );

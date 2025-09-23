@@ -84,18 +84,47 @@ export class Tribe8ManeuverSheet extends Tribe8ItemSheet {
 	 * @access protected
 	 */
 	_prepareSubmitData(event, form, formData, updateData) {
-		// TODO: This probably needs to be broken up at this point.
-		// Identify array-based form elements
-		const checkKeys = Tribe8.checkFormArrayElements(formData);
+		this.#prepareSubmit_resetSkill(formData);
+		this.#prepareSubmit_setAllowedTypes(formData);
 
-		// If N/A was selected, or the only option, drop it from internal storage
+		// Handle blanks, N/As, and plus-prefixed numbers
+		for (let field of this.constructor.COMBAT_MODIFIER_FIELDS.map((f) => `system.${f}`).concat(['system.category'])) {
+			if (Object.hasOwn(formData.object, field)) {
+				this.#prepareSubmit_handleBlanks(formData, field);
+				this.#prepareSubmit_handlePrefix(formData, field);
+			}
+		}
+		return super._prepareSubmitData(event, form, formData, updateData);
+	}
+
+	/**
+	 * If N/A was selected, or the only option, drop it from internal
+	 * storage.
+	 *
+	 * @param  {object} formData    The submitted form data
+	 * @return {void}
+	 * @access private
+	 */
+	#prepareSubmit_resetSkill(formData) {
 		if (formData.object['system.skill'] === "N/A" || formData.object['system.free']) {
 			delete formData.object['system.skill'];
 			formData.object['system.==skill'] = null;
 		}
+	}
 
-		// Extract identified array-based elements
-		let allowedTypes = {}; // Object so we can use explicit keys
+	/**
+	 * Extract the chosen "allowed types" from the submitted data, for
+	 * separate processing.
+	 *
+	 * @param  {object} formData    The submitted form data
+	 * @return {object}             An object containing the chosen allowed types
+	 * @access private
+	 */
+	#prepareSubmit_extractAllowedTypes(formData) {
+		// Identify array-based form elements
+		const checkKeys = Tribe8.checkFormArrayElements(formData);
+
+		const allowedTypes = {};
 		for (const key of checkKeys) {
 			const propertyPath = key.split(/[\][.]/).filter(p => p);
 			if ((propertyPath[0] ?? "") == 'system' && (propertyPath[1] ?? "") == 'allowedTypes' && (propertyPath[2] ?? "").length == 1) {
@@ -106,7 +135,21 @@ export class Tribe8ManeuverSheet extends Tribe8ItemSheet {
 				delete formData.object[key];
 			}
 		}
-		allowedTypes = Object.keys(allowedTypes);
+		return Object.keys(allowedTypes);
+	}
+
+	/**
+	 * If we identify "allowed types" (i.e. categories of skills this
+	 * maneuver can be used with) from the form submit, set the chosen
+	 * values as an explicit override element. Otherwise, set that
+	 * override element to null, and null out any chosen skill as well.
+	 *
+	 * @param  {object} formData    The submitted form data
+	 * @return {void}
+	 * @access private
+	 */
+	#prepareSubmit_setAllowedTypes(formData) {
+		const allowedTypes = this.#prepareSubmit_extractAllowedTypes(formData)
 		if (allowedTypes.length) {
 			formData.object['system.==allowedTypes'] = allowedTypes;
 		}
@@ -115,22 +158,36 @@ export class Tribe8ManeuverSheet extends Tribe8ItemSheet {
 			formData.object['system.skill'] = null;
 			formData.object['system.==allowedTypes'] = null;
 		}
+	}
 
-		// Handle blanks, N/As, and plus-prefixed numbers
-		for (let field of this.constructor.COMBAT_MODIFIER_FIELDS.map((f) => `system.${f}`).concat(['system.category'])) {
-			if (Object.hasOwn(formData.object, field)) {
-				const submittedValue = (formData.object[field] ?? "").trim();
-				// If the user submitted some variation of N/A or empty, null out the field
-				if (submittedValue.toUpperCase() == "N/A" || submittedValue == "") {
-					formData.object[field] = null;
-					continue;
-				}
-				// If the user submitted a number with a + in front, strip it
-				if (submittedValue[0] == "+") {
-					formData.object[field] = Number(submittedValue) || parseInt(submittedValue) || submittedValue; // Fallback to leaving it alone
-				}
-			}
+	/**
+	 * Given a submitted value, intelligently handle blank or N/A values
+	 *
+	 * @param  {object} formData    The submitted form data
+	 * @param  {string} field       The field being evaluated
+	 * @return {void}
+	 * @access private
+	 */
+	#prepareSubmit_handleBlanks(formData, field) {
+		const submittedValue = (formData.object[field] ?? "").trim();
+		// If the user submitted some variation of N/A or empty, null out the field
+		if (submittedValue.toUpperCase() == "N/A" || submittedValue == "") {
+			formData.object[field] = null;
 		}
-		return super._prepareSubmitData(event, form, formData, updateData);
+	}
+
+	/**
+	 * Handle values that are prefixed with a "+" by stripping it
+	 *
+	 * @param  {object} formData    The submitted form data
+	 * @param  {string} field       The field being evaluated
+	 * @return {void}
+	 * @access private
+	 */
+	#prepareSubmit_handlePrefix(formData, field) {
+		const submittedValue = (formData.object[field] ?? "").trim();
+		if (submittedValue[0] == "+") {
+			formData.object[field] = Number(submittedValue) || parseInt(submittedValue) || submittedValue; // Fallback to leaving it alone
+		}
 	}
 }

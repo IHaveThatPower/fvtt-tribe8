@@ -3,7 +3,7 @@ const { ActorSheetV2 } = foundry.applications.sheets;
 import { Tribe8 } from '../config.js';
 import { Tribe8Application } from '../apps/base-app.js';
 import { Tribe8AttributeEditor } from '../apps/attribute-editor.js';
-import { Tribe8WeaponModel } from '../datamodels/weapon.js'; // For #addCombatModifier
+import { CombatData } from '../utils/combat-data.js'; // For combatData
 
 export class Tribe8CharacterSheet extends Tribe8Application(ActorSheetV2) {
 	static DEFAULT_OPTIONS = {
@@ -120,8 +120,7 @@ export class Tribe8CharacterSheet extends Tribe8Application(ActorSheetV2) {
 
 		context.fumble = Tribe8.fumble;
 		context.rangeBands = Object.keys(Tribe8.rangeBands);
-		this.#prepareContext_combatData();
-		context.combatData = this.combatData;
+		context.combatData = new CombatData(this.document, this.combatData);
 
 		// Add the tabs
 		const contextWithTabs = {...context, tabs: this._prepareTabs("character")};
@@ -276,390 +275,6 @@ export class Tribe8CharacterSheet extends Tribe8Application(ActorSheetV2) {
 	}
 
 	/**
-	 * Prepare all of the data necessary to display and interact with
-	 * the Combat tab.
-	 *
-	 * @return {void}
-	 * @access private
-	 */
-	#prepareContext_combatData() {
-		// TODO: Should this whole thing (incl. #addCombatModifier) just be its own support class?
-		// Initialize the return values
-		if (!this.combatData) this.combatData = {};
-		if (!this.combatData.summary) this.combatData.summary = {};
-		this.combatData.summary.accuracy = [0];
-		this.combatData.summary.parry = [0];
-		this.combatData.summary.fumble = '';
-		this.combatData.summary.damage = [0];
-		this.combatData.summary.traits = [];
-		this.combatData.summary.initiative = 0;
-		this.combatData.summary.defense = 0;
-
-		if (this.combatData.useAttribute) {
-			for (let prop of ['initiative', 'accuracy', 'parry', 'defense']) {
-				this.combatData.summary[prop] = this.#addCombatModifier(this.combatData.summary[prop], this.document.system.attributes.primary[this.combatData.useAttribute]?.value, prop);
-			}
-		}
-		const useSkill = (this.combatData.useCombatSkill ? this.document.getEmbeddedDocument("Item", this.combatData.useCombatSkill) : {});
-		if (this.combatData.useWeapon) {
-			const weapon = this.document.getEmbeddedDocument("Item", this.combatData.useWeapon);
-			if (weapon) {
-				this.combatData.summary.accuracy = this.#addCombatModifier(this.combatData.summary.accuracy, weapon.system.accuracy, 'accuracy');
-				this.combatData.summary.parry = this.#addCombatModifier(this.combatData.summary.parry, weapon.system.parry, 'parry');
-				this.combatData.summary.damage = this.#addCombatModifier(this.combatData.summary.damage, weapon.system.damage, 'damage');
-				// Weapon Traits just get bolted onto the list.
-				const weaponTraits = weapon.system.traits.split(',');
-				this.combatData.summary.traits = this.combatData.summary.traits.concat(weaponTraits);
-				this.combatData.summary.fumble = weapon.system.fumble;
-				// Account for Complexity penalty to Acc (p. 148)
-				this.combatData.summary.accuracy = this.#addCombatModifier(
-														this.combatData.summary.accuracy,
-														Math.min(((useSkill?.system?.cpx ?? 1) - weapon.system.complexity), 0),
-														'accuracy'
-													);
-				// Account for Str penalty to all rolls (p. 148-149)
-				const strTraits = weaponTraits.filter((t) => t.trim().match(/^STR.*\d/));
-				if (strTraits.length) {
-					for (let trait of strTraits) {
-						const matchParts = trait.trim().match(/^STR[^\d]*\+?(-?\d+)/);
-						const strRequired = Number(matchParts[1]);
-						const strPenalty = Math.min(this.document.system.attributes.secondary.physical.str.value - strRequired, 0);
-						for (let prop of ['accuracy', 'parry']) {
-							this.combatData.summary[prop] = this.#addCombatModifier(this.combatData.summary[prop], strPenalty, prop);
-						}
-					}
-				}
-				// Pre-process base range, if needed
-				if (weapon.system.ranges.length > 1 || !weapon.system.ranges.includes('close')) {
-					this.combatData.weaponBaseRange = weapon.system.baseRange;
-					if (isNaN(this.combatData.weaponBaseRange)) {
-						// Extract the relevant stat
-						const matchParts = this.combatData.weaponBaseRange.match(/([A-Za-z]{3})\+?(-?\d+)/);
-						const attName = matchParts[1].toLowerCase();
-						const attr = this.document.system?.attributes?.primary[attName] ?? this.document.system?.attributes?.secondary?.physical[attName] ?? {};
-						this.combatData.weaponBaseRange = attr?.value + Number(matchParts[2]);
-					}
-				}
-			}
-			else
-				console.warn(game.i18n.format("tribe8.errors.weapon-not-found", {'weapon': this.combatData.useWeapon}));
-		}
-
-		// Factor in Specialization use
-		if (this.combatData.useSpecialization) {
-			const spec = this.document.getEmbeddedDocument("Item", this.combatData.useSpecialization);
-			if (spec && spec.system?.skill == useSkill.id) {
-				this.combatData.summary.accuracy = this.#addCombatModifier(this.combatData.summary.accuracy, 1, 'accuracy');
-				this.combatData.summary.parry = this.#addCombatModifier(this.combatData.summary.parry, 1, 'accuracy');
-			}
-		}
-
-		// Factor in Maneuvers
-		if (this.combatData.useManeuver) {
-			for (let maneuverId of Object.keys(this.combatData.useManeuver)) {
-				const maneuver = (this.document.getItems({'type': 'maneuver'}).filter((m) => m.id == maneuverId) ?? [])[0];
-				if (!maneuver) {
-					console.warn(game.i18n.format("tribe8.errors.maneuver-not-found", {'maneuver': `Maneuver.${maneuverId}`, 'actorId': `Actor.${this.document.id}`}));
-					continue;
-				}
-				/**
-				 * A Maneuver is applicable either when its associated
-				 * Skill is selected, or its a Free (Cpx 0) Maneuver and
-				 * the chosen Skill belongs to any of its allowed types.
-				 */
-				let maneuverApplies = false;
-				maneuverApplies |= (maneuver.system?.skill == useSkill.id);
-				maneuverApplies |= (maneuver.system?.complexity == 0 && maneuver.system?.allowedTypes?.includes(useSkill.system.combatCategory));
-				if (maneuverApplies) {
-					for (let maneuverProperty in maneuver.system) {
-						if (Object.hasOwn(this.combatData.summary, maneuverProperty)) {
-							this.combatData.summary[maneuverProperty] = this.#addCombatModifier(this.combatData.summary[maneuverProperty], maneuver.system[maneuverProperty], maneuverProperty);
-						}
-					}
-				}
-			}
-		}
-
-		// Factor in injuries
-		if (this.document.system.actionPenalty) {
-			for (let prop of ['accuracy', 'parry', 'initiative', 'defense']) {
-				this.combatData.summary[prop] = this.#addCombatModifier(this.combatData.summary[prop], this.document.system.actionPenalty, prop);
-			}
-		}
-
-		// Factor in situational
-		if (this.combatData.modifier) {
-			for (let modifierName in this.combatData.modifier) {
-				if (modifierName === 'range') {
-					this.combatData.summary.accuracy = this.#addCombatModifier(this.combatData.summary.accuracy, Tribe8.rangeBands[this.combatData.modifier.range], 'accuracy');
-					continue;
-				}
-				if (Object.hasOwn(this.combatData.summary, modifierName)) {
-					this.combatData.summary[modifierName] = this.#addCombatModifier(this.combatData.summary[modifierName], this.combatData.modifier[modifierName], modifierName);
-				}
-			}
-		}
-
-		// Factor in Encumbrance from Armor
-		if (this.document.system.encumbrance < 0) {
-			for (let prop of ['accuracy', 'parry', 'defense']) {
-				this.combatData.summary[prop] = this.#addCombatModifier(this.combatData.summary[prop], this.document.system.encumbrance, prop);
-			}
-		}
-
-		// If we indicated an overall damage multiplier, include that
-		if (Object.hasOwn(this.combatData.summary, 'multiplyDamage')) {
-			if (this.combatData.summary.damage instanceof Array) {
-				for (let d = 0; d < this.combatData.summary.damage.length; d++) {
-					this.combatData.summary.damage[d] = Math.round(this.combatData.summary.damage[d] * Number(this.combatData.summary.multiplyDamage));
-				}
-			}
-			else {
-				this.combatData.summary.damage = Math.round(this.combatData.summary.damage * Number(this.combatData.summary.multiplyDamage));
-			}
-		}
-
-		// Convert arrays into x/y display format
-		for (let prop in this.combatData.summary) {
-			if (this.combatData.summary[prop] instanceof Array) {
-				if (prop == 'traits')
-					this.combatData.summary[prop] = this.combatData.summary[prop].join(', ');
-				else
-					this.combatData.summary[prop] = this.combatData.summary[prop].map((p) => (p > 0 && prop != 'damage' ? `+${p}` : p)).join('/');
-			}
-			else {
-				this.combatData.summary[prop] = (!isNaN(this.combatData.summary[prop]) && Number(this.combatData.summary[prop]) > 0 && prop != 'damage' ? `+${this.combatData.summary[prop]}` : this.combatData.summary[prop]);
-			}
-		}
-	}
-
-	/**
-	 * Given an existing calculated value for a given aspect of combat
-	 * data, add the supplied modifier to it.
-	 *
-	 * @param  {Array|int} summaryValue     The running total so far
-	 * @param  {Array|int} modifierValue    The modifier to be added
-	 * @param  {string}    modifierName     The name of the modifier being added
-	 * @return {Array|int}                  The mutated total
-	 * @access private
-	 */
-	#addCombatModifier(summaryValue, modifierValue, modifierName) {
-		if (!modifierValue) return summaryValue;
-
-		// Detect whether we need to handle multiple values or not
-		const summaryIsArray = summaryValue instanceof Array;
-		// If the summary is an array, but the modifier is not (yet) an
-		// array, see if we have the forward slash delimiter
-		if (summaryIsArray && !(modifierValue instanceof Array)) {
-			if (String(modifierValue).match('/') && !String(modifierValue).match(/x\d+\/\d+/))
-				modifierValue = modifierValue.split('/');
-		}
-		const modifierIsArray = modifierValue instanceof Array;
-		const arrayHandling = summaryIsArray || modifierIsArray;
-		const arrayLength = Math.max((modifierIsArray ? modifierValue.length : 0), (summaryIsArray ? summaryValue.length : 0));
-
-		// TODO: This is obviously too long and convoluted.
-		switch (modifierName) {
-			case 'accuracy':
-			case 'parry':
-			case 'damage':
-				// All of these modifiers should use array handling,
-				// even if there are only single values within the
-				// array.
-				if (arrayHandling) {
-					// If the receiving (summary) value isn't yet of the
-					// correct length, we need to clone what's currently
-					// there.
-					if (!summaryIsArray) summaryValue = [summaryValue];
-					if (summaryValue.length < arrayLength) {
-						if (summaryValue.length > 1)
-							console.warn(game.i18n.localize("tribe8.errors.array-combat-modifier-differing-lengths"));
-						for (let i = 1; i < arrayLength; i++) {
-							summaryValue[i] = summaryValue[0];
-						}
-					}
-					// If the applying modifier value isn't yet of the
-					// correct length, we need to clone what's currently
-					// there.
-					if (!modifierIsArray) modifierValue = [modifierValue];
-					if (modifierValue.length < arrayLength) {
-						if (modifierValue.length > 1)
-							console.warn(game.i18n.localize("tribe8.errors.array-combat-modifier-differing-lengths"));
-						for (let i = 1; i < arrayLength; i++) {
-							modifierValue[i] = modifierValue[0];
-						}
-					}
-					// Now apply the modifier to the existing summary
-					for (let i = 0; i < arrayLength; i++) {
-						if (modifierValue[i] == 'N/A') continue;
-						if (modifierValue[i] === null || typeof modifierValue[i] == 'undefined')
-							continue;
-						// Simple numeric?
-						if (!isNaN(modifierValue[i]) && !isNaN(summaryValue[i])) {
-							summaryValue[i] += Number(modifierValue[i]);
-							continue;
-						}
-						// Riposte adds +CPLX to Acc
-						if (modifierValue[i] == '+CPLX') {
-							const skill = this.document.getEmbeddedDocument("Item", this.combatData.useCombatSkill);
-							if (!skill) {
-								console.warn(game.i18n.format("tribe8.errors.no-skill-for-modifier", {'skillId': `Skill.${this.combatData.useCombatSkill}`, 'actorId': `Actor.${this.document.id}`, value: `${modifierValue[i]}`}));
-								continue;
-							}
-							summaryValue[i] += Number(skill.system.cpx);
-							continue;
-						}
-						// Special cases for damage
-						if (modifierName == 'damage') {
-							// Several of the cases below will need the following
-							const prefix = Tribe8WeaponModel.extractWeaponDamagePrefix(modifierValue[i]);
-							let attValue = 0;
-							if (prefix.match(/UD/))
-								attValue = Number(this.document.system.attributes.secondary.physical.ud.value);
-							else if (prefix.match(/AD/))
-								attValue = Number(this.document.system.attributes.secondary.physical.ad.value);
-
-							/**
-							 * If we had a compound damage field that
-							 * included a special effect (e.g. an "ENT"
-							 * value for the Grapple Maneuver), pre-
-							 * split that.
-							 */
-							if (modifierValue[i].match(',')) { // e.g. "Grapple"
-								modifierValue[i] = modifierValue[i].split(',').filter((m) => !m.match(/ENT/));
-								if (modifierValue[i].length > 1) {
-									console.log(game.i18n.localize("tribe8.errors.long-damage-modifier"));
-								}
-								if (modifierValue[i].length < 1) { // e.g. "Weapon Catch", deals no damage
-									continue;
-								}
-								modifierValue[i] = modifierValue[i][0];
-							}
-
-							// BLD-based maneuvers replace any existing damage
-							if (modifierValue[i].match(/^BLD/)) {
-								// Case 2: BLD+1 (e.g. Charge)
-								// Case 9: BLDx3 (e.g. Trample)
-								const ourBuild = Number(this.document.system.attributes.primary.bld.value);
-								const matchParts = modifierValue[i].match(/^BLD([+-x/])(\d+)(\/\d+)?/);
-								let operation = matchParts[1];
-								let operand = Number(matchParts[2]);
-								// If we had a third match, we need to divided the second match by it
-								if (matchParts[3]) operand /= Number(matchParts[3]);
-								switch (operation) {
-									case '+':
-										summaryValue[i] = ourBuild + operand;
-										break;
-									case '-':
-										summaryValue[i] = ourBuild - operand;
-										break;
-									case 'x':
-										summaryValue[i] = ourBuild * operand;
-										break;
-									case '/':
-										summaryValue[i] = ourBuild / operand;
-										break;
-									default:
-										console.warn(game.i18n.format("tribe8.errors.unhandled-damage-operation", {'operation': operation}));
-									break;
-								}
-								continue;
-							}
-
-							/**
-							 * If we're globally halving or doubling
-							 * damage, we simply track that for later
-							 * multiplication.
-							 */
-							if (modifierValue[i].match(/^\s*x\d(\/\d)?/)) {
-								// Case 4: x1/2 (global halving)
-								// Case 5: x2 (global doubling)
-								let matchParts = modifierValue[i].trim().match(/x(\d)(\/(\d))?$/);
-								let multiplier = Number(matchParts[1]);
-								if (matchParts[2])
-									multiplier /= Number(matchParts[3]);
-								this.combatData.summary.multiplyDamage = multiplier;
-								continue;
-							}
-
-							// Multiplying a specific damage stat
-							if (modifierValue[i].match(/^\s*(A|U)Dx\d(\/\d)?/)) {
-								// Case 6: UDx1/2 (normal UD, halved)
-								const matchParts = modifierValue[i].match(/x(\d)(\/(\d))?/);
-								let multiplier = Number(matchParts[1]);
-								if (matchParts[2])
-									multiplier /= Number(matchParts[3]);
-								summaryValue[i] = attValue * multiplier;
-								continue;
-							}
-
-							/**
-							 * The general case for weapon damage, as
-							 * well as Maneuvers that replace the
-							 * existing damage formula with a different
-							 * value.
-							 */
-							if (prefix.length) {
-								// Case 3: AD|UD+N (replaces standard; Crush, Head-Butt, Hilt-strike)
-								const damageNoPrefix = Number(modifierValue[i].replace(prefix, ''));
-								summaryValue[i] = attValue + damageNoPrefix;
-								continue;
-							}
-
-							/**
-							 * Some maneuvers provide a flat boost to
-							 * the existing value
-							 */
-							if (modifierValue[i].match(/[+-]?\d+\s*$/)) {
-								// Case 7: "as attack"+N
-								let matchParts = modifierValue[i].trim().match(/\+?(-?\d+)$/);
-								let damageBoost = Number(matchParts[1]);
-								summaryValue[i] += damageBoost;
-								continue;
-							}
-
-							/**
-							 * If the string matches the "as X" style,
-							 * and we don't have to make a determination
-							 * of that (i.e. best/worst), we just take
-							 * what we already have.
-							 */
-							if (modifierValue[i].match(/as (attack|weapon)/i)) {
-								// TODO: (Future) Can we localize this? Or maybe make the strings a config option?
-								// Case 1: "as attack/weapon" -- no change; default
-								continue;
-							}
-						}
-						// All other formats (currently) unhandled:
-						// Case 8: "as best/as worst/special" -- unhandled
-						// "# of rounds"
-						// console.log(game.i18n.format("tribe8.errors.unhandled-modifier", {'modifier': modifierValue[i]}));
-					}
-					return summaryValue;
-				}
-				else
-					console.warn(game.i18n.format("tribe8.errors.array-modifier-not-array", {'modifier': modifierName}));
-				break;
-			case 'initiative':
-			case 'defense':
-				if (modifierValue == 'N/A' || modifierValue === null || typeof modifierValue == 'undefined')
-					return summaryValue;
-				// Simple numeric?
-				if (!isNaN(modifierValue) && !isNaN(summaryValue)) {
-					summaryValue += Number(modifierValue);
-					return summaryValue;
-				}
-				break;
-			case 'fumble':
-				return modifierValue ? modifierValue : summaryValue;
-			default:
-				console.log(`Need handler for ${modifierName}`);
-				break;
-		}
-		return summaryValue;
-	}
-
-	/**
 	 * Pre-process data for form submission. In particular:
 	 *
 	 * - Remove any tab name prefixes to form element names, which are
@@ -691,7 +306,9 @@ export class Tribe8CharacterSheet extends Tribe8Application(ActorSheetV2) {
 		}
 		// Extract combat modifiers
 		const combatModifiers = Object.fromEntries(Object.entries(formData.object).filter(([key, ]) => key.match(/^combatData\.modifier\./)).map(([key, value]) => [key.replace(/^combatData\.modifier\./, ''), value]));
-		if (!this.combatData) this.combatData = {};
+		if (!this.combatData) {
+			this.combatData = new CombatData(this.document, {});
+		}
 		// If modifiers changed, flag re-render
 		if (this.combatData.modifier != combatModifiers) {
 			this.rerenderAfterSubmit = true;
@@ -850,7 +467,7 @@ export class Tribe8CharacterSheet extends Tribe8Application(ActorSheetV2) {
 
 				// Compute the maximum width of each Shock icon, given
 				// the space of the container
-				const containerGap = Number(window.getComputedStyle(widgetContainer).gap.replace(/[^\d\.]+/, '')) || 0;
+				const containerGap = Number(window.getComputedStyle(widgetContainer).gap.replace(/[^\d.]+/, '')) || 0;
 				const availableWidth = Math.max(
 					Array.from(widgetContainer?.children || []).reduce((width, el, idx) => {
 						if (idx != 0) width -= containerGap; // Subtract gap amount, if any, from width for each element after the first.
@@ -942,51 +559,31 @@ export class Tribe8CharacterSheet extends Tribe8Application(ActorSheetV2) {
 	}
 
 	/**
-	 * Setup the load meter on the gear tab and compute how much of it
-	 * has been used.
+	 * Setup the equipment load meter on the gear tab and compute how
+	 * much of it has been used.
 	 *
 	 * @return {void}
 	 * @access private
 	 */
 	#loadbar() {
-		// TODO: Probably should break this out
-		// Set the size of the equipment load sliders
 		const usedLoad = this.document.system.carriedWeight / this.document.system.deadlift[0] * 100;
-		const loadThresholds = Tribe8.loadThresholds;
-		const thresholdList = Object.keys(loadThresholds);
-		for (let t = 0; t < thresholdList.length; t++) {
-			const thresholdName = loadThresholds[thresholdList[t]].descriptor;
-			const thresholdStart = Number(thresholdList[t]);
-			const thresholdEnd = (() => {
-				if (thresholdStart == 100) {
-					if (usedLoad > thresholdStart)
-						return usedLoad;
-					return thresholdStart;
-				}
-				return Number(thresholdList[t+1] ?? thresholdList[thresholdList.length - 1]);
-			})();
-			const thresholdSpan = Math.max(thresholdEnd - thresholdStart, 0)
-			let thresholdUsed = 0;
-			if (usedLoad >= thresholdEnd) thresholdUsed = 100;
-			else {
-				thresholdUsed = Math.max((usedLoad - thresholdStart) / thresholdSpan * 100, 0);
-			}
-
+		for (let t = 0; t < Object.keys(Tribe8.loadThresholds).length; t++) {
+			const threshold = this.#computeThresholdProperties(t, usedLoad);
 			// Find the corresponding element segment
-			const segment = this.element.querySelector(`div.${thresholdName}`);
-			segment.style.flex = `1 1 ${thresholdSpan}%`;
-			const el = this.element.querySelector(`div.${thresholdName}-used`);
-			el.style.width = `${thresholdUsed}%`;
-			const elValue = this.element.querySelector(`div.load-value.${thresholdName}-threshold`);
+			const segment = this.element.querySelector(`div.${threshold.name}`);
+			segment.style.flex = `1 1 ${threshold.span}%`;
+			const el = this.element.querySelector(`div.${threshold.name}-used`);
+			el.style.width = `${threshold.used}%`;
+			const elValue = this.element.querySelector(`div.load-value.${threshold.name}-threshold`);
 			elValue.style.left = `0px`;
 			// If we're on overload and exceeding it, remove the normal
 			// translate amount that keeps it "inside" the bar
-			if (thresholdStart == 100 && thresholdEnd > 100) {
+			if (threshold.start == 100 && threshold.end > 100) {
 				elValue.style.transform = 'var(--threshold-translate)';
 			}
 			elValue.innerHTML = game.i18n.format(
 				`tribe8.item.gear.weight.amount`,
-				{amount: Math.round(this.document.system.deadlift[0] * thresholdStart) / 100}
+				{amount: Math.round(this.document.system.deadlift[0] * threshold.start) / 100}
 			);
 		}
 		// Position the current carried weight text
@@ -997,6 +594,37 @@ export class Tribe8CharacterSheet extends Tribe8Application(ActorSheetV2) {
 		if (usedLoad > 100) {
 			loadEl.style.transform = 'var(--threshold-translate-last)';
 		}
+	}
+
+	/**
+	 * Helper method for #loadbar that computes information about the
+	 * current threshold being evaluated
+	 *
+	 * @param  {int}    t           Current threshold index being evaluated
+	 * @param  {number} usedLoad    Percentage (100-scale) of load used so far
+	 * @return {object}             Object containing relevant formatting details for the threshold
+	 * @access private
+	 */
+	#computeThresholdProperties(t, usedLoad) {
+		const threshold = {};
+		const thresholdList = Object.keys(Tribe8.loadThresholds);
+		threshold.name = Tribe8.loadThresholds[thresholdList[t]].descriptor;
+		threshold.start = Number(thresholdList[t]);
+		threshold.end = (() => {
+			if (threshold.start == 100) {
+				if (usedLoad > threshold.start)
+					return usedLoad;
+				return threshold.start;
+			}
+			return Number(thresholdList[t+1] ?? thresholdList[thresholdList.length - 1]);
+		})();
+		threshold.span = Math.max(threshold.end - threshold.start, 0)
+		threshold.used = 0;
+		if (usedLoad >= threshold.end) threshold.used = 100;
+		else {
+			threshold.used = Math.max((usedLoad - threshold.start) / threshold.span * 100, 0);
+		}
+		return threshold;
 	}
 
 	/**
@@ -1230,7 +858,7 @@ export class Tribe8CharacterSheet extends Tribe8Application(ActorSheetV2) {
 		if (this.combatData) {
 			combatData.useAttribute = this.combatData.useAttribute;
 		}
-		this.combatData = combatData;
+		this.combatData = new CombatData(this.document, combatData);
 		this.render();
 	}
 
@@ -1243,7 +871,7 @@ export class Tribe8CharacterSheet extends Tribe8Application(ActorSheetV2) {
 	 * @access public
 	 */
 	static action_chooseAttribute(event, target) {
-		if (!this.combatData) this.combatData = {};
+		if (!this.combatData) this.combatData = new CombatData(this.document, {});
 		this.combatData.useAttribute = target.dataset?.attribute;
 		this.render();
 	}

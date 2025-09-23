@@ -623,6 +623,15 @@
 			"only-delete-owned-items": "Only Items belonging to Actors can be deleted in this way.",
 			"specializations-on-characters": "Specializations can only be added to Skills belonging to a character."
 		},
+		"initiative": {
+			"base.label": "Base Roll",
+			"bonus.placeholder": "Situational bonuses?",
+			"config.label": "Configuration",
+			"manual.label": "Raw Manual Roll",
+			"manual.placeholder": "Optional: physical roll result (no mods)",
+			"manual.hint": "If desired, input the result of your physical die roll here.\nDo not include any modifiers; Foundry will add those, or use the field above.",
+			"mode.label": "Roll Mode"
+		},
 		"none": "None",
 		"no-tribe": "No Tribe specified",
 		"delete": "Delete"

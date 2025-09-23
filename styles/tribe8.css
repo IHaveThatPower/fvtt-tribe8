@@ -1673,37 +1673,44 @@ div.dice-roll .dice-formula.unskilled {
 	height: fit-content;
 	z-index: auto;
 
-	div.attribute-editor {
+	.attribute-editor {
 		display: grid;
 		grid-template-columns: repeat(5, 1fr);
-		grid-row-gap: 0.25rem;
+		grid-row-gap: var(--gap-standard);
 		height: 100%;
+		grid-column-gap: var(--gap-small);
 	}
 
-	div.attribute-block div.name {
+	.attribute-block .name {
 		flex: 0 0 fit-content;
 		font-size: 1rem;
+		border: 1px solid var(--color-light-5);
+		border-width: 1px 0 0 0;
 	}
-	div.attribute-block div.value {
+	.attribute-block .value {
 		flex: 1 0 fit-content;
 		align-content: center;
 		font-size: 1.5rem;
 	}
-	div.attribute-block div.points {
+	.attribute-block .points {
 		flex: 1 0 fit-content;
 	}
-	div.attribute-block div.points input {
+	.attribute-block .points input {
 		flex: 1 0 1.5rem;
 		font-size: 1.1rem;
+		border: none;
 	}
-	div.attribute-block div.points label {
+	.attribute-block div.points label {
 		font-size: 0.9rem;
 		font-weight: bold;
+		border: 1px solid var(--color-light-5);
+		border-width: 0 0 1px 0;
 	}
-	div.attribute-editor div.attribute-block div.value,
-	div.attribute-editor div.attribute-block:first-child div.value,
-	div.attribute-editor div.attribute-block:last-child div.value {
+	.attribute-editor .attribute-block .value,
+	.attribute-editor .attribute-block:first-child .value,
+	.attribute-editor .attribute-block:last-child .value {
 		border-radius: 0 0 0 0;
+		border: none;
 	}
 }
 
@@ -2165,8 +2172,7 @@ div.dice-roll .dice-formula.unskilled {
 		gap: 0.6rem;
 		position: relative;
 	}
-	.roll-configuration::before {
-		content: "Configuration"; /* TODO: How to localize this? */
+	.roll-configuration>label {
 		color: var(--color-medium-gray);
 		position: absolute;
 		display: block;

@@ -9,7 +9,7 @@
 		<div></div>
 	</div>
 	{{else}}
-	<em>None</em>
+	<em>{{localize "tribe8.none"}}</em>
 	{{/if}}
 	{{#each sortedManeuvers.sortedIDs as |maneuverId|}}
 	{{#with (lookup ../sortedManeuvers maneuverId)}}

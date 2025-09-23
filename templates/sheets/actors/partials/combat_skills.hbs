@@ -15,6 +15,12 @@
 	{{/if}}
 	{{/with}}
 	{{/each}}
+	<li data-item-id="{{id}}">
+		<input type="radio" name="combatData.useCombatSkill" value="" data-action="combatCalculator"{{#if (not @root.combatData.useCombatSkill)}} checked{{/if}} />
+		<div class="identity" data-action="editItem">
+			<div class="name">{{localize "tribe8.none"}}</div>
+		</div>
+	</li>
 	</ul>
 	{{else}}
 	<em>{{localize "tribe8.none"}}</em>
@@ -37,7 +43,7 @@
 				<li>
 					<input type="radio" name="combatData.useSpecialization" value="" data-action="combatCalculator"{{#if (not @root.combatData.useSpecialization)}} checked{{/if}} />
 					<div class="identity">
-						<div class="name">None</div>
+						<div class="name">{{localize "tribe8.none"}}</div>
 					</div>
 				</li>
 			</ul>

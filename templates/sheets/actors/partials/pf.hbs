@@ -3,7 +3,7 @@
 	{{#if perksAndFlaws~}}
 	<h3>{{localize "TYPES.Item.perk-plural"}}</h3>
 	{{~else~}}
-	<em>None</em>
+	<em>{{localize "tribe8.none"}}</em>
 	{{~/if}}
 	{{~#each perksAndFlaws.sortedIDs as |pfId|~}}
 		{{~#with (lookup @root.perksAndFlaws pfId)~}}

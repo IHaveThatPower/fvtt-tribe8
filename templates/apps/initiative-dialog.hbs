@@ -1,19 +1,19 @@
 <form>
 	<div class="form-group formula">
-		<label>Base Roll</label>
+		<label>{{localize "tribe8.initiative.base.label"}}</label>
 		<input type="text" name="formula" value="{{formula}}" disabled>
 	</div>
 	<div class="form-group bonus">
-		<input type="text" name="bonus" value="" placeholder="Situational bonuses?" />
+		<input type="text" name="bonus" value="" placeholder="{{localize "tribe8.initiative.bonus.placeholder"}}" />
 	</div>
 	<div class="roll-configuration">
+		<label>{{localize "tribe8.initiative.config.label"}}</label>
 		<div class="form-group manual">
-			<label>Raw Manual Roll</label>
-			<input type="number" name="manual" placeholder="Optional: physical roll result (no mods)" title="If desired, input the result of your physical die roll here.
-	Do not include any modifiers; Foundry will add those, or use the field above.">
+			<label for="manual">{{localize "tribe8.initiative.manual.label"}}</label>
+			<input type="number" name="manual" placeholder="{{localize "tribe8.initiative.manual.placeholder"}}" title="{{localize "tribe8.initiative.manual.hint"}}">
 		</div>
 		<div class="form-group mode">
-			<label>Roll Mode</label>
+			<label for="rollMode">{{localize "tribe8.initiative.mode.label"}}</label>
 			<select name="rollMode">
 				{{#each rollModes}}
 				<option value="{{@key}}"{{#if (eq @key currentRollMode)}} selected{{/if}}>{{localize this.label}}</option>

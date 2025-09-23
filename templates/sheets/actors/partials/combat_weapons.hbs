@@ -15,8 +15,14 @@
 	{{/if}}
 	{{/with}}
 	{{/each}}
+	<li data-item-id="{{id}}">
+		<input type="radio" name="combatData.useWeapon" value="" data-action="combatCalculator"{{#if (not @root.combatData.useWeapon)}} checked{{/if}} />
+		<div class="identity" data-action="editItem">
+			<div class="name">{{localize "tribe8.none"}}</div>
+		</div>
+	</li>
 	</ul>
 	{{else}}
-	<em>None</em>
+	<em>{{localize "tribe8.none"}}</em>
 	{{/if}}
 </div>
