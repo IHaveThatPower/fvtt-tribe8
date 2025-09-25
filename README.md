@@ -39,10 +39,12 @@ At present, no stock Items (i.e. Skills, Perks, Flaws, Combat Maneuvers, Aspects
 This is a rough, ever-changing list that depicts in approximate priority order what's on the list of yet-to-be-implemented features.
 
 ### Short Term
+- Make on-sheet Skill Edie show difference between total and current amount spent
 - Convert flat config values to system settings
   - e.g. Make starting CP a system setting for the GM
 - Allow GMs to edit a character's initial CP
 - Convert certain calculations into effects (e.g. injury and load penalties)
+- Points ledger
 
 ### Medium Term
 - Some way to trade attribute points (i.e. PSY for other attributes)

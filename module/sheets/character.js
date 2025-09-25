@@ -379,6 +379,10 @@ export class Tribe8CharacterSheet extends Tribe8Application(ActorSheetV2) {
 	 */
 	#listeners_edie() {
 		this.element.querySelectorAll('div.edie-block div.value input[type=number]').forEach((i) => {
+			i.addEventListener('change', (e) => {
+				e.preventDefault();
+				e.stopPropagation();
+			});
 			i.addEventListener('keyup', (e) => {
 				if (!e.target) return;
 
@@ -390,7 +394,7 @@ export class Tribe8CharacterSheet extends Tribe8Application(ActorSheetV2) {
 
 				// Get the current and previous value
 				const newValue = e.target.value;
-				const oldValue = this.eDieSpent;
+				const oldValue = skill.system.eDieSpent;
 				let delta = newValue - oldValue;
 				if (!delta || (delta < 0 && oldValue == 0)) { // Might be NaN, or 0, in which case we don't want to muck anything up
 					e.target.value = oldValue;
@@ -443,15 +447,16 @@ export class Tribe8CharacterSheet extends Tribe8Application(ActorSheetV2) {
 	 * @access private
 	 */
 	#resize_shock() {
+		// Identify the relevant elements
+		const widgetContainer = this.element.querySelector('.footer');
+		const widget = widgetContainer.querySelector('.shock-container'); // The .shock-container widget
+		const iconContainer = widget.querySelector('.shock'); // The container for the shock icons
+		const numIcons = iconContainer.children?.length || 0;
+		const containerGap = Number(window.getComputedStyle(widgetContainer).gap.replace(/[^\d.]+/, '')) || 0;
+
 		const shockScaler = new ResizeObserver((els) => {
 			for (const el of els) {
-				// Identify the relevant elements
-				const widgetContainer = el.target; // Presumably, .footer
-				const widget = widgetContainer.querySelector('.shock-container'); // The .shock-container widget
-				const iconContainer = widget.querySelector('.shock'); // The container for the shock icons
-
-				// How many icons do we have?
-				const numIcons = iconContainer.children?.length || 0;
+				if (el.target != widgetContainer) return;
 				if (!numIcons) return;
 
 				// How much vertical space do we have?
@@ -467,14 +472,13 @@ export class Tribe8CharacterSheet extends Tribe8Application(ActorSheetV2) {
 
 				// Compute the maximum width of each Shock icon, given
 				// the space of the container
-				const containerGap = Number(window.getComputedStyle(widgetContainer).gap.replace(/[^\d.]+/, '')) || 0;
 				const availableWidth = Math.max(
 					Array.from(widgetContainer?.children || []).reduce((width, el, idx) => {
 						if (idx != 0) width -= containerGap; // Subtract gap amount, if any, from width for each element after the first.
 						if (el == widget) return width; // Don't subtract the shock container from the used space
 						width -= el.offsetWidth;
 						return width;
-					}, widgetContainer?.offsetWidth || 0),
+					}, (widgetContainer?.offsetWidth - containerGap) || 0),
 					widget.offsetWidth
 				);
 
@@ -487,15 +491,11 @@ export class Tribe8CharacterSheet extends Tribe8Application(ActorSheetV2) {
 				// Shrink the derived dimension slightly
 				height *= 0.75;
 
-				// Set the font size of each shock icon
-				requestAnimationFrame(() => {
-					iconContainer.querySelectorAll('.shock-state i').forEach((i) => {
-						i.style.fontSize = `${height}px`;
-					});
-				});
+				// Set the font size of the container
+				iconContainer.style.fontSize = `${height}px`;
 			}
 		});
-		this.element.querySelectorAll('.footer').forEach((i) => { shockScaler.observe(i); });
+		shockScaler.observe(widgetContainer);
 	}
 
 	/**
@@ -525,33 +525,32 @@ export class Tribe8CharacterSheet extends Tribe8Application(ActorSheetV2) {
 				// We have space for this many skills:
 				const skillSpace = Math.floor(parentHeight / skillHeight);
 
+				let columnCount = 2;
+
 				// If we can already fit all of them without resorting
 				// to columns, we're done
 				if (skillSpace > skillsContained.length) {
-					requestAnimationFrame(() => {
-						list.style.columnCount = '1';
-					});
-					continue;
+					columnCount = 1;
+				}
+				else {
+					// How much space do static-sized elements of the first
+					// one take up?
+					const staticWidths = Array.from(skillsContained[0].querySelectorAll('.points-block')).reduce((acc, el) => acc += el.offsetWidth, 0);
+
+					// If our *width* has shrunk such that the static
+					// elements in the Skill record (level, cpx, edie)
+					// take up more than 40% of the real estate, (assuming
+					// two columns) switch to single-column.
+					if (parentWidth * 0.4 < staticWidths * 2) {
+						columnCount = 1;
+					}
 				}
 
-				// How much space to static-sized elements of the first
-				// one take up?
-				const staticWidths = Array.from(skillsContained[0].querySelectorAll('.points-block')).reduce((acc, el) => acc += el.offsetWidth, 0);
-
-				// If our *width* has shrunk such that the static
-				// elements in the Skill record (level, cpx, edie)
-				// take up more than 40% of the real estate, (assuming
-				// two columns) switch to single-column.
-				if (parentWidth * 0.4 < staticWidths * 2) {
-					requestAnimationFrame(() => {
-						list.style.columnCount = '1';
-					});
-					continue;
-				}
-
-				// Otherwise, two-columns
 				requestAnimationFrame(() => {
-					list.style.removeProperty('column-count');
+					if (columnCount == 2)
+						list.style.removeProperty('column-count');
+					else
+						list.style.setProperty('column-count', columnCount);
 				});
 			}
 		});
