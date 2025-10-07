@@ -3,10 +3,10 @@
 	<div class="secondary-attributes attribute-set">
 		{{#each document.system.attributes.secondary.physical.thresholds}}
 		<div class="injury-block">
-			<div class="injury-name header block-tab-label severity-{{@key}}" title="{{this.name}}">{{this.label}}</div>
+			<div class="injury-name header block-tab-label severity-{{@key}}" title="{{localize this.name}}">{{localize this.label}}</div>
 			{{#if (hasKey @root.document.system.wounds @key)}}
 			<div class="injury-value severity-{{@key}}">
-				<input type="number" name="system.wounds.{{@key}}" value="{{lookup @root.document.system.wounds @key}}" min=0 max=99 title="Current number of {{#with (lookup @root.document.system.attributes.secondary.physical.thresholds @key)}}{{this.name}}s{{/with}}" />
+				<input type="number" name="system.wounds.{{@key}}" value="{{lookup @root.document.system.wounds @key}}" min=0 max=99 title="{{localize (concat "tribe8.actor.character.attributes.secondary.physical.thresholds." @key ".hint")}}" />
 			</div>
 			{{else}}
 			<div class="injury-value severity-instant{{#if (gte

@@ -90,8 +90,10 @@
 							"thresholds": {
 								"flesh.short": "FW",
 								"flesh.full": "Flesh Wound Threshold",
+								"flesh.hint": "Current number of flesh wounds",
 								"deep.short": "DW",
 								"deep.full": "Deep Wound Threshold",
+								"deep.hint": "Current number of deep wounds",
 								"death.short": "ID",
 								"death.full": "Instant Death Threshold"
 							},
