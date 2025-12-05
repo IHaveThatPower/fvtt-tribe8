@@ -662,7 +662,7 @@ export class Tribe8CharacterSheet extends Tribe8Application(ActorSheetV2) {
 						icon: '<i class="fa-solid fa-image"></i>',
 						callback: () => {
 							const actor = this.document;
-							const texture = (this.token ? this.token.texture : this.document.prototypeToken);
+							const texture = (this.token ? this.token : this.document.prototypeToken).texture;
 							if (texture?.src) {
 								new foundry.applications.apps.ImagePopout({
 									src: texture.src,
@@ -677,7 +677,7 @@ export class Tribe8CharacterSheet extends Tribe8Application(ActorSheetV2) {
 					{
 						name: (this.token ? "tribe8.actor.character.contextMenu.edit-token" : "tribe8.actor.character.contextMenu.edit-proto-token"),
 						icon: '<i class="fa-solid fa-file-pen"></i>',
-						condition: this.document.isOwner,
+						condition: ((this.token ? this.token : this.document).isOwner && game.user.can("TOKEN_CONFIGURE")),
 						callback: el => {
 							if (this.token)
 								this.token.sheet.render(true);
@@ -871,7 +871,9 @@ export class Tribe8CharacterSheet extends Tribe8Application(ActorSheetV2) {
 	 */
 	static action_chooseAttribute(event, target) {
 		if (!this.combatData) this.combatData = new CombatData(this.document, {});
-		this.combatData.useAttribute = target.dataset?.attribute;
+		// If the attribute was already chosen, we're toggling it back off
+		const toggleOff = target.parentNode.classList.contains('selected');
+		this.combatData.useAttribute = (toggleOff ? undefined : target.dataset?.attribute);
 		this.render();
 	}
 

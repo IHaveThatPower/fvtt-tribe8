@@ -875,6 +875,7 @@ div.dice-roll .dice-formula.unskilled {
 		display: block;
 		overflow: hidden auto;
 		min-height: auto;
+		scrollbar-width: auto;
 	}
 	.skills-list {
 		display: block;
@@ -1001,6 +1002,7 @@ div.dice-roll .dice-formula.unskilled {
 		height: 100%;
 		flex: 1 1 0;
 		overflow-y: auto;
+		scrollbar-width: auto;
 	}
 	.abilities.tab h3 {
 		border-image: var(--border-header-right);
@@ -1251,6 +1253,7 @@ div.dice-roll .dice-formula.unskilled {
 	 */
 	.equipment .gear-lists {
 		overflow-y: auto;
+		scrollbar-width: auto;
 	}
 	.equipment h2 {
 		--header-height: 1.25rem;
@@ -1454,6 +1457,7 @@ div.dice-roll .dice-formula.unskilled {
 		flex-flow: column;
 		height: 100%;
 		gap: var(--gap-double);
+		scrollbar-width: auto;
 	}
 	.combat .combat-pane h2 {
 		display: grid;
