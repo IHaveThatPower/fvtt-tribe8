@@ -287,11 +287,11 @@ export class Tribe8CharacterModel extends foundry.abstract.TypeDataModel {
 			// Add CP. Negative CP have the same value at the same rate
 			// as positive, just negative.
 			attValue += (attData.cp < 0 ? -1 : 1)*Math.floor(Math.sqrt(Math.abs(attData.cp)));
-			this.#updatePointsLedger('attributes', 'CP', attData.cp);
+			this.#updatePointsLedger('attribute', 'CP', attData.cp);
 
 			// Add XP. Negative XP not a thing.
 			attValue += Math.floor(Math.max(attData.xp, 0) / CONFIG.Tribe8.costs.attribute);
-			this.#updatePointsLedger('attributes', 'XP', attData.xp);
+			this.#updatePointsLedger('attribute', 'XP', attData.xp);
 
 			// Account for weird edge case bonuses
 			attValue += attData.bonus ?? 0;
@@ -404,7 +404,7 @@ export class Tribe8CharacterModel extends foundry.abstract.TypeDataModel {
 	 * @access private
 	 */
 	#updatePointsLedger(category, type, amount) {
-		if (isNaN(amount)) {
+		if (isNaN(amount) && type !== 'notes') {
 			console.warn(`Not adding ${amount} to points ledger in ${category} as ${type} because it's not a number`);
 			return;
 		}
@@ -412,10 +412,16 @@ export class Tribe8CharacterModel extends foundry.abstract.TypeDataModel {
 		// Initialize the fields
 		this.pointsLedger = this.pointsLedger ?? {};
 		this.pointsLedger[category] = this.pointsLedger[category] ?? {};
-		this.pointsLedger[category][type] = this.pointsLedger[category][type] ?? 0;
+		this.pointsLedger[category][type] = this.pointsLedger[category][type] ?? (type == 'notes' ? [] : 0);
 
 		// Add it
-		this.pointsLedger[category][type] += amount;
+		if (type == 'notes') {
+			// We may have already added an identical message, in which case we don't want a duplicate
+			if (this.pointsLedger[category][type].indexOf(amount) < 0)
+				this.pointsLedger[category][type].push(amount);
+		}
+		else
+			this.pointsLedger[category][type] += amount;
 	}
 
 	/**
@@ -598,6 +604,7 @@ export class Tribe8CharacterModel extends foundry.abstract.TypeDataModel {
 					if (!totem.system.fromCpx) {
 						if (game.user.id == totem.parent.playerOwner) {
 							const msg = game.i18n.format("tribe8.errors.unmarked-free-totem", {'actor': totem.parent.name, 'totem': totem.name});
+							this.#updatePointsLedger('totem', 'notes', msg);
 							if (foundry.ui?.notifications) foundry.ui.notifications.warn(msg);
 							else console.warn(msg);
 						}
@@ -681,6 +688,7 @@ export class Tribe8CharacterModel extends foundry.abstract.TypeDataModel {
 				if (!maneuver.system.fromCpx) {
 					if (game.user.id == maneuver.parent.playerOwner) {
 						const msg = game.i18n.format("tribe8.errors.unmarked-free-maneuver", {'actor': maneuver.parent.name, 'maneuver': maneuver.name, 'skill': skill.name});
+						this.#updatePointsLedger('maneuver', 'notes', msg);
 						if (foundry.ui?.notifications) foundry.ui.notifications.warn(msg);
 						else console.warn(msg);
 					}
@@ -691,6 +699,7 @@ export class Tribe8CharacterModel extends foundry.abstract.TypeDataModel {
 			if (maneuver.usesPoints && maneuver.system.fromCpx) {
 				if (game.user.id == maneuver.parent.playerOwner) {
 					const msg = game.i18n.format("tribe8.errors.non-free-maneuver", {'actor': maneuver.parent.name, 'maneuver': maneuver.name, 'skill': skill.name});
+					this.#updatePointsLedger('maneuver', 'notes', msg);
 					if (foundry.ui?.notifications) foundry.ui.notifications.warn(msg);
 					else console.warn(msg);
 				}

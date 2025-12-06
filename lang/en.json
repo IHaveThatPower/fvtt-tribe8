@@ -171,7 +171,8 @@
 					"equipment": "Gear",
 					"abilities": "Abilities",
 					"combat": "Combat",
-					"effects": "Effects"
+					"effects": "Effects",
+					"ledger": "Points"
 				},
 				"contextMenu": {
 					"show-artwork": "Show Character Artwork",

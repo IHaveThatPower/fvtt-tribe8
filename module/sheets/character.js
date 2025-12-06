@@ -39,6 +39,7 @@ export class Tribe8CharacterSheet extends Tribe8Application(ActorSheetV2) {
 		abilities: { template: 'systems/tribe8/templates/sheets/actors/parts/abilities.hbs' },
 		combat:    { template: 'systems/tribe8/templates/sheets/actors/parts/combat.hbs' },
 		effects:   { template: 'systems/tribe8/templates/sheets/actors/parts/effects.hbs' },
+		ledger:    { template: 'systems/tribe8/templates/sheets/actors/parts/ledger.hbs' },
 		footer:    { template: 'systems/tribe8/templates/sheets/actors/parts/footer.hbs' }
 	}
 
@@ -49,7 +50,8 @@ export class Tribe8CharacterSheet extends Tribe8Application(ActorSheetV2) {
 				{ id: "equipment", },
 				{ id: "abilities", },
 				{ id: "combat", },
-				{ id: "effects", }
+				{ id: "effects", },
+				{ id: "ledger", }
 			],
 			labelPrefix: "tribe8.actor.character.tabs",
 			initial: "skills"
@@ -124,6 +126,8 @@ export class Tribe8CharacterSheet extends Tribe8Application(ActorSheetV2) {
 		context.fumble = Tribe8.fumble;
 		context.rangeBands = Object.keys(Tribe8.rangeBands);
 		context.combatData = new CombatData(this.document, this.combatData);
+
+		context.pointsLedger = this.document.system.pointsLedger;
 
 		// Add the tabs
 		const contextWithTabs = {...context, tabs: this._prepareTabs("character")};

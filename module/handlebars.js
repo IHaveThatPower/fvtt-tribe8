@@ -85,6 +85,25 @@ Handlebars.registerHelper('mod',
 	}
 );
 
+Handlebars.registerHelper('length',
+	/**
+	 * Return the length of a supplied array, or the character count of
+	 * a supplied string, or the number of keys in an object.
+	 *
+	 * @param  {Array|string|object} item    The item the length of which we want to know
+	 * @return {int}                         The length of the item
+	 */
+	function(item) {
+		if (item instanceof Array)
+			return item.length;
+		if (item instanceof Object)
+			return Object.keys(item).length;
+		if (item instanceof String)
+			return item.length;
+		return -1;
+	}
+);
+
 Handlebars.registerHelper('ifIn',
 	/**
 	 * Check if a supplied value is in a supplied array.

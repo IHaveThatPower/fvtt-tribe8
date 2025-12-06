@@ -1,0 +1,33 @@
+<div class="character-sheet tab ledger scrollable {{tab.cssClass}}" data-group="character" data-tab="ledger">
+<table><thead><tr>
+<th class="ledger-category">Category</th>
+<th class="ledger-category-cp">CP</th>
+<th class="ledger-category-xp">XP</th>
+</tr></thead><tbody>
+{{~#each pointsLedger~}}
+{{~#if (not (and (eq this.CP 0) (eq this.XP 0)))~}}
+<tr>
+	<td class="ledger-category">{{@key}}</td>
+	<td class="ledger-category-cp">{{this.CP}}</td>
+	<td class="ledger-category-xp">{{this.XP}}</td>
+	{{#if this.notes}}
+</tr><tr>
+	<td colspan=3 class="ledger-category-notes">
+		{{#if (gt (length this.notes) 1)}}
+		<ul>
+			{{#each this.notes}}
+			<li>{{this}}</li>
+			{{/each}}
+		</ul>
+		{{else}}
+			{{#each this.notes}}
+			{{this}}
+			{{/each}}
+		{{/if}}
+	</td>
+</tr>{{/if}}
+</tr>
+{{~/if~}}
+{{~/each~}}
+</tbody></table>
+</div>

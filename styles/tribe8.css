@@ -1643,6 +1643,59 @@ div.dice-roll .dice-formula.unskilled {
 	.maneuvers .toggle {
 		width: 100%;
 	}
+
+	/**
+	 * Character Sheet Points Ledger
+	 */
+	.ledger table {
+		margin: 0 auto;
+		width: unset;
+		border-collapse: collapse;
+	}
+	.ledger table th,
+	.ledger table td {
+		font-size: 1rem;
+	}
+	.ledger table thead {
+		border: none;
+	}
+	.ledger table thead tr {
+		background: var(--color-label-background);
+	}
+	.ledger table th {
+		padding: 0 0.5rem;
+		color: var(--color-medium-gray);
+	}
+	.ledger table td {
+		padding: 0.25 0.5rem;
+	}
+	.ledger table th,
+	.ledger table td.ledger-category-cp,
+	.ledger table td.ledger-category-xp {
+		text-align: center;
+	}
+	.ledger table td.ledger-category {
+		/* width: 8rem; */
+	}
+	.ledger table td.ledger-category-cp,
+	.ledger table td.ledger-category-xp {
+		width: 2rem;
+	}
+	.ledger table th.ledger-category {
+		text-align: left;
+	}
+	.ledger table td.ledger-category {
+		font-variant: small-caps;
+		text-transform: capitalize;
+		font-weight: bold;
+	}
+	.ledger table td.ledger-category-notes {
+		padding: 0.25rem 0.25rem 0.25rem 0.5rem;
+	}
+	.ledger table td.ledger-category-notes ul {
+		margin: 0;
+		font-size: 90%;
+	}
 }
 
 /**

@@ -40,7 +40,6 @@ This is a rough, ever-changing list that depicts in approximate priority order w
 
 ### Short Term
 - Convert certain calculations into effects (e.g. injury and load penalties)
-- Points ledger
 
 ### Medium Term
 - Some way to trade attribute points (i.e. PSY for other attributes)

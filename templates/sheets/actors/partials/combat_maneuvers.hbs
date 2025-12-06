@@ -20,7 +20,7 @@
 			(ifIn system.allowedTypes (lookup (lookup (lookup ../../skills @root.combatData.useCombatSkill) "system") "combatCategory"))
 		)
 	)}}
-	<div class="maneuver draggable{{#if (and (not this.usesPoints) this.system.fromCpx)}} from-cpx{{/if}}{{#if this.system.granted}} granted{{/if}}{{#if (not @root.maneuverEligible)}} disabled{{/if}}" data-item-id="{{this.id}}">
+	<div class="maneuver draggable{{#if (and (not this.usesPoints) this.system.fromCpx)}} from-cpx{{/if}}{{#if this.system.granted}} granted{{/if}}" data-item-id="{{this.id}}">
 		<input type="checkbox" value="{{id}}"
 			name="combatData.useManeuver[{{id}}]"
 			data-action="combatCalculator"
