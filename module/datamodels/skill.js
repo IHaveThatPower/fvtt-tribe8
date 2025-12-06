@@ -51,13 +51,12 @@ export class Tribe8SkillModel extends Tribe8ItemModel {
 	 */
 	get level() {
 		// Start with CP
-		let level = Math.floor(Math.sqrt(this.points.level.cp));
+		let level = this.cpLevel;
 
 		// Next, XP, using the level obtained from CP as a baseline
 		const cpLevel = level;
 		let xpAvailable = this.points.level.xp;
-		for (let nextLevel = cpLevel + 1; nextLevel < 11; nextLevel++)
-		{
+		for (let nextLevel = cpLevel + 1; nextLevel < 11; nextLevel++) {
 			const xpForNextLevel = nextLevel * nextLevel;
 			if (xpForNextLevel > xpAvailable) break; // We're done
 			xpAvailable -= xpForNextLevel;
@@ -67,26 +66,44 @@ export class Tribe8SkillModel extends Tribe8ItemModel {
 	}
 
 	/**
+	 * Get the Skill's level purely from CP
+	 *
+	 * @return {int} The Skill's Level based only on CP
+	 * @access public
+	 */
+	get cpLevel() {
+		return Math.floor(Math.sqrt(this.points.level.cp));
+	}
+
+	/**
 	 * Get the Skill's computed Complexity
 	 *
 	 * @return {int} The Skill's Complexity based on CP and XP spent
 	 * @access public
 	 */
 	get cpx() {
-		let cpx = 1; // Cpx 1 is free
-		cpx += Math.floor(Math.sqrt(this.points.cpx.cp)) - (this.points.cpx.cp > 0 ? 1 : 0);
+		let cpx = this.cpCpx;
 
 		// With that as a baseline, compute the per-rank costs
 		const cpCpx = cpx;
 		let xpAvailable = this.points.cpx.xp;
-		for (let nextCpx = cpCpx + 1; nextCpx <= CONFIG.Tribe8.maxComplexity; nextCpx++)
-		{
+		for (let nextCpx = cpCpx + 1; nextCpx <= CONFIG.Tribe8.maxComplexity; nextCpx++) {
 			const xpForNextCpx = nextCpx * nextCpx;
 			if (xpForNextCpx > xpAvailable) break;
 			xpAvailable -= xpForNextCpx;
 			cpx++;
 		}
 		return cpx;
+	}
+
+	/**
+	 * Get the Skill's Complexity purely from CP
+	 *
+	 * @return {int} The Skill's Complexity based only on CP
+	 * @access public
+	 */
+	get cpCpx() {
+		return 1 + Math.floor(Math.sqrt(this.points.cpx.cp)) - (this.points.cpx.cp > 0 ? 1 : 0);
 	}
 
 	/**
@@ -136,6 +153,78 @@ export class Tribe8SkillModel extends Tribe8ItemModel {
 	}
 
 	/**
+	 * If the  requireEdieBeforeSkills World setting is enabled, have
+	 * we spent enough e-die to increase this Skill's Level?
+	 * See SilCore, p.43
+	 *
+	 * @return {bool} Whether or not we can increase the Skill's Level
+	 * @access public
+	 */
+	get canIncreaseLevel() {
+		// Automatic out if we haven't spent as least as much on eDie as
+		// these two fields.
+		if ((this.points.level.xp + this.points.cpx.xp) >= this.eDieSpent)
+			return false;
+		let nextLevel = this.level + 1;
+
+		// How many XP does it take to go to the next level?
+		const nextLevelXP = (nextLevel) * (nextLevel);
+		return (this.unmatchedEdie >= nextLevelXP);
+	}
+
+	/**
+	 * If the  requireEdieBeforeSkills World setting is enabled, have
+	 * we spent enough e-die to increase this Skill's Complexity?
+	 * See SilCore, p.43
+	 *
+	 * @return {bool} Whether or not we can increase the Skill's Complexity
+	 * @access public
+	 */
+	get canIncreaseCpx() {
+		// Automatic out if we haven't spent as least as much on eDie as
+		// these two fields.
+		if ((this.points.level.xp + this.points.cpx.xp) >= this.eDieSpent)
+			return false;
+		let nextCpx = this.cpx + 1;
+
+		// How many XP does it take to go to the next Cpx?
+		const nextCpxXP = (nextCpx) * (nextCpx);
+		return (this.unmatchedEdie >= nextCpxXP);
+	}
+
+	/**
+	 * How many eDie have been spent in to this skill above and beyond
+	 * the XP *also* spent into this skill.
+	 *
+	 * This is relevant to the requireEdieBeforeSkills World setting.
+	 * See SilCore, p.43
+	 *
+	 * @return {int} The number of eDie spent into this skill above and beyond XP spent for either Level or Cpx
+	 * @access public
+	 */
+	get unmatchedEdie() {
+		let unmatchedEdie = this.eDieSpent;
+
+		// Track Level and any leftover XP
+		let xpLevelAvailable = this.points.level.xp;
+		for (let nextLevel = this.cpLevel + 1; nextLevel < 11; nextLevel++) {
+			const xpForNextLevel = nextLevel * nextLevel;
+			if (xpForNextLevel > xpLevelAvailable) break; // Done
+			xpLevelAvailable -= xpForNextLevel;
+			unmatchedEdie -= xpForNextLevel;
+		}
+		// Track Cpx and any leftover XP
+		let xpCpxAvailable = this.points.cpx.xp;
+		for (let nextCpx = this.cpCpx + 1; nextCpx < CONFIG.Tribe8.maxComplexity; nextCpx++) {
+			const xpForNextCpx = nextCpx * nextCpx;
+			if (xpForNextCpx > xpCpxAvailable) break; // Done
+			xpCpxAvailable -= xpForNextCpx;
+			unmatchedEdie -= xpForNextCpx;
+		}
+		return unmatchedEdie;
+	}
+
+	/**
 	 * Correct any source data using legacy points not-objects and then
 	 * initialize the edie fields within the points object.
 	 *
@@ -153,7 +242,6 @@ export class Tribe8SkillModel extends Tribe8ItemModel {
 			if (data.points?.edie && !Object.hasOwn(data.points.edie, "fromBonus")) data.points.edie.fromBonus = 0;
 			if (data.points?.edie && !Object.hasOwn(data.points.edie, "fromXP")) data.points.edie.fromXP = 0;
 		}
-
 		return super.migrateData(data);
 	}
 

@@ -68,8 +68,8 @@ export class Tribe8CharacterModel extends foundry.abstract.TypeDataModel {
 			}),
 			points: new fields.SchemaField({
 				cp: new fields.SchemaField({
-					attributes: new fields.NumberField({initial: 30, required: true, hint: "tribe8.actor.character.points.cp.attributes.hint"}),
-					general: new fields.NumberField({initial: 50, required: true, hint: "tribe8.actor.character.points.cp.general.hint"}),
+					attributes: new fields.NumberField({initial: game.settings.get('tribe8', 'startingCP.attributes'), required: true, hint: "tribe8.actor.character.points.cp.attributes.hint"}), // TODO: Add configuration setting
+					general: new fields.NumberField({initial: game.settings.get('tribe8', 'startingCP.general'), required: true, hint: "tribe8.actor.character.points.cp.general.hint"}), // TODO: Add configuration setting
 				}),
 				xp: new fields.SchemaField({
 					total: new fields.NumberField({hint: "tribe8.actor.character.points.xp.hint", initial: 0, required: true})

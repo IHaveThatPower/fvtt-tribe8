@@ -119,16 +119,32 @@ Hooks.once('init', function() {
 
 	initHandlebars.default();
 
-	/*
-	game.settings.register('tribe8', 'totalAttAllowed', {
+	game.settings.register('tribe8', 'startingCP.attributes', {
 		name: 'Attribute Points:',
-		hint: 'Total number of character points that may be spent on attributes at character creation.',
+		hint: 'Total number of character points a new character can spend on attributes.',
+		scope: 'world',
+		type: Number,
+		default: 30,
+		config: true,
+		requiresReload: true
+	});
+	game.settings.register('tribe8', 'startingCP.general', {
+		name: 'Character Points:',
+		hint: 'Total number of character points a new character can spend on non-attribute traits.',
+		scope: 'world',
+		type: Number,
+		default: 50,
+		config: true,
+		requiresReload: true
+	});
+	game.settings.register('tribe8', 'requireEdieBeforeSkills', {
+		name: 'Require Edie for Skill Increase:',
+		hint: 'Require characters to have spent a number of edie in a skill equal to the amount of XP required to increase it, before they are allowed to increase it.',
 		scope: 'world',
 		type: Boolean,
-		default: true,
+		default: false,
 		config: true
 	});
-	*/
 });
 
 Hooks.on('setup', function() {

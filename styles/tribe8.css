@@ -38,6 +38,7 @@ body.system-tribe8 {
 --color-allsix: green;
 --color-fumble: red;
 --color-unskilled: rgb(255, 200, 0, 0.25);
+--color-increase-skill: var(--color-perk-granted);
 
 /* Alt rows */
 --color-background-alt: color-mix(in srgb, var(--color-text-emphatic), transparent 95%);
@@ -52,6 +53,11 @@ body.system-tribe8 {
 --color-aspect-granted-alt: var(--color-perk-granted-alt);
 
 /* Gradient Backgruonds */
+--background-increase-skill: radial-gradient(
+	circle,
+	var(--color-increase-skill),
+	transparent
+);
 --background-eminence-used: linear-gradient(
 	to right,
 	transparent,
@@ -935,6 +941,12 @@ div.dice-roll .dice-formula.unskilled {
 		overflow: hidden;
 		flex: 0 0 1.4rem; /* Vertical sizing */
 		border: none;
+	}
+	.skills-list .skill .points-block.level-block .value.increase-xp {
+		background: var(--background-increase-skill);
+	}
+	.skills-list .skill .points-block.cpx-block .value.increase-xp {
+		background: var(--background-increase-skill);
 	}
 	.skills-list .skill .edie-block {
 		/* margin-left: var(--gap-standard); */

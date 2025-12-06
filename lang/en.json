@@ -587,6 +587,7 @@
 			"edie-below-0": "Can't decrease spent EDie below 0",
 			"edie-unchanged": "EDie state on Skill.{skillId} unchanged",
 			"edie-insufficient": "You do not have enough EDie!",
+			"edie-insufficient-skill": "You have not spent enough EDie on this skill to spent XP on it.",
 			"model-actor-not-initialized": "Attempted to get properties of an Actor's data model before the Actor was initialized",
 			"model-item-not-initialized": "Attempted to get properties of an Item's data model before the Item was initialized",
 			"called-before-movement-prepared": "Must call #prepareMovement before calling {method}",

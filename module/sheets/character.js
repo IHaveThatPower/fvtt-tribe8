@@ -100,6 +100,9 @@ export class Tribe8CharacterSheet extends Tribe8Application(ActorSheetV2) {
 		// Do we have any user-specific flags related to this shet?
 		const userFlags = game.user.getFlag('tribe8', `sheetPrefs.${this.document.id}`);
 
+		// Are we using the eDie-before-XP requirement?
+		context.eDieBeforeXP = game.settings.get('tribe8', 'requireEdieBeforeSkills');
+
 		// Setup our user-driven sorting stuff
 		context.sorting = {};
 		if (userFlags) {

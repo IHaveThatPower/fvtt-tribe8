@@ -139,6 +139,21 @@ export class Tribe8SkillSheet extends Tribe8ItemSheet {
 			}
 		}
 
+		// If the setting is enabled, reject any XP updates that don't
+		// have enough eDie spent.
+		if (game.settings.get('tribe8', 'requireEdieBeforeSkills')) {
+			const levelXP = submitData.system?.points?.level?.xp ?? this.document.system.points.level.xp;
+			const cpxXP = submitData.system?.points?.cpx?.xp ?? this.document.system.points.cpx.xp;
+			const eDie = this.document.system.eDieSpent;
+			if (eDie < (levelXP + cpxXP)) {
+				foundry.ui.notifications.warn(game.i18n.format("tribe8.errors.edie-insufficient-skill"));
+				if (!game.user.isGM) {
+					await this.render();
+					return;
+				}
+			}
+		}
+
 		// Finally, process the submission
 		await super._processSubmitData(event, form, submitData, options);
 	}

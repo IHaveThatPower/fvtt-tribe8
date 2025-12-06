@@ -25,13 +25,13 @@
 				<div class="specialization-list" title="{{specializations}}" name="{{uuid}}.system.specializations">{{specializations}}</div>
 			</div>
 			{{/if}}
-			<div class="points-block">
+			<div class="points-block level-block">
 				<div class="points-type block-tab-label">{{localize "tribe8.item.skill.level.full"}}</div>
-				<div class="value">{{system.level}}</div>
+				<div class="value{{#if (and system.canIncreaseLevel @root.eDieBeforeXP)}} increase-xp{{/if}}">{{system.level}}</div>
 			</div>
-			<div class="points-block">
+			<div class="points-block cpx-block">
 				<div class="points-type block-tab-label">{{localize "tribe8.item.complexity.short"}}</div>
-				<div class="value">{{system.cpx}}</div>
+				<div class="value{{#if (and system.canIncreaseCpx @root.eDieBeforeXP)}} increase-xp{{/if}}">{{system.cpx}}</div>
 			</div>
 			<div class="points-block edie-block">
 				<div class="points-type block-tab-label">{{localize "tribe8.actor.character.edie.short"}}</div>

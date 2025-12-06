@@ -13,10 +13,22 @@
 		<dd class="detail points-value cp">
 			<ul class="points-list">
 				<li class="detail attribute-points point-value{{#if (gt document.system.cpSpentAttributes document.system.points.cp.attributes)}} over{{/if}}" title="{{localize "tribe8.actor.character.points.cp.attributes.hint"}}">
-					<span class="points-spent">{{document.system.cpSpentAttributes}}</span> / <span class="points-total">{{document.system.points.cp.attributes}}</span>
+					<span class="points-spent">{{document.system.cpSpentAttributes}}</span> / <span class="points-total">
+						{{~#if user.isGM~}}
+						<input type="number" name="system.points.cp.attributes" value="{{document.system.points.cp.attributes}}" title="{{localize "tribe8.actor.character.points.cp.attributes.hint"}}" />
+						{{~else~}}
+						{{document.system.points.cp.attributes}}
+						{{~/if~}}
+					</span>
 				</li>
 				<li class="detail general-points point-value{{#if (gt document.system.cpSpentGeneral document.system.points.cp.general)}} over{{/if}}" title="{{localize "tribe8.actor.character.points.cp.general.hint"}}">
-					<span class="points-spent">{{document.system.cpSpentGeneral}}</span> / <span class="points-total">{{document.system.points.cp.general}}</span>
+					<span class="points-spent">{{document.system.cpSpentGeneral}}</span> / <span class="points-total">
+						{{~#if user.isGM~}}
+						<input type="number" name="system.points.cp.general" value="{{document.system.points.cp.general}}" title="{{localize "tribe8.actor.character.points.cp.general.hint"}}" />
+						{{~else~}}
+						{{document.system.points.cp.general}}
+						{{~/if~}}
+					</span>
 				</li>
 			</ul>
 		</dd>
