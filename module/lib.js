@@ -1,3 +1,6 @@
+const ActiveEffect = foundry.documents.ActiveEffect;
+const CONST = foundry.CONST;
+
 export class Tribe8 {
 	/**
 	 * *****************************************************************
@@ -107,11 +110,6 @@ export class Tribe8 {
 	}
 
 	/**
-	 * How precise our rounding is for movement display.
-	 */
-	static movementPrecision = 1;
-
-	/**
 	 * Possible value options for Gear
 	 */
 	static gearValueOptions = [
@@ -200,7 +198,7 @@ export class Tribe8 {
 	 */
 	static loadThresholds = {
 		0: {
-			descriptor: 'unladen',
+			descriptor: 'unladen'
 		},
 		50: {
 			sprinting: 0,
@@ -360,5 +358,129 @@ export class Tribe8 {
 		// And finally, we're quadratic for the final stretch up to +15.
 		// Beyond this, we don't have anything else, so this holds beyond +15.
 		return Math.round(2500 * Math.pow(value, 2) - 52500 * value + 280000, 0);
+	}
+
+	/**
+	 * Create a 16-character ID from a supplied string. Strings that
+	 * are too long will be truncated, while strings that are too short
+	 * will be 0-padded.
+	 *
+	 * @param  {string} base    The basis for the ID
+	 * @return {string}         The 16-character ID
+	 * @access public
+	 */
+	static staticID(base) {
+		if (base.length > 16) return base.substring(0, 16);
+		return base.padEnd(16, "0");
+	}
+
+	/**
+	 * *****************************************************************
+	 * Active Effect presets
+	 * *****************************************************************
+	 */
+
+	/**
+	 * Given an actor and a load threshold descriptor, determine the
+	 * movement penalties that should be applied and create a matching
+	 * active effect.
+	 *
+	 * @param  {Tribe8Actor} actor        The actor to which the effect should be applied
+	 * @param  {string}      threshold    The string descriptor of the load threshold
+	 * @return {void}
+	 * @access public
+	 */
+	static async createLoadEffect(actor, threshold) {
+		if (!actor.movementReduction) actor.movementReduction = {};
+		if (threshold == 'unladen') {
+			actor.movementReduction.load = false;
+			return;
+		}
+		actor.movementReduction.load = true;
+
+		// Accumulate multiplier keys until we match our descriptor
+		const multipliers = {};
+		for (let t of (new Uint8Array(Object.keys(Tribe8.loadThresholds))).sort()) {
+			const thresholdData = Tribe8.loadThresholds[t];
+			for (let m in thresholdData) {
+				if (m === 'descriptor') continue;
+				const multiplier = Number(thresholdData[m]);
+				if (isNaN(multiplier)) {
+					console.error(game.i18n.localize("tribe8.load-threshold-nan"));
+					continue;
+				}
+				multipliers[m] = Number(thresholdData[m]);
+			}
+			// If we matched our threshold, stop
+			if (Tribe8.loadThresholds[t].descriptor === threshold) break;
+		}
+
+		// Create the effect
+		ActiveEffect.implementation.create(
+			{
+				_id: Tribe8.staticID(`t8LT${threshold}`),
+				name: game.i18n.localize(`tribe8.effects.load-penalty.${threshold}`),
+				type: 'load-penalty',
+				changes: Object.keys(multipliers).map(m => {
+					return {
+						key: `system.movement.${m}`,
+						value: multipliers[m],
+						mode: CONST.ACTIVE_EFFECT_MODES.MULTIPLY
+					};
+				})
+			},
+			{
+				parent: actor,
+				keepId: true
+			}
+		);
+	}
+
+	/**
+	 * Given an actor and an injury descriptor, determine the movement
+	 * penalties that should be applied and create a matching active
+	 * effect.
+	 *
+	 * @param  {Tribe8Actor} actor        The actor to which the effect should be applied
+	 * @param  {string}      threshold    The string descriptor of the wound threshold
+	 * @return {void}
+	 * @access public
+	 */
+	static async createInjuryEffect(actor, threshold) {
+		if (!actor.movementReduction) actor.movementReduction = {};
+		if (threshold == '') {
+			actor.movementReduction.injury = false;
+			return;
+		}
+		actor.movementReduction.injury = true;
+
+		// The threshold is comprised of a wound type and a threshold
+		// number
+		const [injurySeverity, injuryThreshold] = threshold.match(/^([a-z]+)(\d)$/).slice(1);
+		if (!Tribe8.movementInjuryMultipliers[injurySeverity] || !Tribe8.movementInjuryMultipliers[injurySeverity][injuryThreshold]) {
+			console.error(game.i18n.localize("tribe8.wound-threshold-unrecognized"));
+			return;
+		}
+		const multipliers = Tribe8.movementInjuryMultipliers[injurySeverity][injuryThreshold];
+
+		// Create the effect
+		ActiveEffect.implementation.create(
+			{
+				_id: Tribe8.staticID(`t8WT${threshold}`),
+				name: game.i18n.localize(`tribe8.effects.wound-penalty.${threshold}`),
+				type: 'wound-penalty',
+				changes: Object.keys(multipliers).map(m => {
+					return {
+						key: `system.movement.${m}`,
+						value: multipliers[m],
+						mode: CONST.ACTIVE_EFFECT_MODES.MULTIPLY
+					};
+				})
+			},
+			{
+				parent: actor,
+				keepId: true
+			}
+		);
 	}
 }

@@ -1645,6 +1645,23 @@ div.dice-roll .dice-formula.unskilled {
 	}
 
 	/**
+	 * Character Sheet Active Effects
+	 */
+	.effects .effect {
+		display: flex;
+		flex-direction: row;
+	}
+	.effects .effect .identity {
+		flex: 1 1 fit-content;
+	}
+	.effects .effect .delete {
+		flex: 0 0 min-content;
+	}
+	.effects .effect:nth-child(odd) {
+		background: var(--color-background-alt);
+	}
+
+	/**
 	 * Character Sheet Points Ledger
 	 */
 	.ledger table {

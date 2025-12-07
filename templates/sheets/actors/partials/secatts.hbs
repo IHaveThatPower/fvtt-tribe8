@@ -34,7 +34,7 @@
 		</span>
 	</h3>
 	<div class="move-rates attribute-set">
-	{{#each document.system.movement}}
+	{{#each roundedMovement}}
 		<div class="attribute-block move-rate">
 			<div class="name block-tab-label" title="{{localize (concat "tribe8.actor.character.movement." @key ".full")}}">{{localize (concat "tribe8.actor.character.movement." @key ".short")}}</div>
 			<div class="value">{{#if (eq this 0)}}<i class="fa fa-solid fa-xmark"></i>{{else}}{{this}}m{{/if}}</div>

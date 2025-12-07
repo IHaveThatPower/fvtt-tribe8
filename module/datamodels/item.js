@@ -1,5 +1,5 @@
 const fields = foundry.data.fields;
-import { Tribe8 } from '../config.js';
+import { Tribe8 } from '../lib.js';
 
 export class Tribe8ItemModel extends foundry.abstract.TypeDataModel {
 	/**

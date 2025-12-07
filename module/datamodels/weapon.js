@@ -1,5 +1,5 @@
 const fields = foundry.data.fields;
-import { Tribe8 } from '../config.js';
+import { Tribe8 } from '../lib.js';
 import { Tribe8GearModel } from './gear.js';
 
 export class Tribe8WeaponModel extends Tribe8GearModel {

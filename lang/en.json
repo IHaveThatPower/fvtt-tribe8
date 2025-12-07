@@ -3,6 +3,13 @@
 		"Actor": {
 			"character": "Character"
 		},
+		"ActiveEffect": {
+			"effect": "Effect",
+			"effect-plural": "Effects",
+			"load-penalty": "Load Penalty",
+			"wound-penalty": "Injury Penalty",
+			"new-active-effect": "New Effect"
+		},
 		"Item": {
 			"item": "Generic Item",
 			"skill": "Skill",
@@ -193,6 +200,18 @@
 						"header.name": "Description/Coverage"
 					}
 				}
+			}
+		},
+		"effects": {
+			"load-penalty": {
+				"laden": "Laden",
+				"burdened": "Burdened",
+				"overload": "Overloaded"
+			},
+			"wound-penalty": {
+				"flesh1": "Lightly Wounded",
+				"deep1": "Deeply Wounded",
+				"deep2": "Severely Wounded"
 			}
 		},
 		"currency": {

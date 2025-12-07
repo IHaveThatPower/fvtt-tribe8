@@ -1,4 +1,4 @@
-import { Tribe8 } from '../config.js';
+import { Tribe8 } from '../lib.js';
 import { Tribe8WeaponModel } from '../datamodels/weapon.js'; // For #addCombatModifier
 
 export class CombatData {
@@ -658,9 +658,9 @@ export class CombatData {
 	 */
 	#applyEncumbrance() {
 		if (!this.actor) return;
-		if (this.actor.system?.encumbrance < 0) {
+		if (this.actor.system?.encumbrance > 0) {
 			for (let prop of ['accuracy', 'parry', 'defense']) {
-				this.summary[prop] = this.#addCombatModifier(this.summary[prop], this.actor.system.encumbrance, prop);
+				this.summary[prop] = this.#addCombatModifier(this.summary[prop], -1 * this.actor.system.encumbrance, prop);
 			}
 		}
 	}

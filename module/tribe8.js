@@ -1,4 +1,4 @@
-import { Tribe8 } from './config.js';
+import { Tribe8 } from './lib.js';
 /* Documents */
 import { Tribe8Actor } from './documents/actor.js';
 import { Tribe8Item } from './documents/item.js';
@@ -145,6 +145,15 @@ Hooks.once('init', function() {
 		default: false,
 		config: true
 	});
+	game.settings.register('tribe8', 'movementPrecision', {
+		name: 'Movement Precision:',
+		hint: 'Number of decimal places to show on the character sheet for movement',
+		scope: 'user',
+		type: Number,
+		default: 1,
+		config: true
+	});
+
 });
 
 Hooks.on('setup', function() {

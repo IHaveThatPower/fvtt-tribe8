@@ -39,10 +39,6 @@ At present, no stock Items (i.e. Skills, Perks, Flaws, Combat Maneuvers, Aspects
 This is a rough, ever-changing list that depicts in approximate priority order what's on the list of yet-to-be-implemented features.
 
 ### Short Term
-- Convert certain calculations into effects (e.g. injury and load penalties)
-
-### Medium Term
-- Some way to trade attribute points (i.e. PSY for other attributes)
 - Item Compendium packs
   - Pre-set Maneuver valid categories, and make checkboxes visible only to GM
 

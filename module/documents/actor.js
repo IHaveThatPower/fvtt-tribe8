@@ -1,7 +1,29 @@
 const { Actor } = foundry.documents;
-import { Tribe8 } from '../config.js';
+import { Tribe8 } from '../lib.js';
 
 export class Tribe8Actor extends Actor {
+
+	/**
+	 * Override parent class's method so that we don't apply active
+	 * effects here; we do it as part of prepareDerivedData instead.
+	 *
+	 * @access public
+	 */
+	prepareEmbeddedDocuments() {
+		super.prepareEmbeddedDocuments();
+	}
+
+	/**
+	 * Override parent class's method so that we apply active effects
+	 * here, instead of as part of prepareEmbeddedDocuments.
+	 *
+	 * @access public
+	 */
+	prepareDerivedData() {
+		this.applyActiveEffects();
+		super.prepareDerivedData();
+	}
+
 	/**
 	 * Pre-process an update operation for a single Document instance.
 	 * Pre-operation events only occur for the client which requested
@@ -31,7 +53,6 @@ export class Tribe8Actor extends Actor {
 		return await super._preUpdate(changes, options, user);
 	}
 
-
 	/**
 	 * Post-process an update operation for a single Document instance.
 	 * Post-operation events occur for all connected clients.
@@ -44,6 +65,8 @@ export class Tribe8Actor extends Actor {
 	 */
 	_onUpdate(changed, options, userId) {
 		this.#processNewUpdate(changed, options);
+		this.#applyLoadEffects();
+		this.#applyInjuryEffects();
 		super._onUpdate(changed, options, userId);
 	}
 
@@ -141,6 +164,155 @@ export class Tribe8Actor extends Actor {
 				skill.update({'system.==specializations': skillSpecs}, {diff: false});
 			}
 		}
+	}
+
+	/**
+	 * Apply movement penalties due to carried load.
+	 *
+	 * @return {void}
+	 * @throws {ReferenceError} If the movement property isn't initialized
+	 * @access private
+	 */
+	async #applyLoadEffects() {
+		if (!this.system.movement) throw new ReferenceError(game.i18n.format("tribe8.errors.called-before-movement-prepared", {method: '#applyLoadEffects'}));
+		// Note any existing load-related Active Effects
+		const currentLoadEffects = this.getEmbeddedCollection("effects").filter(e => e.type == 'load-penalty');
+
+		// We should only ever have one; delete the rest
+		if (currentLoadEffects.length > 1) {
+			const invalidEffects = currentLoadEffects.splice(1).map(e => e.id);
+			await this.deleteEmbeddedDocuments("ActiveEffect", invalidEffects);
+		}
+
+		// If we have one, identify the current threshold
+		const existingEffectThreshold = currentLoadEffects[0]?.id?.split('LT')?.slice(-1)[0].replace(/0+$/, '');
+
+		// Determine which load threshold we're currently under
+		const loadDescriptor = this.system.currentLoadThreshold;
+
+		// If our existing threshold matches, we're done
+		if (existingEffectThreshold && existingEffectThreshold == loadDescriptor)
+			return;
+
+		// If our current threshold doesn't match the existing effect,
+		// remove it.
+		if (existingEffectThreshold && (existingEffectThreshold != loadDescriptor || loadDescriptor == 'unladen'))
+			await this.deleteEmbeddedDocuments("ActiveEffect", [currentLoadEffects[0].id]);
+
+		// Now make the new one
+		await Tribe8.createLoadEffect(this, loadDescriptor);
+	}
+
+	/**
+	 * Ensure we update load effects when creating new descendant
+	 * documents.
+	 *
+	 * @param  {Tribe8Actor}   parent        The parent of the documents that we're creating
+	 * @param  {string}        collection    The collection being updated
+	 * @param  {Array<object>} documents     The documents in the collection being affected
+	 * @param  {Array<object>} data          The data for creating the documents
+	 * @param  {object}        options       Additional options pertinent to the update
+	 * @param  {string}        userId        The updating user
+	 * @return {void}
+	 * @access protected
+	 */
+	async _onCreateDescendantDocuments(parent, collection, documents, data, options, userId) {
+		if ((userId === game.userId) && (collection === "items")) await this.#applyLoadEffects();
+		super._onCreateDescendantDocuments(parent, collection, documents, data, options, userId);
+	}
+
+	/**
+	 * Ensure we update load effects when updating descendant documents.
+	 *
+	 * @param  {Tribe8Actor}   parent        The parent of the documents that we're updating
+	 * @param  {string}        collection    The collection being updated
+	 * @param  {Array<object>} documents     The documents in the collection being affected
+	 * @param  {Array<object>} changes       The changes to the documents being made
+	 * @param  {object}        options       Additional options pertinent to the update
+	 * @param  {string}        userId        The updating user
+	 * @return {void}
+	 * @access protected
+	 */
+	async _onUpdateDescendantDocuments(parent, collection, documents, changes, options, userId) {
+		if ((userId === game.userId) && (collection === "items")) await this.#applyLoadEffects();
+		super._onUpdateDescendantDocuments(parent, collection, documents, changes, options, userId);
+	}
+
+	/**
+	 * Ensure we update load effects when deleting descendant documents.
+	 *
+	 * @param  {Tribe8Actor}   parent        The parent of the documents that we're deleting
+	 * @param  {string}        collection    The collection being updated
+	 * @param  {Array<object>} documents     The documents in the collection being affected
+	 * @param  {Array<string>} ids           The document IDs being deleted
+	 * @param  {object}        options       Additional options pertinent to the update
+	 * @param  {string}        userId        The updating user
+	 * @return {void}
+	 * @access protected
+	 */
+	async _onDeleteDescendantDocuments(parent, collection, documents, ids, options, userId) {
+		if ((userId === game.userId) && (collection === "items")) await this.#applyLoadEffects();
+		super._onDeleteDescendantDocuments(parent, collection, documents, ids, options, userId);
+	}
+
+	/**
+	 * Apply movement penalties due to injuries.
+	 *
+	 * @return {void}
+	 * @throws {ReferenceError} If the movement property isn't initialized
+	 * @access private
+	 * @see    #prepareMovement
+	 */
+	async #applyInjuryEffects() {
+		if (!this.system.movement) throw new ReferenceError(game.i18n.format("tribe8.errors.called-before-movement-prepared", {method: "#applyInjuryEffects"}));
+		if (!this.system.wounds) throw new ReferenceError(game.i18n.format("tribe8.errors.no-wounds-property", {actor: `Actor.${this.parent?.id}`}));
+
+		// Note any existing injury-related Active Effects
+		const currentEffects = this.getEmbeddedCollection("effects").filter(e => e.type == 'wound-penalty');
+
+		// We should only ever have one; delete the rest
+		if (currentEffects.length > 1) {
+			const invalidEffects = currentEffects.splice(1).map(e => e.id);
+			await this.deleteEmbeddedDocuments("ActiveEffect", invalidEffects);
+		}
+
+		// If we have one, identify the current threshold
+		const existingEffectThreshold = currentEffects[0]?.id?.split('WT')?.slice(-1)[0].replace(/0+$/, '');
+
+		const injuryMult = Tribe8.movementInjuryMultipliers;
+		let injuryMovementLevel = (function(actor) {
+			if ((actor.system.wounds.deep + actor.system.wounds.flesh) == 0)
+				return '';
+			// sort() works here simply because "d" comes before "f",
+			// putting the more-severe wound category (deep) first.
+			for (let type of Object.keys(actor.system.wounds).sort()) {
+				// Each key corresponds to a number of wounds of that type
+				// at and above which the penalty applies.
+				// Sorting it in reverse means we go through in descending
+				// order, seeing which one applies.
+				const sortedWoundThresholds = (new Uint8Array(Object.keys(injuryMult[type]))).sort().reverse();
+				for (let woundThreshold of sortedWoundThresholds) {
+					// As soon as we find a threshold that matches our
+					// current wound count of this type, we're done
+					if (actor.system.wounds[type] >= woundThreshold) {
+						return `${type}${woundThreshold}`;
+					}
+				}
+			}
+			return '';
+		})(this);
+
+		// If our existing threshold matches, we're done
+		if (existingEffectThreshold && existingEffectThreshold == injuryMovementLevel)
+			return;
+
+		// If our current threshold doesn't match the existing effect,
+		// remove it.
+		if (existingEffectThreshold && (existingEffectThreshold != injuryMovementLevel || injuryMovementLevel == ''))
+			await this.deleteEmbeddedDocuments("ActiveEffect", [currentEffects[0].id]);
+
+		// Now make the new one
+		await Tribe8.createInjuryEffect(this, injuryMovementLevel);
 	}
 
 	/**

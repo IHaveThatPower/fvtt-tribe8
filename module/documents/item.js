@@ -1,6 +1,6 @@
 const { Item } = foundry.documents;
 import { Tribe8Actor } from './actor.js';
-import { Tribe8 } from '../config.js';
+import { Tribe8 } from '../lib.js';
 
 export class Tribe8Item extends Item {
 	/**

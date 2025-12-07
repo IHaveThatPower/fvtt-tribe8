@@ -1,5 +1,5 @@
 import { Tribe8GearSheet } from './gear.js';
-import { Tribe8 } from '../config.js';
+import { Tribe8 } from '../lib.js';
 
 export class Tribe8ArmorSheet extends Tribe8GearSheet {
 	static DEFAULT_OPTIONS = {

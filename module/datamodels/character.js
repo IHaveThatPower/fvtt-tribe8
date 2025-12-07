@@ -1,5 +1,5 @@
 const fields = foundry.data.fields;
-import { Tribe8 } from '../config.js';
+import { Tribe8 } from '../lib.js';
 
 export class Tribe8CharacterModel extends foundry.abstract.TypeDataModel {
 	/**
@@ -204,6 +204,29 @@ export class Tribe8CharacterModel extends foundry.abstract.TypeDataModel {
 	}
 
 	/**
+	 * Get the current load threshold descriptor based on the Actor's
+	 * carried weight.
+	 *
+	 * @return {string} The descriptor that corresponds to the load threshold vs. carried weight
+	 * @access public
+	 */
+	get currentLoadThreshold() {
+		let loadDescriptor = '';
+		// Take advantage of the fact that each heavier load descriptor
+		// is inclusive of the previous one(s).
+		for (let threshold of (new Uint8Array(Object.keys(Tribe8.loadThresholds))).sort()) {
+			const loadThreshold = Number(threshold) / 100;
+			if (isNaN(loadThreshold)) {
+				console.error(game.i18n.localize("tribe8.non-percentage-load"));
+				continue;
+			}
+			if (this.carriedWeight >= (this.deadlift[0] * loadThreshold))
+				loadDescriptor = Tribe8.loadThresholds[threshold].descriptor ?? loadDescriptor;
+		}
+		return loadDescriptor;
+	}
+
+	/**
 	 * Get total encumbrance of the current actor, based on their
 	 * equipped armor
 	 *
@@ -266,10 +289,10 @@ export class Tribe8CharacterModel extends foundry.abstract.TypeDataModel {
 	 * @access public
 	 */
 	prepareDerivedData() {
+		this.#prepareMovement();
+		this.#prepareDamageMultipliers();
+		this.#preparePoints();
 		super.prepareDerivedData();
-		this.#prepareDamageMultipliers(); // Depends on embedded documents
-		this.#preparePoints(); // Depends on embedded documents
-		this.#prepareMovement(); // Depends on secondary attributes, embedded documents, and wounds
 	}
 
 	/**
@@ -425,8 +448,7 @@ export class Tribe8CharacterModel extends foundry.abstract.TypeDataModel {
 	}
 
 	/**
-	 * Determine the character's various movement rates, accounting for
-	 * their wounds.
+	 * Determine the character's base movement rate.
 	 *
 	 * @access private
 	 */
@@ -443,104 +465,6 @@ export class Tribe8CharacterModel extends foundry.abstract.TypeDataModel {
 		this.movement = {...Tribe8.movementRates};
 		for (let rate of Object.keys(this.movement))
 			this.movement[rate] *= movementBasis;
-
-		// On the actor, store any penalties to movement we might have
-		if (this.parent) {
-			this.parent.movementReduction = {
-				'load': false,
-				'injury': false
-			}
-		}
-
-		// Apply penalties from carried load
-		this.#applyMovementPenaltyFromLoad();
-
-		// Apply any penalties from wounds.
-		this.#applyMovementPenaltyFromInjury();
-
-		// Round the numbers a bit, if needed
-		const roundScale = 10 ** Math.min(Math.max(Tribe8.movementPrecision, 0), 4); // Enforce a hard limit of millimeter precision
-		for (let rate in this.movement) {
-			this.movement[rate] = Math.round(this.movement[rate] * roundScale) / roundScale;
-		}
-	}
-
-	/**
-	 * Apply movement penalties due to carried load.
-	 *
-	 * Called by #prepareMovement(), which prepares some of the
-	 * groundwork on which this method depends.
-	 *
-	 * @return {void}
-	 * @throws {ReferenceError} If the movement property isn't initialized
-	 * @access private
-	 * @see    #prepareMovement
-	 */
-	#applyMovementPenaltyFromLoad() {
-		if (!this.movement) throw new ReferenceError(game.i18n.format("tribe8.errors.called-before-movement-prepared", {method: '#applyMovementPenaltyFromLoad'}));
-		const deadlift = this.deadlift[0];
-		const loadThresholds = Tribe8.loadThresholds;
-		for (let threshold in loadThresholds) {
-			const loadThreshold = Number(threshold) / 100;
-			if (isNaN(loadThreshold)) {
-				console.error(game.i18n.localize("tribe8.non-percentage-load"));
-				continue;
-			}
-			if (this.carriedWeight >= (deadlift * loadThreshold)) {
-				const multipliers = loadThresholds[threshold];
-				for (let speed in multipliers) {
-					if (speed === 'descriptor') continue;
-					const multiplier = Number(multipliers[speed]);
-					if (isNaN(multiplier)) {
-						console.error(game.i18n.localize("tribe8.load-threshold-nan"));
-						continue;
-					}
-					this.movement[speed] *= Number(multipliers[speed]);
-					this.parent.movementReduction.load = true;
-				}
-			}
-		}
-	}
-
-	/**
-	 * Apply movement penalties due to injuries.
-	 *
-	 * Called by #prepareMovement(), which prepared some of the
-	 * groundwork on which this method depends.
-	 *
-	 * @return {void}
-	 * @throws {ReferenceError} If the movement property isn't initialized
-	 * @access private
-	 * @see    #prepareMovement
-	 */
-	#applyMovementPenaltyFromInjury() {
-		if (!this.movement) throw new ReferenceError(game.i18n.format("tribe8.errors.called-before-movement-prepared", {method: "#applyMovementPenaltyFromInjury"}));
-		if (!this.wounds) throw new ReferenceError(game.i18n.format("tribe8.errors.no-wounds-property", {actor: `Actor.${this.parent?.id}`}));
-		if (!this.wounds.deep && !this.wounds.flesh) return;
-
-		((currentWounds, movementRates) => {
-			const injuryMult = Tribe8.movementInjuryMultipliers;
-			// sort() works here simply because "d" comes before "f", putting the more-severe wound category first.
-			for (let type of Object.keys(this.wounds).sort()) {
-				// Each key corresponds to a number of wounds of that type at and above which the penalty applies.
-				// Sorting it in reverse means we go through in descending order, seeing which one applies.
-				const sortedWoundThresholds = Object.keys(injuryMult[type]).map(t => Number(t)).sort().reverse();
-				for (let woundThreshold of sortedWoundThresholds) {
-					// As soon as we find a threshold that matches our current wound count of this type, we're done
-					if (currentWounds[type] >= woundThreshold) {
-						const injuredRates = injuryMult[type][woundThreshold];
-						// Apply any multipliers we find in the reference table to our existing rates
-						for (let rate of Object.keys(injuredRates)) {
-							movementRates[rate] *= injuredRates[rate];
-							if (this.parent) {
-								this.parent.movementReduction.injury = true;
-							}
-						}
-						return;
-					}
-				}
-			}
-		})(this.wounds, this.movement);
 	}
 
 	/**

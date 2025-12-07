@@ -1,4 +1,4 @@
-import { Tribe8 } from '../config.js';
+import { Tribe8 } from '../lib.js';
 import { Tribe8ItemSheet } from './item.js';
 const { DialogV2 } = foundry.applications.api;
 

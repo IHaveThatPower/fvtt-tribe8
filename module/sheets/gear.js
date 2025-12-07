@@ -1,4 +1,4 @@
-import { Tribe8 } from '../config.js';
+import { Tribe8 } from '../lib.js';
 import { Tribe8ItemSheet } from './item.js';
 
 export class Tribe8GearSheet extends Tribe8ItemSheet {

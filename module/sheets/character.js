@@ -1,6 +1,6 @@
 const { DialogV2 } = foundry.applications.api;
 const { ActorSheetV2 } = foundry.applications.sheets;
-import { Tribe8 } from '../config.js';
+import { Tribe8 } from '../lib.js';
 import { Tribe8Application } from '../apps/base-app.js';
 import { Tribe8AttributeEditor } from '../apps/attribute-editor.js';
 import { CombatData } from '../utils/combat-data.js'; // For combatData
@@ -17,7 +17,10 @@ export class Tribe8CharacterSheet extends Tribe8Application(ActorSheetV2) {
 			incrementEdie:     Tribe8CharacterSheet.action_incrementEdie,
 			decrementEdie:     Tribe8CharacterSheet.action_decrementEdie,
 			editItem:          Tribe8CharacterSheet.action_editItem,
+			editEffect:        Tribe8CharacterSheet.action_editEffect,
 			addNewItem:        Tribe8CharacterSheet.action_addNewItem,
+			addNewEffect:      Tribe8CharacterSheet.action_addNewEffect,
+			deleteEffect:      Tribe8CharacterSheet.action_deleteEffect,
 			useEminence:       Tribe8CharacterSheet.action_useEminence,
 			combatCalculator:  Tribe8CharacterSheet.action_combatCalculator,
 			chooseAttribute:   Tribe8CharacterSheet.action_chooseAttribute,
@@ -127,6 +130,10 @@ export class Tribe8CharacterSheet extends Tribe8Application(ActorSheetV2) {
 		context.rangeBands = Object.keys(Tribe8.rangeBands);
 		context.combatData = new CombatData(this.document, this.combatData);
 
+		const roundScale = 10 ** Math.min(Math.max(game.settings.get('tribe8', 'movementPrecision'), 0), 4); // Enforce a hard limit of millimeter precision
+		context.roundedMovement = Object.fromEntries(Object.keys(this.document.system.movement).map(m => [m, Math.round(this.document.system.movement[m] * roundScale) / roundScale]));
+
+		// Furnish the points ledger data
 		context.pointsLedger = this.document.system.pointsLedger;
 
 		// Add the tabs
@@ -811,6 +818,50 @@ export class Tribe8CharacterSheet extends Tribe8Application(ActorSheetV2) {
 		const item = this.#getItemFromTarget(target);
 		if (!item) return;
 		item.sheet.render(true);
+	}
+
+	/**
+	 * Add a new Effect to this character
+	 *
+	 * @param {Event} event    The event triggered by interaction with the form element
+	 * @access public
+	 */
+	static action_addNewEffect(event) {
+		event.preventDefault();
+		event.stopPropagation();
+		this.document.createEmbeddedDocuments("ActiveEffect", [{
+			name: game.i18n.localize("TYPES.ActiveEffect.new-active-effect"),
+		}]).then(a => a[0].sheet.render(true));
+	}
+
+	/**
+	 * Open the editing dialog for an existing effect
+	 *
+	 * @param {Event}           event     The event triggered by interaction with the form element
+	 * @param {HTMLFormElement} target    The element that triggered the event
+	 * @access public
+	 */
+	static action_editEffect(event, target) {
+		event.preventDefault();
+		event.stopPropagation();
+		const effect = this.document.effects.get(target.parentNode?.dataset?.id);
+		if (!effect) return;
+		effect.sheet.render(true);
+	}
+
+	/**
+	 * Delete an Effect from this character
+	 *
+	 * @param {Event}           event     The event triggered by interaction with the form element
+	 * @param {HTMLFormElement} target    The element that triggered the event
+	 * @access public
+	 */
+	static action_deleteEffect(event, target) {
+		event.preventDefault();
+		event.stopPropagation();
+		const effect = this.document.effects.get(target.parentNode?.dataset?.id);
+		if (!effect) return;
+		this.document.deleteEmbeddedDocuments("ActiveEffect", [effect.id]).then(() => this.render());
 	}
 
 	/**

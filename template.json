@@ -3,6 +3,9 @@
     "types": ["character"],
     "character": {}
   },
+  "ActiveEffect": {
+      "types": ["base", "load-penalty", "wound-penalty"]
+  },
   "Item": {
     "types": ["item", "skill", "specialization", "perk", "flaw", "maneuver", "eminence", "aspect", "totem", "weapon", "armor", "gear"],
     "item": {},

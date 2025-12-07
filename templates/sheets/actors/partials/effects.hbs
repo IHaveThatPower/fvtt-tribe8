@@ -1,0 +1,14 @@
+<div class="effects-list-container scollable">
+	<div class="effects-list">
+		{{#if (not document.effects.size)}}
+		<em>{{localize "tribe8.none"}}</em>
+		{{else}}
+		{{#each document.effects}}
+		<div class="effect" data-id="{{this.id}}">
+			<div class="identity" data-action="editEffect">{{this.name}}</div>
+			<div class="delete" data-action="deleteEffect"><i class="fa fa-regular fa-circle-xmark"></i></div>
+		</div>
+		{{/each}}
+		{{/if}}
+	</div>
+</div>

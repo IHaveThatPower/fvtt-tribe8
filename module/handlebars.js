@@ -261,6 +261,7 @@ foundry.applications.handlebars.loadTemplates(
 		"sheets/actors/partials/secatts.hbs",
 		"sheets/actors/partials/basic_info.hbs",
 		"sheets/actors/partials/edie.hbs",
+		"sheets/actors/partials/effects.hbs",
 		"sheets/actors/partials/injuries.hbs",
 		"sheets/actors/partials/magic.hbs",
 		"sheets/actors/partials/magic_aspects.hbs",
